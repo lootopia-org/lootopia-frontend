@@ -6,11 +6,30 @@ import {
   WebauthnCompleteResponse,
 } from '@/types';
 
+export interface TotpEnrollBeginResponse {
+  secret: string;
+  otpauthUri: string;
+}
+
+export interface WebauthnCredential {
+  id: string;
+  name?: string;
+  createdAt: string;
+  lastUsedAt?: string;
+}
+
 export const authService = {
   register: async (email: string, password: string): Promise<void> => {
     const response = await apiClient.post('/auth/register', {
       email,
       password,
+    });
+    return response.data;
+  },
+
+  verifyEmail: async (token: string): Promise<void> => {
+    const response = await apiClient.get('/auth/verify-email', {
+      params: { token },
     });
     return response.data;
   },
@@ -67,6 +86,44 @@ export const authService = {
 
   updateProfile: async (userId: string, data: Partial<User>): Promise<User> => {
     const response = await apiClient.put(`/users/${userId}`, data);
+    return response.data;
+  },
+
+  // TOTP endpoints
+  beginTotpEnroll: async (): Promise<TotpEnrollBeginResponse> => {
+    const response = await apiClient.post('/auth/totp/enroll/begin');
+    return response.data;
+  },
+
+  verifyTotpEnroll: async (code: string): Promise<void> => {
+    const response = await apiClient.post('/auth/totp/enroll/verify', { code });
+    return response.data;
+  },
+
+  disableTotp: async (code: string): Promise<void> => {
+    const response = await apiClient.post('/auth/totp/disable', { code });
+    return response.data;
+  },
+
+  // WebAuthn registration endpoints
+  beginWebauthnRegister: async (): Promise<WebauthnBeginResponse> => {
+    const response = await apiClient.post('/auth/webauthn/register/begin');
+    return response.data;
+  },
+
+  completeWebauthnRegister: async (
+    handle: string,
+    credential: unknown
+  ): Promise<void> => {
+    const response = await apiClient.post('/auth/webauthn/register/complete', {
+      handle,
+      credential,
+    });
+    return response.data;
+  },
+
+  listWebauthnCredentials: async (): Promise<WebauthnCredential[]> => {
+    const response = await apiClient.get('/auth/webauthn/credentials');
     return response.data;
   },
 };
