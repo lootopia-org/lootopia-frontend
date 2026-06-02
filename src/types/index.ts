@@ -3,14 +3,23 @@ export interface User {
   id: string;
   email: string;
   username: string;
+  name: string;
+  avatar?: string;
   role?: 'admin' | 'partner' | 'player';
+  points: number;
+  level: number;
+  createdAt: string;
+  updatedAt: string;
   profile: {
-    avatar?: string;
     bio?: string;
-    points: number;
-    level: number;
     completedChases: number;
   };
+  badges?: Array<{
+    id: string;
+    name: string;
+    icon?: string;
+    unlockedAt: string;
+  }>;
 }
 
 export interface AuthResponse {

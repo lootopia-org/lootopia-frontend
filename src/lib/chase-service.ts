@@ -167,4 +167,44 @@ export const chaseService = {
       return mockChaseData.getNearbyChases();
     }
   },
+
+  // Admin/Partner features
+  createChase: async (chaseData: Omit<Chase, 'id' | 'createdAt' | 'updatedAt' | 'participants' | 'rating'>): Promise<Chase> => {
+    if (shouldUseMock()) {
+      return mockChaseData.createChase(chaseData);
+    }
+
+    try {
+      const response = await apiClient.post('/admin/chases', chaseData);
+      return response.data;
+    } catch {
+      return mockChaseData.createChase(chaseData);
+    }
+  },
+
+  updateChase: async (chaseId: string, updates: Partial<Omit<Chase, 'id' | 'createdAt'>>): Promise<Chase> => {
+    if (shouldUseMock()) {
+      return mockChaseData.updateChase(chaseId, updates);
+    }
+
+    try {
+      const response = await apiClient.put(`/admin/chases/${chaseId}`, updates);
+      return response.data;
+    } catch {
+      return mockChaseData.updateChase(chaseId, updates);
+    }
+  },
+
+  deleteChase: async (chaseId: string): Promise<Chase> => {
+    if (shouldUseMock()) {
+      return mockChaseData.deleteChase(chaseId);
+    }
+
+    try {
+      const response = await apiClient.delete(`/admin/chases/${chaseId}`);
+      return response.data;
+    } catch {
+      return mockChaseData.deleteChase(chaseId);
+    }
+  },
 };

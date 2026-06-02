@@ -1,4 +1,4 @@
-import { Chase, ChaseStep, UserProgress } from '@/types';
+import { Chase, ChaseStep, UserProgress, User } from '@/types';
 
 const now = new Date();
 
@@ -47,6 +47,27 @@ const baseSteps = [
   },
 ] satisfies ChaseStep[];
 
+const mockPartner: User & { id: string; logo: string; description: string; chases: Chase[] } = {
+  id: 'partner-1',
+  name: 'Golden Gate Adventures',
+  username: 'goldengate',
+  email: 'hello@goldengateadventures.local',
+  description: 'Mock partner for demo treasure hunts.',
+  logo: '',
+  chases: [],
+  role: 'partner',
+  avatar: '',
+  createdAt: createDate(30),
+  updatedAt: createDate(2),
+  points: 0,
+  level: 1,
+  badges: [],
+  profile: {
+    bio: '',
+    completedChases: 0,
+  },
+};
+
 const mockChases: Chase[] = [
   {
     id: 'mock-chase-golden-bay',
@@ -61,21 +82,14 @@ const mockChases: Chase[] = [
     status: 'active',
     participants: 128,
     rating: 4.8,
-    partner: {
-      id: 'partner-1',
-      name: 'Golden Gate Adventures',
-      email: 'hello@goldengateadventures.local',
-      description: 'Mock partner for demo treasure hunts.',
-      logo: '',
-      chases: [],
-    },
+    partner: mockPartner,
     steps: JSON.parse(JSON.stringify(baseSteps)),
   },
   {
     id: 'mock-chase-midnight-museum',
     title: 'Midnight Museum Mystery',
     description: 'A harder chase inside the city museum district with augmented reality clues.',
-    image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5d?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1587815834030-620367845e63?auto=format&fit=crop&w=1200&q=80',
     difficulty: 'hard',
     estimatedDuration: 90,
     location: { latitude: 37.7858, longitude: -122.401 },
@@ -84,11 +98,11 @@ const mockChases: Chase[] = [
     status: 'active',
     participants: 76,
     rating: 4.9,
-    partner: {
-      id: 'partner-2',
-      name: 'Museum Quest Co.',
+    partner: { 
+      id: 'partner-2', 
+      name: 'Museum Quest Co.', 
       email: 'contact@museumquest.local',
-      description: 'Mock partner for the tougher experience.',
+      description: '',
       logo: '',
       chases: [],
     },
@@ -244,4 +258,40 @@ export const mockChaseData = {
   },
 
   getNearbyChases: () => clone(mockChases),
+
+  // Admin/Partner features
+  createChase: (chaseData: Omit<Chase, 'id' | 'createdAt' | 'updatedAt' | 'participants' | 'rating'>) => {
+    const newChase: Chase = {
+      ...chaseData,
+      id: `chase-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      participants: 0,
+      rating: 0,
+    };
+    mockChases.push(newChase);
+    return clone(newChase);
+  },
+
+  updateChase: (chaseId: string, updates: Partial<Omit<Chase, 'id' | 'createdAt'>>) => {
+    const index = findChaseIndex(chaseId);
+    if (index < 0) {
+      throw new Error('Chase not found');
+    }
+    mockChases[index] = {
+      ...mockChases[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    return clone(mockChases[index]);
+  },
+
+  deleteChase: (chaseId: string) => {
+    const index = findChaseIndex(chaseId);
+    if (index < 0) {
+      throw new Error('Chase not found');
+    }
+    const deleted = mockChases.splice(index, 1)[0];
+    return clone(deleted);
+  },
 };

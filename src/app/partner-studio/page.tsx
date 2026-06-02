@@ -6,10 +6,13 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Input } from '@/components/Input';
+import { InteractiveMap } from '@/components/InteractiveMap';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotificationStore } from '@/lib/notification-store';
+import { chaseService } from '@/lib/chase-service';
+import { ChaseStep } from '@/types';
 
-type TemplateId = 'retail' | 'event' | 'team';
+type TemplateId = 'retail' | 'event' | 'team' | 'museum';
 
 interface StepDraft {
   id: string;
@@ -17,6 +20,8 @@ interface StepDraft {
   clue: string;
   reward: string;
   challenge: string;
+  description: string;
+  location: { latitude: number; longitude: number };
 }
 
 interface StudioConfig {
@@ -24,9 +29,12 @@ interface StudioConfig {
   objective: string;
   duration: string;
   location: string;
+  locationCoords: { latitude: number; longitude: number };
   language: 'FR' | 'EN';
   reward: string;
   launchMode: 'draft' | 'test' | 'live';
+  difficulty: 'easy' | 'medium' | 'hard';
+  image: string;
 }
 
 const templates: Array<{
@@ -37,7 +45,10 @@ const templates: Array<{
   objective: string;
   duration: string;
   location: string;
+  locationCoords: { latitude: number; longitude: number };
   reward: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  image: string;
   steps: StepDraft[];
 }> = [
   {
@@ -48,28 +59,37 @@ const templates: Array<{
     objective: 'Booster le trafic magasin et la découverte produit',
     duration: '35 min',
     location: 'Point de vente / centre commercial',
+    locationCoords: { latitude: 37.808, longitude: -122.417 },
     reward: 'Bon d’achat 20€',
+    difficulty: 'easy',
+    image: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80',
     steps: [
       {
         id: 'retail-1',
         title: 'Accueil en vitrine',
+        description: 'Trouvez le marqueur près de l’entrée.',
         clue: 'Repérez le totem d’entrée et scannez le QR code.',
         reward: '50 pts',
         challenge: 'QR + validation lieu',
+        location: { latitude: 37.808, longitude: -122.417 },
       },
       {
         id: 'retail-2',
         title: 'Produit mystère',
+        description: 'Découvrez le produit caché.',
         clue: 'Trouvez l’étagère qui porte la couleur du thème.',
         reward: '75 pts',
         challenge: 'Indice visuel',
+        location: { latitude: 37.803, longitude: -122.414 },
       },
       {
         id: 'retail-3',
         title: 'Caisse finale',
+        description: 'Récupérez votre récompense.',
         clue: 'Entrez le mot révélé par les deux étapes précédentes.',
         reward: 'Récompense finale',
         challenge: 'Énigme finale',
+        location: { latitude: 37.797, longitude: -122.409 },
       },
     ],
   },
@@ -81,28 +101,37 @@ const templates: Array<{
     objective: 'Créer un parcours d’engagement rapide et mémorable',
     duration: '20 min',
     location: 'Salon / conférence / événement',
+    locationCoords: { latitude: 37.808, longitude: -122.417 },
     reward: 'Goodies premium',
+    difficulty: 'medium',
+    image: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5d?auto=format&fit=crop&w=1200&q=80',
     steps: [
       {
         id: 'event-1',
         title: 'Entrée du salon',
+        description: 'Commencez votre aventure.',
         clue: 'Retrouvez le logo géant sur le stand principal.',
         reward: '40 pts',
         challenge: 'Scan rapide',
+        location: { latitude: 37.808, longitude: -122.417 },
       },
       {
         id: 'event-2',
         title: 'Mini quiz',
+        description: 'Testez vos connaissances.',
         clue: 'Répondez à la question affichée sur l’écran d’accueil.',
         reward: '60 pts',
         challenge: 'QCM',
+        location: { latitude: 37.803, longitude: -122.414 },
       },
       {
         id: 'event-3',
         title: 'Photo finale',
+        description: 'Capturez le moment.',
         clue: 'Capturez l’espace photo pour débloquer la récompense.',
         reward: 'Badge événement',
         challenge: 'Validation média',
+        location: { latitude: 37.797, longitude: -122.409 },
       },
     ],
   },
@@ -114,28 +143,79 @@ const templates: Array<{
     objective: 'Renforcer la cohésion et la participation collective',
     duration: '55 min',
     location: 'Entreprise / site partenaire',
+    locationCoords: { latitude: 37.808, longitude: -122.417 },
     reward: 'Badge collectif',
+    difficulty: 'hard',
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
     steps: [
       {
         id: 'team-1',
         title: 'Mission d’équipe',
+        description: 'Travaillez ensemble.',
         clue: 'Chaque groupe récupère une moitié de l’indice.',
         reward: '50 pts',
         challenge: 'Collaboration',
+        location: { latitude: 37.808, longitude: -122.417 },
       },
       {
         id: 'team-2',
         title: 'Décodage',
+        description: 'Résolvez l’énigme.',
         clue: 'Assemblez les réponses pour former le code final.',
         reward: '80 pts',
         challenge: 'Énigme logique',
+        location: { latitude: 37.803, longitude: -122.414 },
       },
       {
         id: 'team-3',
         title: 'Final collectif',
+        description: 'Finissez ensemble.',
         clue: 'Validez la zone finale tous ensemble pour gagner.',
         reward: 'Récompense collective',
         challenge: 'Validation groupe',
+        location: { latitude: 37.797, longitude: -122.409 },
+      },
+    ],
+  },
+  {
+    id: 'museum',
+    name: 'Musée mystérieux',
+    description: 'Une aventure dans un musée avec des énigmes et des trésors cachés.',
+    accent: 'from-yellow-600 to-orange-500',
+    objective: 'Découvrir les œuvres et résoudre des mystères',
+    duration: '90 min',
+    location: 'Musée ou galerie d’art',
+    locationCoords: { latitude: 37.7858, longitude: -122.401 },
+    reward: 'Exposition privée',
+    difficulty: 'hard',
+    image: 'https://images.unsplash.com/photo-1587815834030-620367845e63?auto=format&fit=crop&w=1200&q=80',
+    steps: [
+      {
+        id: 'museum-1',
+        title: 'Accueil du musée',
+        description: 'Récupérez votre carte et votre guide.',
+        clue: 'Cherchez le totem à l’entrée et scannez-le.',
+        reward: '60 pts',
+        challenge: 'QR + validation lieu',
+        location: { latitude: 37.7858, longitude: -122.401 },
+      },
+      {
+        id: 'museum-2',
+        title: 'Salle des antiques',
+        description: 'Explorez la salle des antiquités.',
+        clue: 'Trouvez le vase grec avec l’inscription mystérieuse.',
+        reward: '80 pts',
+        challenge: 'Indice visuel',
+        location: { latitude: 37.788, longitude: -122.403 },
+      },
+      {
+        id: 'museum-3',
+        title: 'Salle des tableaux',
+        description: 'Admirez les tableaux et résolvez l’énigme.',
+        clue: 'Le tableau avec le paysage italien contient le code secret.',
+        reward: '100 pts',
+        challenge: 'Énigme finale',
+        location: { latitude: 37.79, longitude: -122.405 },
       },
     ],
   },
@@ -169,14 +249,18 @@ export default function PartnerStudioPage() {
   const { addNotification } = useNotificationStore();
   const [selectedTemplateId, setSelectedTemplateId] = useState<TemplateId>('retail');
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const [config, setConfig] = useState<StudioConfig>({
     name: 'Chasse boutique printemps',
     objective: templates[0].objective,
     duration: templates[0].duration,
     location: templates[0].location,
+    locationCoords: templates[0].locationCoords,
     language: 'FR',
     reward: templates[0].reward,
     launchMode: 'draft',
+    difficulty: templates[0].difficulty,
+    image: templates[0].image,
   });
   const [steps, setSteps] = useState<StepDraft[]>(cloneSteps(templates[0]));
 
@@ -208,7 +292,10 @@ export default function PartnerStudioPage() {
       objective: selectedTemplate.objective,
       duration: selectedTemplate.duration,
       location: selectedTemplate.location,
+      locationCoords: selectedTemplate.locationCoords,
       reward: selectedTemplate.reward,
+      difficulty: selectedTemplate.difficulty,
+      image: selectedTemplate.image,
     }));
     setSelectedStepIndex(0);
   }, [selectedTemplate]);
@@ -229,7 +316,7 @@ export default function PartnerStudioPage() {
 
   const currentStep = steps[selectedStepIndex] ?? steps[0];
 
-  const updateStep = (field: keyof StepDraft, value: string) => {
+  const updateStep = (field: keyof StepDraft, value: string | any) => {
     setSteps((currentSteps) =>
       currentSteps.map((step, index) => (index === selectedStepIndex ? { ...step, [field]: value } : step))
     );
@@ -242,9 +329,11 @@ export default function PartnerStudioPage() {
         {
           id: `custom-${Date.now()}`,
           title: 'Nouvelle étape',
+          description: 'Ajoutez une description.',
           clue: 'Ajoutez un indice clair et simple.',
           reward: '50 pts',
           challenge: 'Énigme libre',
+          location: { latitude: 37.808, longitude: -122.417 },
         },
       ];
 
@@ -255,10 +344,74 @@ export default function PartnerStudioPage() {
     addNotification({ type: 'info', message: 'Nouvelle étape ajoutée au parcours.' });
   };
 
+  const deleteStep = (indexToDelete: number) => {
+    if (steps.length <= 1) {
+      addNotification({ type: 'error', message: 'Vous devez conserver au moins une étape.' });
+      return;
+    }
+
+    setSteps((currentSteps) => currentSteps.filter((_, index) => index !== indexToDelete));
+    
+    // Adjust selected index
+    if (selectedStepIndex >= indexToDelete && selectedStepIndex > 0) {
+      setSelectedStepIndex(selectedStepIndex - 1);
+    }
+
+    addNotification({ type: 'info', message: 'Étape supprimée.' });
+  };
+
   const applyTemplate = (templateId: TemplateId) => {
     const nextTemplate = templates.find((template) => template.id === templateId) ?? templates[0];
     setSelectedTemplateId(templateId);
     addNotification({ type: 'success', message: `Le modèle ${nextTemplate.name} a été chargé.` });
+  };
+
+  const parseReward = (rewardStr: string): number => {
+    const match = rewardStr.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 50;
+  };
+
+  const saveChase = async () => {
+    setIsSaving(true);
+    try {
+      const chaseSteps: ChaseStep[] = steps.map((step, index) => ({
+        id: step.id,
+        order: index + 1,
+        title: step.title,
+        description: step.description,
+        clue: step.clue,
+        location: step.location,
+        reward: parseReward(step.reward),
+        completed: false,
+      }));
+
+      const chaseData = {
+        title: config.name,
+        description: config.objective,
+        image: config.image,
+        difficulty: config.difficulty,
+        estimatedDuration: parseInt(config.duration),
+        location: config.locationCoords,
+        status: config.launchMode === 'live' ? 'active' : 'draft',
+        partner: {
+          id: user?.id || 'partner-1',
+          name: user?.name || 'Partner',
+          email: user?.email || 'partner@lootopia.com',
+          description: '',
+          logo: '',
+          chases: [],
+        },
+        steps: chaseSteps,
+      };
+
+      await chaseService.createChase(chaseData as any);
+      addNotification({ type: 'success', message: 'Chasse enregistrée avec succès !' });
+    } catch (error) {
+      console.error('Error saving chase:', error);
+      addNotification({ type: 'error', message: 'Erreur lors de l’enregistrement de la chasse.' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const publishLabel =
@@ -343,9 +496,9 @@ export default function PartnerStudioPage() {
                   <h2 className="text-2xl font-bold text-dark">Choisir un modèle</h2>
                   <p className="text-sm text-slate-500">Une base rapide à personnaliser selon le contexte partenaire.</p>
                 </div>
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">3 modèles prêts à l’emploi</span>
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">4 modèles prêts à l’emploi</span>
               </div>
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {templates.map((template) => (
                   <button
                     key={template.id}
@@ -380,7 +533,7 @@ export default function PartnerStudioPage() {
                   onChange={(event) => setConfig({ ...config, name: event.target.value })}
                 />
                 <Input
-                  label="Durée estimée"
+                  label="Durée estimée (min)"
                   value={config.duration}
                   onChange={(event) => setConfig({ ...config, duration: event.target.value })}
                 />
@@ -411,6 +564,18 @@ export default function PartnerStudioPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700">Difficulté</label>
+                  <select
+                    value={config.difficulty}
+                    onChange={(event) => setConfig({ ...config, difficulty: event.target.value as StudioConfig['difficulty'] })}
+                    className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 focus:border-primary focus:outline-none"
+                  >
+                    <option value="easy">Facile</option>
+                    <option value="medium">Moyenne</option>
+                    <option value="hard">Difficile</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700">Publication</label>
                   <select
                     value={config.launchMode}
@@ -426,10 +591,51 @@ export default function PartnerStudioPage() {
             </Card>
 
             <Card className="space-y-5 border border-white/70 bg-white/90">
+              <div>
+                <h2 className="text-2xl font-bold text-dark">Localisation sur la carte</h2>
+                <p className="text-sm text-slate-500">Cliquez sur la carte pour définir le point de départ de votre chasse. Toutes les étapes sont aussi affichées !</p>
+              </div>
+              <div style={{ height: '350px' }}>
+                <InteractiveMap
+                  center={[config.locationCoords.latitude, config.locationCoords.longitude] as [number, number]}
+                  zoom={14}
+                  markers={[
+                    {
+                      id: 'chase-location',
+                      position: [config.locationCoords.latitude, config.locationCoords.longitude] as [number, number],
+                      type: 'chase' as const,
+                      label: config.name,
+                      description: config.objective,
+                    },
+                    ...steps.map((step, index) => ({
+                      id: `step-${step.id}`,
+                      position: [step.location.latitude, step.location.longitude] as [number, number],
+                      type: 'step' as const,
+                      label: `Étape ${index + 1}: ${step.title}`,
+                      description: step.description,
+                    })),
+                  ]}
+                  editable={true}
+                  onMapClick={(lat, lng) => {
+                    setConfig((current) => ({
+                      ...current,
+                      locationCoords: { latitude: lat, longitude: lng }
+                    }));
+                    addNotification({ type: 'success', message: 'Localisation mise à jour !' });
+                  }}
+                  className="h-full"
+                />
+              </div>
+              <div className="text-sm text-gray-500">
+                <span className="font-medium">Coordonnées :</span> {config.locationCoords.latitude.toFixed(4)}, {config.locationCoords.longitude.toFixed(4)}
+              </div>
+            </Card>
+
+            <Card className="space-y-5 border border-white/70 bg-white/90">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-2xl font-bold text-dark">Étapes et énigmes</h2>
-                  <p className="text-sm text-slate-500">Sélectionnez une étape et ajustez directement son contenu.</p>
+                  <p className="text-sm text-slate-500">Sélectionnez une étape et ajustez son contenu et sa localisation sur la carte.</p>
                 </div>
                 <Button variant="secondary" onClick={addStep}>Ajouter une étape</Button>
               </div>
@@ -437,58 +643,118 @@ export default function PartnerStudioPage() {
               <div className="grid gap-4 lg:grid-cols-[0.32fr_0.68fr]">
                 <div className="space-y-2">
                   {steps.map((step, index) => (
-                    <button
-                      key={step.id}
-                      onClick={() => setSelectedStepIndex(index)}
-                      className={`w-full rounded-2xl border p-3 text-left transition ${
-                        selectedStepIndex === index
-                          ? 'border-secondary bg-secondary/5'
-                          : 'border-slate-200 bg-white hover:border-secondary/30'
-                      }`}
-                    >
-                      <div className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Étape {index + 1}</div>
-                      <div className="mt-1 font-bold text-dark">{step.title}</div>
-                      <div className="mt-1 text-sm text-slate-500">{step.reward}</div>
-                    </button>
+                    <div key={step.id} className="relative">
+                      <button
+                        onClick={() => setSelectedStepIndex(index)}
+                        className={`w-full rounded-2xl border p-3 text-left transition pr-10 ${
+                          selectedStepIndex === index
+                            ? 'border-secondary bg-secondary/5'
+                            : 'border-slate-200 bg-white hover:border-secondary/30'
+                        }`}
+                      >
+                        <div className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">Étape {index + 1}</div>
+                        <div className="mt-1 font-bold text-dark">{step.title}</div>
+                        <div className="mt-1 text-sm text-slate-500">{step.reward}</div>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteStep(index);
+                        }}
+                        className="absolute top-2 right-2 h-8 w-8 flex items-center justify-center rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition"
+                        title="Supprimer cette étape"
+                      >
+                        ×
+                      </button>
+                    </div>
                   ))}
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Input
-                    label="Titre"
-                    value={currentStep.title}
-                    onChange={(event) => updateStep('title', event.target.value)}
-                  />
-                  <Input
-                    label="Récompense"
-                    value={currentStep.reward}
-                    onChange={(event) => updateStep('reward', event.target.value)}
-                  />
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Énigme / indice</label>
-                    <textarea
-                      value={currentStep.clue}
-                      onChange={(event) => updateStep('clue', event.target.value)}
-                      rows={4}
-                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-primary focus:outline-none"
+                <div className="space-y-4">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Input
+                      label="Titre"
+                      value={currentStep.title}
+                      onChange={(event) => updateStep('title', event.target.value)}
                     />
+                    <Input
+                      label="Récompense"
+                      value={currentStep.reward}
+                      onChange={(event) => updateStep('reward', event.target.value)}
+                    />
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Description</label>
+                      <textarea
+                        value={currentStep.description}
+                        onChange={(event) => updateStep('description', event.target.value)}
+                        rows={2}
+                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Énigme / indice</label>
+                      <textarea
+                        value={currentStep.clue}
+                        onChange={(event) => updateStep('clue', event.target.value)}
+                        rows={4}
+                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="block text-sm font-medium text-gray-700">Type de défi</label>
+                      <select
+                        value={currentStep.challenge}
+                        onChange={(event) => updateStep('challenge', event.target.value)}
+                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 focus:border-primary focus:outline-none"
+                      >
+                        <option>QR + validation lieu</option>
+                        <option>Indice visuel</option>
+                        <option>Énigme finale</option>
+                        <option>QCM</option>
+                        <option>Validation média</option>
+                        <option>Collaboration</option>
+                        <option>Énigme libre</option>
+                      </select>
+                    </div>
                   </div>
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Type de défi</label>
-                    <select
-                      value={currentStep.challenge}
-                      onChange={(event) => updateStep('challenge', event.target.value)}
-                      className="w-full rounded-lg border-2 border-gray-300 px-4 py-2 focus:border-primary focus:outline-none"
-                    >
-                      <option>QR + validation lieu</option>
-                      <option>Indice visuel</option>
-                      <option>Énigme finale</option>
-                      <option>QCM</option>
-                      <option>Validation média</option>
-                      <option>Collaboration</option>
-                      <option>Énigme libre</option>
-                    </select>
-                  </div>
+
+                  <Card className="border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-3">
+                      <h3 className="text-lg font-bold text-slate-800">Localisation de l'étape {selectedStepIndex + 1}</h3>
+                      <p className="text-sm text-slate-500">Cliquez sur la carte pour définir l'emplacement de cette étape.</p>
+                    </div>
+                    <div style={{ height: '250px' }}>
+                      <InteractiveMap
+                        center={[currentStep.location.latitude, currentStep.location.longitude] as [number, number]}
+                        zoom={15}
+                        markers={[
+                          {
+                            id: 'current-step',
+                            position: [currentStep.location.latitude, currentStep.location.longitude] as [number, number],
+                            type: 'step' as const,
+                            label: currentStep.title,
+                            description: currentStep.description,
+                          },
+                          ...steps.filter((_, idx) => idx !== selectedStepIndex).map((step) => ({
+                            id: `other-step-${step.id}`,
+                            position: [step.location.latitude, step.location.longitude] as [number, number],
+                            type: 'step' as const,
+                            label: step.title,
+                            description: step.description,
+                          })),
+                        ]}
+                        editable={true}
+                        onMapClick={(lat, lng) => {
+                          updateStep('location', { latitude: lat, longitude: lng });
+                          addNotification({ type: 'success', message: `Localisation de l'étape ${selectedStepIndex + 1} mise à jour !` });
+                        }}
+                        className="h-full"
+                      />
+                    </div>
+                    <div className="mt-3 text-sm text-gray-500">
+                      <span className="font-medium">Coordonnées :</span> {currentStep.location.latitude.toFixed(4)}, {currentStep.location.longitude.toFixed(4)}
+                    </div>
+                  </Card>
                 </div>
               </div>
             </Card>
@@ -578,6 +844,15 @@ export default function PartnerStudioPage() {
                 </Button>
                 <Button onClick={() => setConfig((current) => ({ ...current, launchMode: 'live' }))}>
                   Publier maintenant
+                </Button>
+              </div>
+              <div className="pt-2">
+                <Button 
+                  onClick={saveChase} 
+                  isLoading={isSaving} 
+                  className="w-full"
+                >
+                  Sauvegarder la chasse
                 </Button>
               </div>
               <div className="rounded-2xl bg-slate-950 p-4 text-sm text-slate-200">

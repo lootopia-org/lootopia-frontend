@@ -32,10 +32,10 @@ export default function ChaseDetailPage() {
     true
   ) as { status: string; data: Chase | null };
 
-  const { status: progressStatus, data: progress, execute: reloadProgress } = useAsync(
+  const { data: progress, execute: reloadProgress } = useAsync(
     () => chaseService.getCaseProgress(chaseId),
     false
-  ) as { status: string; data: UserProgress | null; execute: () => Promise<any> };
+  ) as { data: UserProgress | null; execute: () => Promise<any> };
 
   useEffect(() => {
     if (user && chase) {
@@ -161,13 +161,23 @@ export default function ChaseDetailPage() {
         <h2 className="text-2xl font-bold text-dark mb-4">{t('chaseDetail.locationMap')}</h2>
         <div style={{ height: '400px' }}>
           <InteractiveMap
-            center={[chase.location.latitude, chase.location.longitude]}
-            markers={chase.steps.map((step) => ({
-              id: step.id,
-              position: [step.location.latitude, step.location.longitude],
-              label: step.title,
-              description: step.description,
-            }))}
+            center={[chase.location.latitude, chase.location.longitude] as [number, number]}
+            markers={[
+              {
+                id: 'chase-start',
+                position: [chase.location.latitude, chase.location.longitude] as [number, number],
+                type: 'chase',
+                label: chase.title,
+                description: chase.description,
+              },
+              ...chase.steps.map((step) => ({
+                id: step.id,
+                position: [step.location.latitude, step.location.longitude] as [number, number],
+                type: 'step' as const,
+                label: step.title,
+                description: step.description,
+              })),
+            ]}
             onMarkerClick={setSelectedStep}
             className="h-full"
           />

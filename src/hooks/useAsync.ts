@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNotificationStore } from '@/lib/notification-store';
 
 export const useAsync = <T, E = string>(
@@ -13,6 +13,18 @@ export const useAsync = <T, E = string>(
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<E | null>(null);
   const { addNotification } = useNotificationStore();
+  
+  // Use refs for callbacks to avoid dependency issues
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  const asyncFunctionRef = useRef(asyncFunction);
+  
+  // Update refs when callbacks change
+  useEffect(() => {
+    onSuccessRef.current = onSuccess;
+    onErrorRef.current = onError;
+    asyncFunctionRef.current = asyncFunction;
+  }, [asyncFunction, onSuccess, onError]);
 
   const execute = useCallback(async () => {
     setStatus('pending');
@@ -20,10 +32,10 @@ export const useAsync = <T, E = string>(
     setError(null);
 
     try {
-      const response = await asyncFunction();
+      const response = await asyncFunctionRef.current();
       setStatus('success');
       setData(response);
-      onSuccess?.(response);
+      onSuccessRef.current?.(response);
       return response;
     } catch (err) {
       const error = err as E;
@@ -33,9 +45,9 @@ export const useAsync = <T, E = string>(
         type: 'error',
         message: String(error),
       });
-      onError?.(error);
+      onErrorRef.current?.(error);
     }
-  }, [asyncFunction, onSuccess, onError, addNotification]);
+  }, [addNotification]);
 
   useEffect(() => {
     if (immediate) {

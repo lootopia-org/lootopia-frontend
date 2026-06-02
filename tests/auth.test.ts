@@ -129,7 +129,12 @@ describe('authService', () => {
         id: '1',
         email: 'test@example.com',
         username: 'testuser',
-        profile: { points: 0, level: 1, completedChases: 0 },
+        name: 'Test User',
+        points: 0,
+        level: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        profile: { completedChases: 0 },
       };
       
       mockedApiClient.get.mockResolvedValue({ data: mockUser });
@@ -149,7 +154,12 @@ describe('authService', () => {
         id: '1',
         email: 'test@example.com',
         username: 'newname',
-        profile: { points: 0, level: 1, completedChases: 0 },
+        name: 'Test User',
+        points: 0,
+        level: 1,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        profile: { completedChases: 0 },
       };
       
       mockedApiClient.put.mockResolvedValue({ data: mockUser });
