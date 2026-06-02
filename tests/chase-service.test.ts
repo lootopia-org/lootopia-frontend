@@ -31,6 +31,12 @@ describe('chaseService', () => {
     participants: 5,
     rating: 4.5,
     steps: [],
+    partner: {
+      id: 'partner1',
+      name: 'Test Partner',
+      email: 'partner@test.com',
+      chases: [],
+    },
   };
 
   const mockUserProgress: UserProgress = {
