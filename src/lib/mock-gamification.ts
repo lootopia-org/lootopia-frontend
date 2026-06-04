@@ -22,7 +22,7 @@ const mockLeaderboard: Leaderboard[] = [
       username: 'Urban Explorer',
       role: 'player',
       profile: {
-        avatar: 'https://via.placeholder.com/120/0F766E/FFFFFF?text=U',
+        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=256&h=256&q=80',
         bio: 'Demo rival profile.',
         points: 980,
         level: 7,
@@ -40,7 +40,7 @@ const mockLeaderboard: Leaderboard[] = [
       username: 'Quest Runner',
       role: 'player',
       profile: {
-        avatar: 'https://via.placeholder.com/120/334155/FFFFFF?text=Q',
+        avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=256&h=256&q=80',
         bio: 'Demo rival profile.',
         points: 860,
         level: 6,

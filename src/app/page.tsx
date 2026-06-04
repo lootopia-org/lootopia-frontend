@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { motion } from 'framer-motion';
@@ -108,10 +109,28 @@ export default function Home() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="mt-16 flex justify-center"
           >
-            <div className="w-20 h-20 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5h.01" />
-              </svg>
+            <div className="relative">
+              <Image
+                src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80"
+                alt={t('home.exploreChasesBtn')}
+                width={520}
+                height={320}
+                priority
+                className="w-[300px] h-[200px] md:w-[520px] md:h-[320px] rounded-3xl object-cover shadow-2xl ring-4 ring-white/20"
+              />
+              <div className="absolute -bottom-6 -left-4 md:-left-8 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-xl">
+                <Image
+                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=96&h=96&q=80"
+                  alt="Treasure Player"
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 rounded-full"
+                />
+                <div className="text-left">
+                  <p className="text-sm font-bold leading-tight text-dark">Treasure Player</p>
+                  <p className="text-xs text-gray-500">Lvl 8 · 1240 pts</p>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>

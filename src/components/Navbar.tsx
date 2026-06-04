@@ -47,7 +47,7 @@ export const Navbar: React.FC = () => {
               </Link>
               <Link href="/profile" className="flex items-center gap-2">
                 <Image
-                  src={user?.profile.avatar || 'https://via.placeholder.com/40'}
+                  src={user?.profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.username || 'Player')}&background=FF6B35&color=fff&size=64&bold=true`}
                   alt="Avatar"
                   width={32}
                   height={32}

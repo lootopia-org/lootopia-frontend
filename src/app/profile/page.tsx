@@ -51,7 +51,7 @@ export default function ProfilePage() {
       {/* Profile Header */}
       <div className="flex flex-col md:flex-row items-center gap-6">
         <Image
-          src={user.profile.avatar || 'https://via.placeholder.com/120'}
+          src={user.profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=FF6B35&color=fff&size=128&bold=true`}
           alt={user.username}
           width={128}
           height={128}

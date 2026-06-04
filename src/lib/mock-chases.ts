@@ -89,7 +89,7 @@ const mockChases: Chase[] = [
     id: 'mock-chase-midnight-museum',
     title: 'Midnight Museum Mystery',
     description: 'A harder chase inside the city museum district with augmented reality clues.',
-    image: 'https://images.unsplash.com/photo-1587815834030-620367845e63?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://images.unsplash.com/photo-1554907984-15263bfd63bd?auto=format&fit=crop&w=1200&q=80',
     difficulty: 'hard',
     estimatedDuration: 90,
     location: { latitude: 37.7858, longitude: -122.401 },

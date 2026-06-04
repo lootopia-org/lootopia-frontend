@@ -24,7 +24,7 @@ const mockUsers: Record<MockRole, User> = {
     username: 'Lootopia Admin',
     role: 'admin',
     profile: {
-      avatar: 'https://via.placeholder.com/120/FF6B35/FFFFFF?text=A',
+      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=256&h=256&q=80',
       bio: 'Admin test account with full access to the dashboard and moderation tools.',
       points: 9800,
       level: 42,
@@ -37,7 +37,7 @@ const mockUsers: Record<MockRole, User> = {
     username: 'Partner Studio',
     role: 'partner',
     profile: {
-      avatar: 'https://via.placeholder.com/120/004E89/FFFFFF?text=PS',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&h=256&q=80',
       bio: 'Partner workspace demo account for creating and managing branded treasure hunts.',
       points: 4200,
       level: 18,
@@ -50,7 +50,7 @@ const mockUsers: Record<MockRole, User> = {
     username: 'Treasure Player',
     role: 'player',
     profile: {
-      avatar: 'https://via.placeholder.com/120/1E3A8A/FFFFFF?text=P',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&h=256&q=80',
       bio: 'Player test account for exploring chases and tracking progression.',
       points: 1240,
       level: 8,
