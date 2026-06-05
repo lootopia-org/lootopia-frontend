@@ -21,18 +21,25 @@ const analyticsTiles = [
   { label: 'Usage mobile', value: '94%', detail: 'Vue joueur optimisée' },
 ];
 
-const statusFilters: Array<{ id: 'all' | Chase['status']; label: string }> = [
+const statusFilters: Array<{ id: string; label: string }> = [
   { id: 'all', label: 'Toutes' },
-  { id: 'active', label: 'En ligne' },
+  { id: 'live', label: 'En ligne' },
+  { id: 'test', label: 'Test' },
   { id: 'draft', label: 'Brouillon' },
-  { id: 'archived', label: 'Archivées' },
 ];
+
+/** État réel d'une chasse : launchMode si présent, sinon dérivé du status. */
+const chaseState = (chase: Chase): string => {
+  if (chase.status === 'archived') return 'archived';
+  if (chase.launchMode) return chase.launchMode;
+  return chase.status === 'active' ? 'live' : 'draft';
+};
 
 export default function PartnerStudioDashboard() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | Chase['status']>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     if (isLoading) {
@@ -59,7 +66,7 @@ export default function PartnerStudioDashboard() {
     const query = search.trim().toLowerCase();
 
     return list.filter((chase) => {
-      const matchesStatus = statusFilter === 'all' || chase.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || chaseState(chase) === statusFilter;
       const matchesSearch = !query || `${chase.title} ${chase.description}`.toLowerCase().includes(query);
       return matchesStatus && matchesSearch;
     });
@@ -159,7 +166,7 @@ export default function PartnerStudioDashboard() {
                   <div className="flex flex-1 flex-col gap-3 p-5">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="text-lg font-bold text-dark">{chase.title}</h3>
-                      <StatusBadge status={chase.status} />
+                      <StatusBadge status={chaseState(chase)} />
                     </div>
                     <p className="line-clamp-2 text-sm text-slate-500">{chase.description}</p>
                     <div className="mt-auto flex items-center justify-between pt-2 text-xs text-slate-500">

@@ -23,8 +23,13 @@ export default function AdminOverviewPage() {
   useEffect(() => {
     if (isLoading) return;
 
-    if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'partner')) {
+    if (!isAuthenticated) {
       router.replace('/auth/login');
+      return;
+    }
+
+    if (user?.role !== 'admin') {
+      router.replace('/chases');
       return;
     }
 
@@ -105,11 +110,14 @@ export default function AdminOverviewPage() {
               </div>
               <h1 className="mt-3 text-4xl font-black tracking-tight text-dark">Vue d'ensemble</h1>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <Button variant="outline" onClick={() => router.push('/admin/users')}>
-                Utilisateurs
+                Gérer les utilisateurs
               </Button>
-              <Button onClick={() => router.push('/partner-studio')}>
+              <Button variant="outline" onClick={() => router.push('/admin/chases')}>
+                Gérer les chasses
+              </Button>
+              <Button onClick={() => router.push('/partner-studio/builder')}>
                 Créer une chasse
               </Button>
             </div>

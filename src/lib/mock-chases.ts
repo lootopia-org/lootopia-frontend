@@ -154,10 +154,12 @@ export const mockChaseData = {
   },
 
   getUserChases: (userId: string) => {
-    if (userId === 'mock-admin') {
+    // Admin & partenaires voient toutes leurs chasses (brouillons / test inclus) pour les piloter.
+    if (userId === 'mock-admin' || userId === 'mock-partner') {
       return clone(mockChases);
     }
 
+    // Les joueurs ne voient que les chasses en ligne.
     return clone(mockChases.filter((chase) => chase.status === 'active'));
   },
 

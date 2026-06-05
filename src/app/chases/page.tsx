@@ -36,6 +36,9 @@ export default function ChaseListPage() {
     }
   }, [debouncedSearch]);
 
+  // Vue joueur : on n'affiche que les chasses publiées (les brouillons / test restent privés au studio).
+  const visibleChases = chases.filter((chase) => chase.status === 'active');
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <div className="space-y-8">
@@ -54,13 +57,13 @@ export default function ChaseListPage() {
 
         {loadStatus === 'pending' ? (
           <LoadingSpinner />
-        ) : chases.length === 0 ? (
+        ) : visibleChases.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-600 text-lg">{t('chases.noResults')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {chases.map((chase) => (
+            {visibleChases.map((chase) => (
               <ChaseCard key={chase.id} chase={chase} />
             ))}
           </div>

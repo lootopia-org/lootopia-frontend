@@ -35,6 +35,9 @@ export default function MyChases() {
     return null;
   }
 
+  // Vue joueur : uniquement les chasses publiées.
+  const visibleChases = (chases ?? []).filter((chase) => chase.status === 'active');
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
       <div className="space-y-8">
@@ -43,7 +46,7 @@ export default function MyChases() {
           <p className="text-gray-600 text-lg">{t('myChases.subtitle')}</p>
         </div>
 
-        {!chases || chases.length === 0 ? (
+        {visibleChases.length === 0 ? (
           <Card className="text-center py-12">
             <p className="text-gray-600 text-lg mb-4">{t('myChases.empty')}</p>
             <a href="/chases" className="text-primary font-semibold hover:underline">
@@ -52,7 +55,7 @@ export default function MyChases() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {chases.map((chase) => (
+            {visibleChases.map((chase) => (
               <ChaseCard key={chase.id} chase={chase} />
             ))}
           </div>

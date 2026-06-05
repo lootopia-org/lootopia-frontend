@@ -60,6 +60,8 @@ export interface Chase {
   createdAt: string;
   updatedAt: string;
   status: 'active' | 'draft' | 'archived';
+  /** État de publication côté studio : seul 'live' (→ status 'active') est visible des joueurs. */
+  launchMode?: 'draft' | 'test' | 'live';
   participants: number;
   rating: number;
   steps: ChaseStep[];

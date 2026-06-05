@@ -22,12 +22,17 @@ export default function UserManagementPage() {
 
   useEffect(() => {
     if (isLoading) return;
-    
-    if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'partner')) {
+
+    if (!isAuthenticated) {
       router.replace('/auth/login');
       return;
     }
-    
+
+    if (user?.role !== 'admin') {
+      router.replace('/chases');
+      return;
+    }
+
     loadUsers();
   }, [isAuthenticated, isLoading, router, user?.role]);
 
@@ -71,6 +76,19 @@ export default function UserManagementPage() {
       addNotification({ type: 'error', message: 'Erreur lors de la suppression' });
     }
   };
+
+  const handleRoleChange = async (userId: string, role: User['role']) => {
+    try {
+      await userService.updateUser(userId, { role });
+      addNotification({ type: 'success', message: 'Rôle mis à jour.' });
+      loadUsers();
+    } catch (error) {
+      console.error('Error updating role:', error);
+      addNotification({ type: 'error', message: 'Erreur lors du changement de rôle.' });
+    }
+  };
+
+  const authUserId = user?.id;
 
   const getRoleBadgeClass = (role?: string) => {
     switch (role) {
@@ -123,7 +141,7 @@ export default function UserManagementPage() {
               </div>
               <h1 className="mt-3 text-4xl font-black tracking-tight text-dark">Gestion des utilisateurs</h1>
             </div>
-            <Button variant="outline" onClick={() => router.push('/partner-studio')}>
+            <Button variant="outline" onClick={() => router.push('/admin')}>
               Retour
             </Button>
           </div>
@@ -195,18 +213,22 @@ export default function UserManagementPage() {
                         {new Date(user.createdAt).toLocaleDateString('fr-FR')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => router.push(`/profile/${user.id}`)}
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={user.role ?? 'player'}
+                            onChange={(e) => handleRoleChange(user.id, e.target.value as User['role'])}
+                            disabled={user.id === authUserId}
+                            title={user.id === authUserId ? 'Vous ne pouvez pas changer votre propre rôle' : 'Changer le rôle'}
+                            className="rounded-lg border-2 border-gray-300 px-2 py-1 text-sm focus:border-primary focus:outline-none disabled:opacity-50"
                           >
-                            Voir
-                          </Button>
-                          {user?.role !== 'admin' && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
+                            <option value="player">Joueur</option>
+                            <option value="partner">Partenaire</option>
+                            <option value="admin">Administrateur</option>
+                          </select>
+                          {user.id !== authUserId && (
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleDeleteUser(user.id)}
                               className="border-red-300 text-red-600 hover:bg-red-50"
                             >

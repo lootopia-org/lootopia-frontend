@@ -45,6 +45,11 @@ export const Navbar: React.FC = () => {
               <Link href="/leaderboard" className="hover:text-orange-100 transition">
                 {t('navbar.leaderboard')}
               </Link>
+              {user?.role === 'admin' && (
+                <Link href="/admin" className="hover:text-orange-100 transition">
+                  Admin
+                </Link>
+              )}
               <Link href="/profile" className="flex items-center gap-2">
                 <Image
                   src={user?.profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.username || 'Player')}&background=FF6B35&color=fff&size=64&bold=true`}
