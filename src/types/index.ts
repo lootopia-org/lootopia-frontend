@@ -13,6 +13,7 @@ export interface User {
   profile: {
     bio?: string;
     completedChases: number;
+    avatar?: string;
   };
   badges?: Array<{
     id: string;
