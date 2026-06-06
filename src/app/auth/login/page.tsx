@@ -13,49 +13,9 @@ import { tokenService, userService } from '@/lib/storage-service';
 import { useAuthStore } from '@/lib/auth-store';
 import { getMockAuthResponse, mockCredentials, MockRole } from '@/lib/mock-auth';
 import { LoginResponse, User } from '@/types';
+import { get as webauthnGet } from '@github/webauthn-json';
 
 type LoginStage = 'credentials' | 'mfa';
-
-const bufferToBase64Url = (buffer: ArrayBuffer) => {
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-
-  for (let index = 0; index < bytes.length; index += 1) {
-    binary += String.fromCharCode(bytes[index]);
-  }
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-};
-
-const base64UrlToBuffer = (value: string) => {
-  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
-  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-
-  return bytes.buffer;
-};
-
-const serializeCredential = (credential: PublicKeyCredential) => {
-  const response = credential.response as AuthenticatorAssertionResponse;
-
-  return {
-    id: credential.id,
-    rawId: bufferToBase64Url(credential.rawId),
-    type: credential.type,
-    response: {
-      authenticatorData: bufferToBase64Url(response.authenticatorData),
-      clientDataJSON: bufferToBase64Url(response.clientDataJSON),
-      signature: bufferToBase64Url(response.signature),
-      userHandle: response.userHandle ? bufferToBase64Url(response.userHandle) : null,
-    },
-    clientExtensionResults: credential.getClientExtensionResults(),
-  };
-};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -254,31 +214,15 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const beginResponse = await authService.beginWebauthnLogin(formData.email);
-      const publicKeyOptions = beginResponse.publicKey;
 
-      const normalizedOptions: PublicKeyCredentialRequestOptions = {
-        ...publicKeyOptions,
-        challenge:
-          typeof publicKeyOptions.challenge === 'string'
-            ? base64UrlToBuffer(publicKeyOptions.challenge)
-            : publicKeyOptions.challenge,
-        allowCredentials: publicKeyOptions.allowCredentials?.map((credential) => ({
-          ...credential,
-          id: typeof credential.id === 'string' ? base64UrlToBuffer(credential.id) : credential.id,
-        })),
-      };
-
-      const credential = (await navigator.credentials.get({
-        publicKey: normalizedOptions,
-      })) as PublicKeyCredential | null;
-
-      if (!credential) {
-        return;
-      }
+      // L'API attend exactement le JSON produit par webauthn-json (`get`),
+      // qui consomme directement les options `publicKey` renvoyées par /begin.
+      // Le serveur renvoie les options au format JSON (base64url) malgré le type DOM déclaré.
+      const credential = await webauthnGet({ publicKey: beginResponse.publicKey as any });
 
       const completeResponse = await authService.completeWebauthnLogin(
         beginResponse.handle,
-        serializeCredential(credential)
+        credential
       );
       const user = await persistSession(completeResponse.token);
 
