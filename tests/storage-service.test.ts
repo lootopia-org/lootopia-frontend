@@ -32,7 +32,7 @@ describe('tokenService', () => {
 
   describe('getToken', () => {
     it('should get token from cookies', () => {
-      mockedCookies.get.mockReturnValue(mockToken);
+      (mockedCookies.get as jest.Mock).mockReturnValue(mockToken);
 
       const result = tokenService.getToken();
 
@@ -41,7 +41,7 @@ describe('tokenService', () => {
     });
 
     it('should return null when no token', () => {
-      mockedCookies.get.mockReturnValue(undefined);
+      (mockedCookies.get as jest.Mock).mockReturnValue(undefined);
 
       const result = tokenService.getToken();
 
@@ -59,13 +59,13 @@ describe('tokenService', () => {
 
   describe('isAuthenticated', () => {
     it('should return true when token exists', () => {
-      mockedCookies.get.mockReturnValue(mockToken);
+      (mockedCookies.get as jest.Mock).mockReturnValue(mockToken);
 
       expect(tokenService.isAuthenticated()).toBe(true);
     });
 
     it('should return false when no token', () => {
-      mockedCookies.get.mockReturnValue(undefined);
+      (mockedCookies.get as jest.Mock).mockReturnValue(undefined);
 
       expect(tokenService.isAuthenticated()).toBe(false);
     });

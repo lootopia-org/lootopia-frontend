@@ -47,7 +47,7 @@ const baseSteps = [
   },
 ] satisfies ChaseStep[];
 
-const mockPartner: User & { id: string; logo: string; description: string; chases: Chase[] } = {
+const mockPartner: User & { id: string; name: string; logo: string; description: string; chases: Chase[] } = {
   id: 'partner-1',
   name: 'Golden Gate Adventures',
   username: 'goldengate',
@@ -65,6 +65,8 @@ const mockPartner: User & { id: string; logo: string; description: string; chase
   profile: {
     bio: '',
     completedChases: 0,
+    points: 0,
+    level: 1,
   },
 };
 

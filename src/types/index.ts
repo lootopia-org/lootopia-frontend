@@ -3,18 +3,21 @@ export interface User {
   id: string;
   email: string;
   username: string;
-  name: string;
+  name?: string;
   avatar?: string;
   role?: 'admin' | 'partner' | 'player';
-  points: number;
-  level: number;
-  createdAt: string;
-  updatedAt: string;
+  // Champs de gamification top-level : optionnels car la vraie API /me ne les
+  // renvoie pas (la gamification reste en mock). La source canonique est `profile`.
+  points?: number;
+  level?: number;
+  createdAt?: string;
+  updatedAt?: string;
   profile: {
     bio?: string;
     completedChases: number;
     avatar?: string;
-    points?: number;
+    points: number;
+    level: number;
   };
   badges?: Array<{
     id: string;

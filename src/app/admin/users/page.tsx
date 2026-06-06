@@ -43,8 +43,8 @@ export default function UserManagementPage() {
     }
     
     const term = searchTerm.toLowerCase();
-    setFilteredUsers(users.filter(u => 
-      u.name.toLowerCase().includes(term) || 
+    setFilteredUsers(users.filter(u =>
+      (u.name ?? u.username).toLowerCase().includes(term) ||
       u.email.toLowerCase().includes(term)
     ));
   }, [users, searchTerm]);
@@ -190,7 +190,7 @@ export default function UserManagementPage() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                            {user.name.charAt(0).toUpperCase()}
+                            {(user.name ?? user.username).charAt(0).toUpperCase()}
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-semibold text-dark">{user.name}</div>
@@ -204,13 +204,13 @@ export default function UserManagementPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                        {user.points.toLocaleString()} pts
+                        {(user.points ?? 0).toLocaleString()} pts
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                         Niveau {user.level}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                        {new Date(user.createdAt).toLocaleDateString('fr-FR')}
+                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString('fr-FR') : '—'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-2">

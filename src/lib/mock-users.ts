@@ -23,6 +23,8 @@ const mockUsers: User[] = [
     profile: {
       bio: 'Admin and power user',
       completedChases: 15,
+      points: 4500,
+      level: 5,
     },
     badges: [
       { id: 'badge-1', name: 'Première chasse', icon: '🎯', unlockedAt: createDate(28) },
@@ -43,6 +45,8 @@ const mockUsers: User[] = [
     profile: {
       bio: 'Partner managing chases',
       completedChases: 5,
+      points: 2000,
+      level: 3,
     },
     badges: [
       { id: 'badge-3', name: 'Créateur de chasse', icon: '✍️', unlockedAt: createDate(22) },
@@ -62,6 +66,8 @@ const mockUsers: User[] = [
     profile: {
       bio: 'New user exploring',
       completedChases: 2,
+      points: 800,
+      level: 2,
     },
     badges: [],
   },
@@ -79,6 +85,8 @@ const mockUsers: User[] = [
     profile: {
       bio: 'Adventure lover',
       completedChases: 8,
+      points: 1500,
+      level: 3,
     },
     badges: [
       { id: 'badge-4', name: 'Première chasse', icon: '🎯', unlockedAt: createDate(9) },

@@ -65,8 +65,8 @@ export default function AdminOverviewPage() {
       id: `user-${user.id}`,
       position: [37.808 + (index * 0.01), -122.417 - (index * 0.005)] as [number, number],
       type: 'user' as const,
-      label: user.name,
-      description: `Rôle: ${user.role} - Points: ${user.points}`,
+      label: user.name ?? user.username,
+      description: `Rôle: ${user.role} - Points: ${user.points ?? 0}`,
     })),
   ];
 
@@ -201,7 +201,7 @@ export default function AdminOverviewPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                        {user.name.charAt(0).toUpperCase()}
+                        {(user.name ?? user.username).charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <div className="font-semibold text-dark">{user.name}</div>

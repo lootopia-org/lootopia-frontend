@@ -134,7 +134,7 @@ describe('authService', () => {
         level: 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        profile: { completedChases: 0 },
+        profile: { completedChases: 0, points: 0, level: 1 },
       };
       
       mockedApiClient.get.mockResolvedValue({ data: mockUser });
@@ -159,7 +159,7 @@ describe('authService', () => {
         level: 1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        profile: { completedChases: 0 },
+        profile: { completedChases: 0, points: 0, level: 1 },
       };
       
       mockedApiClient.put.mockResolvedValue({ data: mockUser });
