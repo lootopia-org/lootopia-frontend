@@ -227,6 +227,11 @@
       },
       "messages": {
         "success": "Compte créé. Vérifiez votre email pour activer l'accès.",
+        "alreadyExists": "Un compte existe déjà avec cet email.",
+        "invalidInput": "Email ou mot de passe invalide. Vérifiez le format saisi.",
+        "serverError": "Inscription indisponible : le serveur n'a pas pu envoyer l'email de vérification (erreur 500). Réessayez plus tard, ou utilisez le mode démo depuis la page de connexion.",
+        "timeout": "Le serveur met trop de temps à répondre (envoi d'email bloqué). Réessayez plus tard, ou utilisez le mode démo.",
+        "unreachable": "Serveur d'inscription injoignable. Vérifiez votre connexion, puis réessayez.",
         "error": "Échec de l'inscription"
       },
       "alreadyHaveAccount": "Vous avez déjà un compte ?",

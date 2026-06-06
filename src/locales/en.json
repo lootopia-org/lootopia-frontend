@@ -227,6 +227,11 @@
       },
       "messages": {
         "success": "Account created. Check your email to activate access.",
+        "alreadyExists": "An account already exists with this email.",
+        "invalidInput": "Invalid email or password. Please check the format.",
+        "serverError": "Registration unavailable: the server could not send the verification email (error 500). Try again later, or use demo mode from the login page.",
+        "timeout": "The server is taking too long to respond (email sending stuck). Try again later, or use demo mode.",
+        "unreachable": "Registration server unreachable. Check your connection and try again.",
         "error": "Registration failed"
       },
       "alreadyHaveAccount": "Already have an account?",

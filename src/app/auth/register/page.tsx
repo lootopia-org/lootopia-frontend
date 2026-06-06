@@ -34,6 +34,40 @@ export default function RegisterPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // L'API renvoie ses erreurs en texte brut (pas de JSON {message}), et le
+  // proxy renvoie un 502 JSON quand le backend est injoignable. On traduit
+  // le statut HTTP en un message clair plutôt qu'un « Échec » générique.
+  const messageForError = (error: any): string => {
+    // Timeout / requête avortée côté client
+    if (error?.code === 'ECONNABORTED' || /timeout/i.test(error?.message ?? '')) {
+      return t('auth.register.messages.timeout');
+    }
+
+    const status: number | undefined = error?.response?.status;
+
+    // Aucune réponse = réseau coupé / proxy qui n'a pas pu joindre le backend
+    if (!status) {
+      return t('auth.register.messages.unreachable');
+    }
+
+    switch (true) {
+      case status === 409:
+        return t('auth.register.messages.alreadyExists');
+      case status === 400 || status === 422:
+        return t('auth.register.messages.invalidInput');
+      case status === 502 || status === 503 || status === 504:
+        return t('auth.register.messages.unreachable');
+      case status >= 500:
+        // 500 ici = le serveur a planté en envoyant l'email de vérification (SMTP).
+        return t('auth.register.messages.serverError');
+      default: {
+        const data = error?.response?.data;
+        const serverText = typeof data === 'string' ? data : data?.message;
+        return serverText || t('auth.register.messages.error');
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -42,6 +76,7 @@ export default function RegisterPage() {
     try {
       await authService.register(formData.email, formData.password);
 
+      // 2xx : compte créé côté serveur.
       addNotification({
         type: 'success',
         message: t('auth.register.messages.success'),
@@ -49,10 +84,7 @@ export default function RegisterPage() {
 
       router.push('/auth/login');
     } catch (error: any) {
-      addNotification({
-        type: 'error',
-        message: error.response?.data?.message || t('auth.register.messages.error'),
-      });
+      addNotification({ type: 'error', message: messageForError(error) });
     } finally {
       setIsLoading(false);
     }
