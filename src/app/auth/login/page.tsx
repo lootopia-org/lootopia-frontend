@@ -164,15 +164,21 @@ export default function LoginPage() {
       const response = await authService.login(formData.email, formData.password);
       await handleLoginResponse(response);
     } catch (error: any) {
-      const responseCode = error?.response?.data?.code;
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+      // L'API renvoie ses erreurs en texte brut (pas de JSON {code,message}).
+      const text =
+        typeof data === 'string' ? data : data?.message || data?.code || '';
+      const isEmailNotVerified =
+        status === 403 || data?.code === 'email_not_verified' || /verif/i.test(text);
 
-      if (responseCode === 'email_not_verified') {
+      if (isEmailNotVerified) {
         setEmailNotVerified(true);
         addNotification({ type: 'error', message: t('auth.login.messages.emailNotVerified') });
       } else {
         addNotification({
           type: 'error',
-          message: error?.response?.data?.message || error?.message || t('auth.login.messages.error'),
+          message: text || error?.message || t('auth.login.messages.error'),
         });
       }
     } finally {

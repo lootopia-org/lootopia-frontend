@@ -28,9 +28,16 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
-        if (error.response?.status === 401) {
+        // 401 sur une tentative de login/MFA = mauvais identifiants : on laisse
+        // la page afficher l'erreur (pas de redirection qui masquerait le message).
+        const url: string = error.config?.url || '';
+        const isAuthAttempt = url.includes('/auth/login') || url.includes('/auth/mfa');
+
+        if (error.response?.status === 401 && !isAuthAttempt) {
           Cookies.remove('authToken');
-          window.location.href = '/auth/login';
+          if (typeof window !== 'undefined') {
+            window.location.href = '/auth/login';
+          }
         }
         return Promise.reject(error);
       }
