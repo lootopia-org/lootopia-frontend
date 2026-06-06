@@ -1,36 +1,29 @@
 FROM node:18-alpine AS builder
-
 WORKDIR /app
 
-# Copier les fichiers de package
 COPY package*.json ./
-
-# Installer les dépendances
 RUN npm ci
 
-# Copier le code source
 COPY . .
 
-# Build Next.js
-RUN npm run build
+# Skip ESLint during Docker build (lint should run in CI separately)
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build -- --no-lint
 
 # Stage de production
 FROM node:18-alpine
-
 WORKDIR /app
 
-# Copier package.json
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
 COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Installer seulement les dépendances de production
-RUN npm ci --production
-
-# Copier l'application buildée du builder
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
+# Required for standalone or custom server setups
+COPY --from=builder /app/next.config.* ./
 
-# Exposer le port
 EXPOSE 3000
-
-# Commande de démarrage
 CMD ["npm", "run", "start"]
