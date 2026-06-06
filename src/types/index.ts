@@ -14,7 +14,7 @@ export interface User {
     bio?: string;
     completedChases: number;
     avatar?: string;
-    point?: number;
+    points?: number;
   };
   badges?: Array<{
     id: string;
