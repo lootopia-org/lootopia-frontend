@@ -157,7 +157,46 @@
   "profile": {
     "yourStats": "Your Stats",
     "globalLeaderboard": "Global Leaderboard",
-    "demoProfile": "Demo profile data"
+    "demoProfile": "Demo profile data",
+    "security": {
+      "title": "Security",
+      "statusEnabled": "Enabled",
+      "statusDisabled": "Disabled",
+      "cancel": "Cancel",
+      "messages": {
+        "error": "Something went wrong. Please try again."
+      },
+      "totp": {
+        "title": "Authenticator app (TOTP)",
+        "description": "Add a time-based one-time code as a second factor.",
+        "enable": "Enable TOTP",
+        "disable": "Disable TOTP",
+        "scanInstructions": "Scan this QR code with your authenticator app, then enter the 6-digit code to confirm.",
+        "manualEntry": "Or enter this secret manually",
+        "copy": "Copy",
+        "secretCopied": "Secret copied to clipboard",
+        "codeLabel": "Verification code",
+        "codeRequired": "Enter the code from your authenticator app.",
+        "confirm": "Confirm & enable",
+        "confirmDisable": "Confirm & disable",
+        "disableInstructions": "Enter a current code from your authenticator app to disable TOTP.",
+        "invalidCode": "That code wasn't accepted. Please try again.",
+        "enabledSuccess": "Two-factor authentication is now enabled.",
+        "disabledSuccess": "Two-factor authentication has been disabled."
+      },
+      "passkeys": {
+        "title": "Passkeys",
+        "description": "Sign in without a password using your device's biometrics or security key.",
+        "add": "Add a passkey",
+        "empty": "No passkeys registered yet.",
+        "unnamed": "Passkey",
+        "added": "Added",
+        "lastUsed": "Last used",
+        "addedSuccess": "Passkey registered successfully.",
+        "error": "Couldn't register the passkey. Please try again.",
+        "unsupported": "Your browser does not support passkeys."
+      }
+    }
   },
   "auth": {
     "login": {
@@ -168,7 +207,8 @@
         "emailPlaceholder": "you@example.com",
         "password": "Password",
         "passwordPlaceholder": "********",
-        "submit": "Sign In"
+        "submit": "Sign In",
+        "or": "or"
       },
       "mock": {
         "title": "Demo accounts",

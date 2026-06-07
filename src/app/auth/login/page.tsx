@@ -296,6 +296,27 @@ export default function LoginPage() {
               {t('auth.login.mfa.loginWithPasskey')}
             </Button>
           )}
+
+          {/* Connexion par passkey : chemin autonome qui ne demande que l'email
+              (begin -> navigator.credentials.get -> complete -> session). */}
+          {stage === 'credentials' && supportsWebauthn && (
+            <>
+              <div className="flex items-center gap-3 text-xs uppercase tracking-wide text-gray-400">
+                <span className="h-px flex-1 bg-gray-200" />
+                {t('auth.login.form.or')}
+                <span className="h-px flex-1 bg-gray-200" />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                isLoading={isLoading}
+                onClick={loginWithPasskey}
+              >
+                {t('auth.login.mfa.loginWithPasskey')}
+              </Button>
+            </>
+          )}
         </form>
 
         {emailNotVerified && (

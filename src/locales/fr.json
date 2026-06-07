@@ -157,7 +157,46 @@
   "profile": {
     "yourStats": "Vos Statistiques",
     "globalLeaderboard": "Classement Global",
-    "demoProfile": "Données du profil de démonstration"
+    "demoProfile": "Données du profil de démonstration",
+    "security": {
+      "title": "Sécurité",
+      "statusEnabled": "Activé",
+      "statusDisabled": "Désactivé",
+      "cancel": "Annuler",
+      "messages": {
+        "error": "Une erreur est survenue. Veuillez réessayer."
+      },
+      "totp": {
+        "title": "Application d'authentification (TOTP)",
+        "description": "Ajoutez un code à usage unique comme deuxième facteur.",
+        "enable": "Activer le TOTP",
+        "disable": "Désactiver le TOTP",
+        "scanInstructions": "Scannez ce QR code avec votre application d'authentification, puis saisissez le code à 6 chiffres pour confirmer.",
+        "manualEntry": "Ou saisissez ce secret manuellement",
+        "copy": "Copier",
+        "secretCopied": "Secret copié dans le presse-papiers",
+        "codeLabel": "Code de validation",
+        "codeRequired": "Saisissez le code de votre application d'authentification.",
+        "confirm": "Confirmer et activer",
+        "confirmDisable": "Confirmer et désactiver",
+        "disableInstructions": "Saisissez un code actuel de votre application d'authentification pour désactiver le TOTP.",
+        "invalidCode": "Ce code n'a pas été accepté. Veuillez réessayer.",
+        "enabledSuccess": "La double authentification est désormais activée.",
+        "disabledSuccess": "La double authentification a été désactivée."
+      },
+      "passkeys": {
+        "title": "Passkeys",
+        "description": "Connectez-vous sans mot de passe grâce à la biométrie de votre appareil ou à une clé de sécurité.",
+        "add": "Ajouter une passkey",
+        "empty": "Aucune passkey enregistrée pour le moment.",
+        "unnamed": "Passkey",
+        "added": "Ajoutée le",
+        "lastUsed": "Dernière utilisation",
+        "addedSuccess": "Passkey enregistrée avec succès.",
+        "error": "Impossible d'enregistrer la passkey. Veuillez réessayer.",
+        "unsupported": "Votre navigateur ne prend pas en charge les passkeys."
+      }
+    }
   },
   "auth": {
     "login": {
@@ -168,7 +207,8 @@
         "emailPlaceholder": "vous@exemple.com",
         "password": "Mot de passe",
         "passwordPlaceholder": "********",
-        "submit": "Se Connecter"
+        "submit": "Se Connecter",
+        "or": "ou"
       },
       "mock": {
         "title": "Comptes de démonstration",

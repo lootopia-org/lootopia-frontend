@@ -9,6 +9,7 @@ import { useI18n } from '@/hooks/useI18n';
 import { Button } from '@/components/Button';
 import { LootopiaLogo } from '@/components/LootopiaLogo';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { authService } from '@/lib/auth-service';
 
 export const Navbar: React.FC = () => {
   const router = useRouter();
@@ -16,6 +17,13 @@ export const Navbar: React.FC = () => {
   const { t } = useI18n();
 
   const handleLogout = async () => {
+    // On révoque la session côté serveur en best-effort : même si l'appel échoue
+    // (token déjà expiré, réseau coupé...), on vide toujours la session locale.
+    try {
+      await authService.logout();
+    } catch {
+      // ignore : la déconnexion locale ci-dessous reste prioritaire
+    }
     logout();
     router.push('/');
   };

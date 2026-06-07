@@ -18,6 +18,24 @@ export interface WebauthnCredential {
   lastUsedAt?: string;
 }
 
+// La vraie API /me peut renvoyer un utilisateur "à plat" (sans objet `profile`
+// imbriqué) alors que l'UI lit `user.profile.*`. On garantit donc toujours un
+// `profile` cohérent pour éviter les crashs côté profil / navbar.
+const normalizeUser = (raw: any): User => {
+  const profile = raw?.profile ?? {};
+  return {
+    ...raw,
+    username: raw?.username ?? raw?.name ?? raw?.email?.split('@')[0] ?? 'Player',
+    profile: {
+      bio: profile.bio ?? raw?.bio,
+      avatar: profile.avatar ?? raw?.avatar,
+      completedChases: profile.completedChases ?? raw?.completedChases ?? 0,
+      points: profile.points ?? raw?.points ?? 0,
+      level: profile.level ?? raw?.level ?? 1,
+    },
+  } as User;
+};
+
 export const authService = {
   register: async (email: string, password: string): Promise<void> => {
     const response = await apiClient.post('/auth/register', {
@@ -81,7 +99,7 @@ export const authService = {
 
   me: async (): Promise<User> => {
     const response = await apiClient.get('/me');
-    return response.data;
+    return normalizeUser(response.data);
   },
 
   updateProfile: async (userId: string, data: Partial<User>): Promise<User> => {

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { GamificationStats } from '@/components/GamificationStats';
 import { LeaderboardComponent } from '@/components/LeaderboardComponent';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { SecuritySettings } from '@/components/SecuritySettings';
 import { useAuth } from '@/hooks/useAuth';
 import { useAsync } from '@/hooks/useAsync';
 import { gamificationService } from '@/lib/gamification-service';
@@ -75,6 +76,9 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Security */}
+      <SecuritySettings />
 
       {/* Stats */}
       {stats && (
