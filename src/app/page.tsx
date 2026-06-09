@@ -90,11 +90,6 @@ export default function Home() {
                   {t('home.exploreChasesBtn')}
                 </Button>
               </Link>
-              <Link href="/partner-studio">
-                <Button size="lg" variant="secondary">
-                  {t('home.partnerStudioBtn')}
-                </Button>
-              </Link>
               <Link href="/auth/register">
                 <Button size="lg" variant="outline">
                   {t('home.getStartedBtn')}
@@ -199,9 +194,11 @@ export default function Home() {
           <p className="text-xl text-gray-600">
             {t('home.joinThousands')}
           </p>
-          <Link href="/auth/register">
-            <Button size="lg">{t('home.startQuestBtn')}</Button>
-          </Link>
+          <div className="pt-6">
+            <Link href="/auth/register">
+              <Button size="lg">{t('home.startQuestBtn')}</Button>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
