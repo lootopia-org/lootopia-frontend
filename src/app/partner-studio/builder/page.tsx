@@ -9,6 +9,7 @@ import { Input } from '@/components/Input';
 import { StatusBadge } from '@/components/StatusBadge';
 import { InteractiveMap } from '@/components/InteractiveMap';
 import { useAuth } from '@/hooks/useAuth';
+import { useI18n } from '@/hooks/useI18n';
 import { useNotificationStore } from '@/lib/notification-store';
 import { chaseService } from '@/lib/chase-service';
 import { ChaseStep } from '@/types';
@@ -22,6 +23,15 @@ interface StepDraft {
   reward: string;
   challenge: string;
   description: string;
+  location: { latitude: number; longitude: number };
+}
+
+interface TemplateStepDraft {
+  titleKey: string;
+  descriptionKey: string;
+  clueKey: string;
+  rewardKey: string;
+  challenge: string;
   location: { latitude: number; longitude: number };
 }
 
@@ -40,55 +50,52 @@ interface StudioConfig {
 
 const templates: Array<{
   id: TemplateId;
-  name: string;
-  description: string;
+  nameKey: string;
+  descriptionKey: string;
   accent: string;
-  objective: string;
+  objectiveKey: string;
   duration: string;
-  location: string;
+  locationKey: string;
   locationCoords: { latitude: number; longitude: number };
-  reward: string;
+  rewardKey: string;
   difficulty: 'easy' | 'medium' | 'hard';
   image: string;
-  steps: StepDraft[];
+  steps: TemplateStepDraft[];
 }> = [
   {
     id: 'retail',
-    name: 'Chasse boutique',
-    description: 'Idéal pour attirer du trafic en magasin et faire découvrir une gamme.',
+    nameKey: 'builder.templates.retail.name',
+    descriptionKey: 'builder.templates.retail.description',
     accent: 'bg-card-orange',
-    objective: 'Booster le trafic magasin et la découverte produit',
+    objectiveKey: 'builder.templates.retail.objective',
     duration: '35 min',
-    location: 'Point de vente / centre commercial',
+    locationKey: 'builder.templates.retail.location',
     locationCoords: { latitude: 37.808, longitude: -122.417 },
-    reward: 'Bon d’achat 20€',
+    rewardKey: 'builder.templates.retail.reward',
     difficulty: 'easy',
     image: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80',
     steps: [
       {
-        id: 'retail-1',
-        title: 'Accueil en vitrine',
-        description: 'Trouvez le marqueur près de l’entrée.',
-        clue: 'Repérez le totem d’entrée et scannez le QR code.',
-        reward: '50 pts',
+        titleKey: 'builder.templates.retail.step1.title',
+        descriptionKey: 'builder.templates.retail.step1.description',
+        clueKey: 'builder.templates.retail.step1.clue',
+        rewardKey: 'builder.templates.retail.step1.reward',
         challenge: 'QR + validation lieu',
         location: { latitude: 37.808, longitude: -122.417 },
       },
       {
-        id: 'retail-2',
-        title: 'Produit mystère',
-        description: 'Découvrez le produit caché.',
-        clue: 'Trouvez l’étagère qui porte la couleur du thème.',
-        reward: '75 pts',
+        titleKey: 'builder.templates.retail.step2.title',
+        descriptionKey: 'builder.templates.retail.step2.description',
+        clueKey: 'builder.templates.retail.step2.clue',
+        rewardKey: 'builder.templates.retail.step2.reward',
         challenge: 'Indice visuel',
         location: { latitude: 37.803, longitude: -122.414 },
       },
       {
-        id: 'retail-3',
-        title: 'Caisse finale',
-        description: 'Récupérez votre récompense.',
-        clue: 'Entrez le mot révélé par les deux étapes précédentes.',
-        reward: 'Récompense finale',
+        titleKey: 'builder.templates.retail.step3.title',
+        descriptionKey: 'builder.templates.retail.step3.description',
+        clueKey: 'builder.templates.retail.step3.clue',
+        rewardKey: 'builder.templates.retail.step3.reward',
         challenge: 'Énigme finale',
         location: { latitude: 37.797, longitude: -122.409 },
       },
@@ -96,41 +103,38 @@ const templates: Array<{
   },
   {
     id: 'event',
-    name: 'Parcours événementiel',
-    description: 'Parfait pour un salon, un lancement produit ou un pop-up.',
+    nameKey: 'builder.templates.event.name',
+    descriptionKey: 'builder.templates.event.description',
     accent: 'bg-card-blue',
-    objective: 'Créer un parcours d’engagement rapide et mémorable',
+    objectiveKey: 'builder.templates.event.objective',
     duration: '20 min',
-    location: 'Salon / conférence / événement',
+    locationKey: 'builder.templates.event.location',
     locationCoords: { latitude: 37.808, longitude: -122.417 },
-    reward: 'Goodies premium',
+    rewardKey: 'builder.templates.event.reward',
     difficulty: 'medium',
     image: 'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&w=1200&q=80',
     steps: [
       {
-        id: 'event-1',
-        title: 'Entrée du salon',
-        description: 'Commencez votre aventure.',
-        clue: 'Retrouvez le logo géant sur le stand principal.',
-        reward: '40 pts',
-        challenge: 'Scan rapide',
+        titleKey: 'builder.templates.event.step1.title',
+        descriptionKey: 'builder.templates.event.step1.description',
+        clueKey: 'builder.templates.event.step1.clue',
+        rewardKey: 'builder.templates.event.step1.reward',
+        challenge: 'QR + validation lieu',
         location: { latitude: 37.808, longitude: -122.417 },
       },
       {
-        id: 'event-2',
-        title: 'Mini quiz',
-        description: 'Testez vos connaissances.',
-        clue: 'Répondez à la question affichée sur l’écran d’accueil.',
-        reward: '60 pts',
+        titleKey: 'builder.templates.event.step2.title',
+        descriptionKey: 'builder.templates.event.step2.description',
+        clueKey: 'builder.templates.event.step2.clue',
+        rewardKey: 'builder.templates.event.step2.reward',
         challenge: 'QCM',
         location: { latitude: 37.803, longitude: -122.414 },
       },
       {
-        id: 'event-3',
-        title: 'Photo finale',
-        description: 'Capturez le moment.',
-        clue: 'Capturez l’espace photo pour débloquer la récompense.',
-        reward: 'Badge événement',
+        titleKey: 'builder.templates.event.step3.title',
+        descriptionKey: 'builder.templates.event.step3.description',
+        clueKey: 'builder.templates.event.step3.clue',
+        rewardKey: 'builder.templates.event.step3.reward',
         challenge: 'Validation média',
         location: { latitude: 37.797, longitude: -122.409 },
       },
@@ -138,83 +142,77 @@ const templates: Array<{
   },
   {
     id: 'team',
-    name: 'Team building',
-    description: 'Une expérience collaborative pour animer une équipe ou un réseau.',
+    nameKey: 'builder.templates.team.name',
+    descriptionKey: 'builder.templates.team.description',
     accent: 'bg-card-green',
-    objective: 'Renforcer la cohésion et la participation collective',
+    objectiveKey: 'builder.templates.team.objective',
     duration: '55 min',
-    location: 'Entreprise / site partenaire',
+    locationKey: 'builder.templates.team.location',
     locationCoords: { latitude: 37.808, longitude: -122.417 },
-    reward: 'Badge collectif',
+    rewardKey: 'builder.templates.team.reward',
     difficulty: 'hard',
     image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80',
     steps: [
       {
-        id: 'team-1',
-        title: 'Mission d’équipe',
-        description: 'Travaillez ensemble.',
-        clue: 'Chaque groupe récupère une moitié de l’indice.',
-        reward: '50 pts',
+        titleKey: 'builder.templates.team.step1.title',
+        descriptionKey: 'builder.templates.team.step1.description',
+        clueKey: 'builder.templates.team.step1.clue',
+        rewardKey: 'builder.templates.team.step1.reward',
         challenge: 'Collaboration',
         location: { latitude: 37.808, longitude: -122.417 },
       },
       {
-        id: 'team-2',
-        title: 'Décodage',
-        description: 'Résolvez l’énigme.',
-        clue: 'Assemblez les réponses pour former le code final.',
-        reward: '80 pts',
-        challenge: 'Énigme logique',
+        titleKey: 'builder.templates.team.step2.title',
+        descriptionKey: 'builder.templates.team.step2.description',
+        clueKey: 'builder.templates.team.step2.clue',
+        rewardKey: 'builder.templates.team.step2.reward',
+        challenge: 'Énigme libre',
         location: { latitude: 37.803, longitude: -122.414 },
       },
       {
-        id: 'team-3',
-        title: 'Final collectif',
-        description: 'Finissez ensemble.',
-        clue: 'Validez la zone finale tous ensemble pour gagner.',
-        reward: 'Récompense collective',
-        challenge: 'Validation groupe',
+        titleKey: 'builder.templates.team.step3.title',
+        descriptionKey: 'builder.templates.team.step3.description',
+        clueKey: 'builder.templates.team.step3.clue',
+        rewardKey: 'builder.templates.team.step3.reward',
+        challenge: 'Collaboration',
         location: { latitude: 37.797, longitude: -122.409 },
       },
     ],
   },
   {
     id: 'museum',
-    name: 'Musée mystérieux',
-    description: 'Une aventure dans un musée avec des énigmes et des trésors cachés.',
+    nameKey: 'builder.templates.museum.name',
+    descriptionKey: 'builder.templates.museum.description',
     accent: 'bg-card-yellow',
-    objective: 'Découvrir les œuvres et résoudre des mystères',
+    objectiveKey: 'builder.templates.museum.objective',
     duration: '90 min',
-    location: 'Musée ou galerie d’art',
+    locationKey: 'builder.templates.museum.location',
     locationCoords: { latitude: 37.7858, longitude: -122.401 },
-    reward: 'Exposition privée',
+    rewardKey: 'builder.templates.museum.reward',
     difficulty: 'hard',
     image: 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=1200&q=80',
     steps: [
       {
-        id: 'museum-1',
-        title: 'Accueil du musée',
-        description: 'Récupérez votre carte et votre guide.',
-        clue: 'Cherchez le totem à l’entrée et scannez-le.',
-        reward: '60 pts',
+        titleKey: 'builder.templates.museum.step1.title',
+        descriptionKey: 'builder.templates.museum.step1.description',
+        clueKey: 'builder.templates.museum.step1.clue',
+        rewardKey: 'builder.templates.museum.step1.reward',
         challenge: 'QR + validation lieu',
         location: { latitude: 37.7858, longitude: -122.401 },
       },
       {
-        id: 'museum-2',
-        title: 'Salle des antiques',
-        description: 'Explorez la salle des antiquités.',
-        clue: 'Trouvez le vase grec avec l’inscription mystérieuse.',
-        reward: '80 pts',
+        titleKey: 'builder.templates.museum.step2.title',
+        descriptionKey: 'builder.templates.museum.step2.description',
+        clueKey: 'builder.templates.museum.step2.clue',
+        rewardKey: 'builder.templates.museum.step2.reward',
         challenge: 'Indice visuel',
         location: { latitude: 37.788, longitude: -122.403 },
       },
       {
-        id: 'museum-3',
-        title: 'Salle des tableaux',
-        description: 'Admirez les tableaux et résolvez l’énigme.',
-        clue: 'Le tableau avec le paysage italien contient le code secret.',
-        reward: '100 pts',
+        titleKey: 'builder.templates.museum.step3.title',
+        descriptionKey: 'builder.templates.museum.step3.description',
+        clueKey: 'builder.templates.museum.step3.clue',
+        rewardKey: 'builder.templates.museum.step3.reward',
         challenge: 'Énigme finale',
         location: { latitude: 37.79, longitude: -122.405 },
       },
@@ -224,17 +222,17 @@ const templates: Array<{
 
 const participationSeries = [92, 85, 74, 61, 48];
 
-const publicationChecks = [
-  'Charte de marque verrouillée',
-  'Contenus validés',
-  'RGPD / consentement activé',
-  'Journal d’audit actif',
+const publicationCheckKeys = [
+  'builder.checks.brand',
+  'builder.checks.content',
+  'builder.checks.gdpr',
+  'builder.checks.audit',
 ];
 
-const difficultyOptions: Array<{ value: StudioConfig['difficulty']; label: string; chip: string }> = [
-  { value: 'easy', label: 'Facile', chip: 'bg-card-green' },
-  { value: 'medium', label: 'Moyenne', chip: 'bg-card-yellow' },
-  { value: 'hard', label: 'Difficile', chip: 'bg-card-orange' },
+const difficultyOptions: Array<{ value: StudioConfig['difficulty']; labelKey: string; chip: string }> = [
+  { value: 'easy', labelKey: 'builder.difficulty.easy', chip: 'bg-card-green' },
+  { value: 'medium', labelKey: 'builder.difficulty.medium', chip: 'bg-card-yellow' },
+  { value: 'hard', labelKey: 'builder.difficulty.hard', chip: 'bg-card-orange' },
 ];
 
 const CHALLENGE_OPTIONS = [
@@ -246,6 +244,17 @@ const CHALLENGE_OPTIONS = [
   'Collaboration',
   'Énigme libre',
 ] as const;
+
+/** Les valeurs de défi restent des identifiants internes (non traduits) ; seul l'affichage passe par i18n. */
+const challengeLabelKeys: Record<string, string> = {
+  'QR + validation lieu': 'builder.challenges.qrLocation',
+  'Indice visuel': 'builder.challenges.visualClue',
+  'Énigme finale': 'builder.challenges.finalRiddle',
+  'QCM': 'builder.challenges.quiz',
+  'Validation média': 'builder.challenges.media',
+  'Collaboration': 'builder.challenges.collaboration',
+  'Énigme libre': 'builder.challenges.freeRiddle',
+};
 
 /** Icône SVG inline par type de défi (même approche que src/app/page.tsx, aucune dépendance d'icônes). */
 function ChallengeIcon({ type, className = 'w-4 h-4' }: { type: string; className?: string }) {
@@ -268,16 +277,26 @@ function ChallengeIcon({ type, className = 'w-4 h-4' }: { type: string; classNam
   }
 }
 
-const cloneSteps = (template: (typeof templates)[number]): StepDraft[] =>
-  template.steps.map((step, index) => ({
-    ...step,
-    id: `${template.id}-${index + 1}`,
-  }));
-
 export default function PartnerStudioBuilderPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { t } = useI18n();
   const { addNotification } = useNotificationStore();
+
+  const cloneSteps = (template: (typeof templates)[number]): StepDraft[] =>
+    template.steps.map((step, index) => ({
+      id: `${template.id}-${index + 1}`,
+      title: t(step.titleKey),
+      description: t(step.descriptionKey),
+      clue: t(step.clueKey),
+      reward: t(step.rewardKey),
+      challenge: step.challenge,
+      location: step.location,
+    }));
+
+  const challengeLabel = (value: string) =>
+    challengeLabelKeys[value] ? t(challengeLabelKeys[value]) : value;
+
   const [selectedTemplateId, setSelectedTemplateId] = useState<TemplateId>('retail');
   const [selectedStepIndex, setSelectedStepIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -285,19 +304,19 @@ export default function PartnerStudioBuilderPage() {
   const [placementTarget, setPlacementTarget] = useState<'start' | 'step'>('start');
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [addressQuery, setAddressQuery] = useState('');
-  const [config, setConfig] = useState<StudioConfig>({
-    name: 'Chasse boutique printemps',
-    objective: templates[0].objective,
+  const [config, setConfig] = useState<StudioConfig>(() => ({
+    name: t('builder.defaults.huntName'),
+    objective: t(templates[0].objectiveKey),
     duration: templates[0].duration,
-    location: templates[0].location,
+    location: t(templates[0].locationKey),
     locationCoords: templates[0].locationCoords,
     language: 'FR',
-    reward: templates[0].reward,
+    reward: t(templates[0].rewardKey),
     launchMode: 'draft',
     difficulty: templates[0].difficulty,
     image: templates[0].image,
-  });
-  const [steps, setSteps] = useState<StepDraft[]>(cloneSteps(templates[0]));
+  }));
+  const [steps, setSteps] = useState<StepDraft[]>(() => cloneSteps(templates[0]));
 
   const selectedTemplate = useMemo(
     () => templates.find((template) => template.id === selectedTemplateId) ?? templates[0],
@@ -324,15 +343,16 @@ export default function PartnerStudioBuilderPage() {
     setSteps(nextSteps);
     setConfig((current) => ({
       ...current,
-      objective: selectedTemplate.objective,
+      objective: t(selectedTemplate.objectiveKey),
       duration: selectedTemplate.duration,
-      location: selectedTemplate.location,
+      location: t(selectedTemplate.locationKey),
       locationCoords: selectedTemplate.locationCoords,
-      reward: selectedTemplate.reward,
+      reward: t(selectedTemplate.rewardKey),
       difficulty: selectedTemplate.difficulty,
       image: selectedTemplate.image,
     }));
     setSelectedStepIndex(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTemplate]);
 
   if (isLoading || !isAuthenticated) {
@@ -340,9 +360,9 @@ export default function PartnerStudioBuilderPage() {
       <div className="min-h-screen bg-cream px-4 py-16">
         <div className="mx-auto flex max-w-3xl items-center justify-center">
           <Card className="w-full space-y-4 text-center">
-            <div className="text-sm font-bold uppercase tracking-[0.3em] text-primary">Partner Studio</div>
-            <h1 className="text-3xl font-black text-dark">Chargement de l’espace partenaire</h1>
-            <p className="font-medium text-gray-600">Vérification de l’accès et préparation du tableau de bord.</p>
+            <div className="text-sm font-bold uppercase tracking-[0.3em] text-primary">{t('builder.loading.kicker')}</div>
+            <h1 className="text-3xl font-black text-dark">{t('builder.loading.title')}</h1>
+            <p className="font-medium text-gray-600">{t('builder.loading.subtitle')}</p>
           </Card>
         </div>
       </div>
@@ -363,9 +383,9 @@ export default function PartnerStudioBuilderPage() {
         ...currentSteps,
         {
           id: `custom-${Date.now()}`,
-          title: 'Nouvelle étape',
-          description: 'Ajoutez une description.',
-          clue: 'Ajoutez un indice clair et simple.',
+          title: t('builder.steps.newTitle'),
+          description: t('builder.steps.newDescription'),
+          clue: t('builder.steps.newClue'),
           reward: '50 pts',
           challenge: 'Énigme libre',
           location: { latitude: 37.808, longitude: -122.417 },
@@ -376,23 +396,23 @@ export default function PartnerStudioBuilderPage() {
       return nextSteps;
     });
 
-    addNotification({ type: 'info', message: 'Nouvelle étape ajoutée au parcours.' });
+    addNotification({ type: 'info', message: t('builder.notifications.stepAdded') });
   };
 
   const deleteStep = (indexToDelete: number) => {
     if (steps.length <= 1) {
-      addNotification({ type: 'error', message: 'Vous devez conserver au moins une étape.' });
+      addNotification({ type: 'error', message: t('builder.notifications.keepOneStep') });
       return;
     }
 
     setSteps((currentSteps) => currentSteps.filter((_, index) => index !== indexToDelete));
-    
+
     // Adjust selected index
     if (selectedStepIndex >= indexToDelete && selectedStepIndex > 0) {
       setSelectedStepIndex(selectedStepIndex - 1);
     }
 
-    addNotification({ type: 'info', message: 'Étape supprimée.' });
+    addNotification({ type: 'info', message: t('builder.notifications.stepDeleted') });
   };
 
   const reorderSteps = (from: number, to: number) => {
@@ -439,21 +459,24 @@ export default function PartnerStudioBuilderPage() {
       const results = await response.json();
 
       if (!Array.isArray(results) || results.length === 0) {
-        addNotification({ type: 'error', message: 'Adresse introuvable.' });
+        addNotification({ type: 'error', message: t('builder.notifications.addressNotFound') });
         return;
       }
 
       setActiveCoords(parseFloat(results[0].lat), parseFloat(results[0].lon));
-      addNotification({ type: 'success', message: 'Adresse localisée sur la carte.' });
+      addNotification({ type: 'success', message: t('builder.notifications.addressLocated') });
     } catch {
-      addNotification({ type: 'error', message: 'Géocodage indisponible pour le moment.' });
+      addNotification({ type: 'error', message: t('builder.notifications.geocodingUnavailable') });
     }
   };
 
   const applyTemplate = (templateId: TemplateId) => {
     const nextTemplate = templates.find((template) => template.id === templateId) ?? templates[0];
     setSelectedTemplateId(templateId);
-    addNotification({ type: 'success', message: `Le modèle ${nextTemplate.name} a été chargé.` });
+    addNotification({
+      type: 'success',
+      message: t('builder.notifications.templateLoaded', { name: t(nextTemplate.nameKey) }),
+    });
   };
 
   const parseReward = (rewardStr: string): number => {
@@ -497,19 +520,19 @@ export default function PartnerStudioBuilderPage() {
 
       await chaseService.createChase(chaseData as any);
       setLastSaved(new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }));
-      addNotification({ type: 'success', message: 'Chasse enregistrée avec succès !' });
+      addNotification({ type: 'success', message: t('builder.notifications.huntSaved') });
     } catch (error) {
       console.error('Error saving chase:', error);
-      addNotification({ type: 'error', message: 'Erreur lors de l’enregistrement de la chasse.' });
+      addNotification({ type: 'error', message: t('builder.notifications.saveError') });
     } finally {
       setIsSaving(false);
     }
   };
 
-  const launchModes: Array<{ id: StudioConfig['launchMode']; label: string }> = [
-    { id: 'draft', label: 'Brouillon' },
-    { id: 'test', label: 'Test' },
-    { id: 'live', label: 'En ligne' },
+  const launchModes: Array<{ id: StudioConfig['launchMode']; labelKey: string }> = [
+    { id: 'draft', labelKey: 'builder.actions.draft' },
+    { id: 'test', labelKey: 'builder.actions.test' },
+    { id: 'live', labelKey: 'builder.actions.live' },
   ];
 
   return (
@@ -522,20 +545,20 @@ export default function PartnerStudioBuilderPage() {
         >
           <div className="space-y-5">
             <div className="inline-flex rounded-full border-2 border-dark bg-card-yellow px-3 py-1 text-xs font-bold text-dark">
-              Studio partenaire autonome
+              {t('builder.hero.badge')}
             </div>
             <div className="space-y-3">
               <h1 className="text-4xl font-black tracking-tight text-dark md:text-6xl">
-                Concevez, paramétrez et pilotez vos chasses en autonomie.
+                {t('builder.hero.title')}
               </h1>
               <p className="max-w-2xl text-lg font-medium text-gray-600 md:text-xl">
-                Un atelier guidé pour créer rapidement des parcours ludiques cohérents avec la marque, tout en gardant un suivi analytique clair et temps réel.
+                {t('builder.hero.subtitle')}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button onClick={() => applyTemplate('retail')}>Démarrer avec un modèle</Button>
+              <Button onClick={() => applyTemplate('retail')}>{t('builder.hero.startWithTemplate')}</Button>
               <Button variant="outline" onClick={() => router.push('/chases')}>
-                Voir la vue joueur
+                {t('builder.hero.playerView')}
               </Button>
             </div>
           </div>
@@ -543,21 +566,21 @@ export default function PartnerStudioBuilderPage() {
           <Card className="!bg-dark text-white shadow-arcade">
             <div className="space-y-4">
               <div className="flex items-center justify-between text-sm text-slate-300">
-                <span>Statut</span>
+                <span>{t('builder.hero.status')}</span>
                 <StatusBadge status={config.launchMode} />
               </div>
               <div className="rounded-2xl bg-white/5 p-4">
-                <div className="text-sm uppercase tracking-[0.25em] text-slate-400">Template actif</div>
-                <div className="mt-2 text-2xl font-bold">{selectedTemplate.name}</div>
-                <p className="mt-2 text-sm text-slate-300">{selectedTemplate.description}</p>
+                <div className="text-sm uppercase tracking-[0.25em] text-slate-400">{t('builder.hero.activeTemplate')}</div>
+                <div className="mt-2 text-2xl font-bold">{t(selectedTemplate.nameKey)}</div>
+                <p className="mt-2 text-sm text-slate-300">{t(selectedTemplate.descriptionKey)}</p>
               </div>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div className="rounded-2xl bg-white/5 p-3">
-                  <div className="text-slate-400">Public cible</div>
+                  <div className="text-slate-400">{t('builder.hero.targetAudience')}</div>
                   <div className="mt-1 font-semibold">{config.location}</div>
                 </div>
                 <div className="rounded-2xl bg-white/5 p-3">
-                  <div className="text-slate-400">Récompense</div>
+                  <div className="text-slate-400">{t('builder.hero.reward')}</div>
                   <div className="mt-1 font-semibold">{config.reward}</div>
                 </div>
               </div>
@@ -570,10 +593,10 @@ export default function PartnerStudioBuilderPage() {
             <Card className="space-y-5 shadow-arcade">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-dark">Choisir un modèle</h2>
-                  <p className="text-sm text-slate-500">Une base rapide à personnaliser selon le contexte partenaire.</p>
+                  <h2 className="text-2xl font-extrabold text-dark">{t('builder.templates.title')}</h2>
+                  <p className="text-sm text-slate-500">{t('builder.templates.subtitle')}</p>
                 </div>
-                <span className="rounded-full border-2 border-dark bg-card-yellow px-3 py-1 text-xs font-bold text-dark">4 modèles prêts à l’emploi</span>
+                <span className="rounded-full border-2 border-dark bg-card-yellow px-3 py-1 text-xs font-bold text-dark">{t('builder.templates.readyBadge')}</span>
               </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {templates.map((template) => (
@@ -587,11 +610,11 @@ export default function PartnerStudioBuilderPage() {
                     }`}
                   >
                     <div className={`h-2 w-16 rounded-full border border-dark ${selectedTemplate.id === template.id ? 'bg-dark' : template.accent}`} />
-                    <div className="mt-4 text-lg font-bold text-dark">{template.name}</div>
-                    <p className="mt-2 text-sm text-slate-500">{template.description}</p>
+                    <div className="mt-4 text-lg font-bold text-dark">{t(template.nameKey)}</div>
+                    <p className="mt-2 text-sm text-slate-500">{t(template.descriptionKey)}</p>
                     <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-dark">
                       <span className="rounded-full border-2 border-dark bg-white px-2 py-1">{template.duration}</span>
-                      <span className="rounded-full border-2 border-dark bg-white px-2 py-1">{template.reward}</span>
+                      <span className="rounded-full border-2 border-dark bg-white px-2 py-1">{t(template.rewardKey)}</span>
                     </div>
                   </button>
                 ))}
@@ -600,20 +623,20 @@ export default function PartnerStudioBuilderPage() {
 
             <Card className="space-y-5 shadow-arcade">
               <div>
-                <h2 className="text-2xl font-extrabold text-dark">Paramétrage rapide</h2>
-                <p className="text-sm text-slate-500">Gardez uniquement les réglages utiles: le reste reste cohérent avec la marque.</p>
+                <h2 className="text-2xl font-extrabold text-dark">{t('builder.config.title')}</h2>
+                <p className="text-sm text-slate-500">{t('builder.config.subtitle')}</p>
               </div>
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Identité &amp; objectif</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t('builder.config.identitySection')}</div>
                   <div className="grid gap-4 md:grid-cols-2">
                     <Input
-                      label="Nom de la chasse"
+                      label={t('builder.config.huntName')}
                       value={config.name}
                       onChange={(event) => setConfig({ ...config, name: event.target.value })}
                     />
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Langue</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('builder.config.language')}</label>
                       <select
                         value={config.language}
                         onChange={(event) => setConfig({ ...config, language: event.target.value as StudioConfig['language'] })}
@@ -625,7 +648,7 @@ export default function PartnerStudioBuilderPage() {
                     </div>
                     <div className="md:col-span-2">
                       <Input
-                        label="Objectif"
+                        label={t('builder.config.objective')}
                         value={config.objective}
                         onChange={(event) => setConfig({ ...config, objective: event.target.value })}
                       />
@@ -634,25 +657,25 @@ export default function PartnerStudioBuilderPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Logistique &amp; récompense</div>
+                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t('builder.config.logisticsSection')}</div>
                   <div className="grid gap-4 md:grid-cols-2">
                     <Input
-                      label="Durée estimée (min)"
+                      label={t('builder.config.duration')}
                       value={config.duration}
                       onChange={(event) => setConfig({ ...config, duration: event.target.value })}
                     />
                     <Input
-                      label="Zone / lieu"
+                      label={t('builder.config.area')}
                       value={config.location}
                       onChange={(event) => setConfig({ ...config, location: event.target.value })}
                     />
                     <Input
-                      label="Récompense finale"
+                      label={t('builder.config.finalReward')}
                       value={config.reward}
                       onChange={(event) => setConfig({ ...config, reward: event.target.value })}
                     />
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Difficulté</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('builder.config.difficulty')}</label>
                       <div className="flex flex-wrap gap-2 pt-1">
                         {difficultyOptions.map((option) => (
                           <button
@@ -666,7 +689,7 @@ export default function PartnerStudioBuilderPage() {
                                 : 'border-gray-300 bg-white text-gray-600 hover:border-dark'
                             }`}
                           >
-                            {option.label}
+                            {t(option.labelKey)}
                           </button>
                         ))}
                       </div>
@@ -679,8 +702,8 @@ export default function PartnerStudioBuilderPage() {
             <Card className="space-y-5 shadow-arcade">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-dark">Carte de la chasse</h2>
-                  <p className="text-sm text-slate-500">Cliquez un marqueur pour sélectionner une étape, ou la carte pour placer l’élément choisi.</p>
+                  <h2 className="text-2xl font-extrabold text-dark">{t('builder.map.title')}</h2>
+                  <p className="text-sm text-slate-500">{t('builder.map.subtitle')}</p>
                 </div>
                 <div className="flex rounded-xl border-2 border-dark bg-white p-1 text-sm font-bold shadow-arcade-sm">
                   <button
@@ -688,14 +711,14 @@ export default function PartnerStudioBuilderPage() {
                     onClick={() => setPlacementTarget('start')}
                     className={`rounded-lg px-3 py-1.5 transition ${placementTarget === 'start' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-cream'}`}
                   >
-                    Départ
+                    {t('builder.map.start')}
                   </button>
                   <button
                     type="button"
                     onClick={() => setPlacementTarget('step')}
                     className={`rounded-lg px-3 py-1.5 transition ${placementTarget === 'step' ? 'bg-secondary text-white' : 'text-gray-600 hover:bg-cream'}`}
                   >
-                    Étape {selectedStepIndex + 1}
+                    {t('builder.map.stepNumber', { number: selectedStepIndex + 1 })}
                   </button>
                 </div>
               </div>
@@ -712,14 +735,14 @@ export default function PartnerStudioBuilderPage() {
                       id: 'chase-location',
                       position: [config.locationCoords.latitude, config.locationCoords.longitude] as [number, number],
                       type: 'chase' as const,
-                      label: `Départ — ${config.name}`,
+                      label: t('builder.map.startMarker', { name: config.name }),
                       description: config.objective,
                     },
                     ...steps.map((step, index) => ({
                       id: `step-${step.id}`,
                       position: [step.location.latitude, step.location.longitude] as [number, number],
                       type: 'step' as const,
-                      label: `${index === selectedStepIndex ? '★ ' : ''}Étape ${index + 1}: ${step.title}`,
+                      label: `${index === selectedStepIndex ? '★ ' : ''}${t('builder.map.stepMarker', { number: index + 1, title: step.title })}`,
                       description: step.description,
                     })),
                   ]}
@@ -738,10 +761,10 @@ export default function PartnerStudioBuilderPage() {
                   onMapClick={(lat, lng) => {
                     if (placementTarget === 'step') {
                       updateStep('location', { latitude: lat, longitude: lng });
-                      addNotification({ type: 'success', message: `Localisation de l’étape ${selectedStepIndex + 1} mise à jour !` });
+                      addNotification({ type: 'success', message: t('builder.notifications.stepLocationUpdated', { number: selectedStepIndex + 1 }) });
                     } else {
                       setConfig((current) => ({ ...current, locationCoords: { latitude: lat, longitude: lng } }));
-                      addNotification({ type: 'success', message: 'Point de départ mis à jour !' });
+                      addNotification({ type: 'success', message: t('builder.notifications.startPointUpdated') });
                     }
                   }}
                   className="h-full"
@@ -749,7 +772,7 @@ export default function PartnerStudioBuilderPage() {
               </div>
               <div className="space-y-3 rounded-2xl border-2 border-dark bg-cream p-3">
                 <div className="text-xs font-bold uppercase tracking-wide text-dark">
-                  Saisie manuelle — {placementTarget === 'step' ? `Étape ${selectedStepIndex + 1}` : 'Point de départ'}
+                  {t('builder.map.manualEntry')} — {placementTarget === 'step' ? t('builder.map.stepNumber', { number: selectedStepIndex + 1 }) : t('builder.map.startPoint')}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <input
@@ -762,16 +785,16 @@ export default function PartnerStudioBuilderPage() {
                         geocodeAddress();
                       }
                     }}
-                    placeholder="Rechercher une adresse…"
+                    placeholder={t('builder.map.searchPlaceholder')}
                     className="min-w-[12rem] flex-1 rounded-lg border-2 border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none"
                   />
                   <Button type="button" variant="outline" size="sm" onClick={geocodeAddress}>
-                    Localiser
+                    {t('builder.map.locate')}
                   </Button>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <label className="block text-xs font-medium text-gray-600">Latitude</label>
+                    <label className="block text-xs font-medium text-gray-600">{t('builder.map.latitude')}</label>
                     <input
                       type="number"
                       step="any"
@@ -786,7 +809,7 @@ export default function PartnerStudioBuilderPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="block text-xs font-medium text-gray-600">Longitude</label>
+                    <label className="block text-xs font-medium text-gray-600">{t('builder.map.longitude')}</label>
                     <input
                       type="number"
                       step="any"
@@ -807,10 +830,10 @@ export default function PartnerStudioBuilderPage() {
             <Card className="space-y-5 shadow-arcade">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-dark">Étapes et énigmes</h2>
-                  <p className="text-sm text-slate-500">Sélectionnez une étape et ajustez son contenu et sa localisation sur la carte.</p>
+                  <h2 className="text-2xl font-extrabold text-dark">{t('builder.steps.title')}</h2>
+                  <p className="text-sm text-slate-500">{t('builder.steps.subtitle')}</p>
                 </div>
-                <Button variant="secondary" onClick={addStep}>Ajouter une étape</Button>
+                <Button variant="secondary" onClick={addStep}>{t('builder.steps.add')}</Button>
               </div>
 
               <div className="grid gap-4 lg:grid-cols-[0.42fr_0.58fr]">
@@ -834,7 +857,7 @@ export default function PartnerStudioBuilderPage() {
                           : 'border-gray-200 bg-white hover:border-dark'
                       } ${dragIndex === index ? 'opacity-40' : ''}`}
                     >
-                      <div className="flex cursor-grab flex-col items-center pt-1" title="Glisser pour réordonner">
+                      <div className="flex cursor-grab flex-col items-center pt-1" title={t('builder.steps.dragToReorder')}>
                         <span
                           className={`flex h-7 w-7 items-center justify-center rounded-full border-2 border-dark text-xs font-bold ${
                             selectedStepIndex === index ? 'bg-dark text-warning' : 'bg-white text-dark'
@@ -858,8 +881,8 @@ export default function PartnerStudioBuilderPage() {
                           type="button"
                           onClick={() => reorderSteps(index, index - 1)}
                           disabled={index === 0}
-                          title="Monter"
-                          aria-label="Monter l’étape"
+                          title={t('builder.steps.moveUp')}
+                          aria-label={t('builder.steps.moveUpAria')}
                           className="flex h-7 w-7 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 disabled:opacity-30"
                         >
                           ↑
@@ -868,8 +891,8 @@ export default function PartnerStudioBuilderPage() {
                           type="button"
                           onClick={() => reorderSteps(index, index + 1)}
                           disabled={index === steps.length - 1}
-                          title="Descendre"
-                          aria-label="Descendre l’étape"
+                          title={t('builder.steps.moveDown')}
+                          aria-label={t('builder.steps.moveDownAria')}
                           className="flex h-7 w-7 items-center justify-center rounded text-slate-400 transition hover:bg-slate-100 disabled:opacity-30"
                         >
                           ↓
@@ -877,8 +900,8 @@ export default function PartnerStudioBuilderPage() {
                         <button
                           type="button"
                           onClick={() => deleteStep(index)}
-                          title="Supprimer cette étape"
-                          aria-label={`Supprimer l’étape ${index + 1}`}
+                          title={t('builder.steps.deleteTitle')}
+                          aria-label={t('builder.steps.deleteAria', { number: index + 1 })}
                           className="flex h-9 w-9 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50"
                         >
                           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -893,17 +916,17 @@ export default function PartnerStudioBuilderPage() {
                 <div className="space-y-4">
                   <div className="grid gap-4 md:grid-cols-2">
                     <Input
-                      label="Titre"
+                      label={t('builder.steps.titleLabel')}
                       value={currentStep.title}
                       onChange={(event) => updateStep('title', event.target.value)}
                     />
                     <Input
-                      label="Récompense"
+                      label={t('builder.steps.rewardLabel')}
                       value={currentStep.reward}
                       onChange={(event) => updateStep('reward', event.target.value)}
                     />
                     <div className="md:col-span-2 space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Description</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('builder.steps.descriptionLabel')}</label>
                       <textarea
                         value={currentStep.description}
                         onChange={(event) => updateStep('description', event.target.value)}
@@ -912,7 +935,7 @@ export default function PartnerStudioBuilderPage() {
                       />
                     </div>
                     <div className="md:col-span-2 space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Énigme / indice</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('builder.steps.clueLabel')}</label>
                       <textarea
                         value={currentStep.clue}
                         onChange={(event) => updateStep('clue', event.target.value)}
@@ -921,7 +944,7 @@ export default function PartnerStudioBuilderPage() {
                       />
                     </div>
                     <div className="md:col-span-2 space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">Type de défi</label>
+                      <label className="block text-sm font-medium text-gray-700">{t('builder.steps.challengeType')}</label>
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                         {CHALLENGE_OPTIONS.map((option) => (
                           <button
@@ -936,7 +959,7 @@ export default function PartnerStudioBuilderPage() {
                             }`}
                           >
                             <ChallengeIcon type={option} className="h-4 w-4 shrink-0" />
-                            <span className="truncate">{option}</span>
+                            <span className="truncate">{challengeLabel(option)}</span>
                           </button>
                         ))}
                       </div>
@@ -945,7 +968,7 @@ export default function PartnerStudioBuilderPage() {
 
                   <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dark bg-cream p-4">
                     <div className="text-sm font-medium text-gray-600">
-                      <span className="font-bold text-dark">Localisation de l’étape : </span>
+                      <span className="font-bold text-dark">{t('builder.steps.stepLocation')} </span>
                       {currentStep.location.latitude.toFixed(4)}, {currentStep.location.longitude.toFixed(4)}
                     </div>
                     <Button
@@ -953,10 +976,10 @@ export default function PartnerStudioBuilderPage() {
                       size="sm"
                       onClick={() => {
                         setPlacementTarget('step');
-                        addNotification({ type: 'info', message: 'Cliquez sur la carte de la chasse pour positionner cette étape.' });
+                        addNotification({ type: 'info', message: t('builder.notifications.clickToPlace') });
                       }}
                     >
-                      Placer sur la carte
+                      {t('builder.steps.placeOnMap')}
                     </Button>
                   </div>
                 </div>
@@ -968,10 +991,10 @@ export default function PartnerStudioBuilderPage() {
             <Card className="shadow-arcade lg:sticky lg:top-24">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-dark">Aperçu joueur</h2>
-                  <p className="text-sm text-slate-500">La vue finale reste simple, guidée et compatible mobile.</p>
+                  <h2 className="text-2xl font-extrabold text-dark">{t('builder.preview.title')}</h2>
+                  <p className="text-sm text-slate-500">{t('builder.preview.subtitle')}</p>
                 </div>
-                <span className="rounded-full border-2 border-dark bg-card-blue px-3 py-1 text-xs font-bold text-dark">Mobile first</span>
+                <span className="rounded-full border-2 border-dark bg-card-blue px-3 py-1 text-xs font-bold text-dark">{t('builder.preview.mobileFirst')}</span>
               </div>
               <div className="mt-5 rounded-[2rem] bg-dark p-4 text-white shadow-arcade">
                 <div className="mx-auto max-w-sm rounded-[1.8rem] bg-dark p-4 ring-1 ring-white/10">
@@ -982,27 +1005,27 @@ export default function PartnerStudioBuilderPage() {
                     transition={{ duration: 0.25 }}
                     className={`rounded-[1.5rem] border-2 border-dark ${selectedTemplate.accent} p-5 text-dark`}
                   >
-                    <div className="text-xs font-bold uppercase tracking-[0.35em] text-gray-600">Étape {selectedStepIndex + 1}</div>
+                    <div className="text-xs font-bold uppercase tracking-[0.35em] text-gray-600">{t('builder.map.stepNumber', { number: selectedStepIndex + 1 })}</div>
                     <h3 className="mt-2 text-2xl font-black text-dark">{currentStep.title}</h3>
                     <p className="mt-2 text-sm font-medium text-gray-600">{currentStep.clue}</p>
                     <div className="mt-4 rounded-2xl border-2 border-dark bg-white p-3 text-sm">
                       <div className="flex items-center gap-1.5 font-bold text-dark">
                         <ChallengeIcon type={currentStep.challenge} className="h-4 w-4" />
-                        Défi
+                        {t('builder.preview.challenge')}
                       </div>
-                      <div className="font-medium text-gray-600">{currentStep.challenge}</div>
+                      <div className="font-medium text-gray-600">{challengeLabel(currentStep.challenge)}</div>
                     </div>
                   </motion.div>
                   <div className="mt-4 space-y-3 rounded-[1.4rem] border-2 border-dark bg-white p-4 text-dark">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-bold">Récompense</span>
+                      <span className="font-bold">{t('builder.preview.reward')}</span>
                       <span className="rounded-full border-2 border-dark bg-card-green px-2 py-1 text-xs font-bold text-dark">{currentStep.reward}</span>
                     </div>
                     <div className="h-2 rounded-full bg-gray-200">
                       <div className="h-2 w-[72%] rounded-full bg-primary" />
                     </div>
-                    <div className="text-sm font-medium text-gray-600">Progression simulée: 72%</div>
-                    <Button className="w-full">Valider l’étape</Button>
+                    <div className="text-sm font-medium text-gray-600">{t('builder.preview.simulatedProgress')}</div>
+                    <Button className="w-full">{t('builder.preview.validateStep')}</Button>
                   </div>
                 </div>
               </div>
@@ -1010,8 +1033,8 @@ export default function PartnerStudioBuilderPage() {
 
             <Card className="space-y-4 shadow-arcade">
               <div>
-                <h2 className="text-2xl font-extrabold text-dark">Suivi analytique</h2>
-                <p className="text-sm text-slate-500">Surveillez la participation, les points de friction et les abandons.</p>
+                <h2 className="text-2xl font-extrabold text-dark">{t('builder.analytics.title')}</h2>
+                <p className="text-sm text-slate-500">{t('builder.analytics.subtitle')}</p>
               </div>
               <div className="space-y-3">
                 {steps.map((step, index) => {
@@ -1034,10 +1057,10 @@ export default function PartnerStudioBuilderPage() {
                 })}
               </div>
               <div className="grid gap-3 md:grid-cols-2">
-                {publicationChecks.map((check) => (
-                  <div key={check} className="flex items-center gap-2 rounded-2xl border-2 border-dark bg-card-green px-3 py-3 text-sm font-bold text-dark">
+                {publicationCheckKeys.map((checkKey) => (
+                  <div key={checkKey} className="flex items-center gap-2 rounded-2xl border-2 border-dark bg-card-green px-3 py-3 text-sm font-bold text-dark">
                     <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-dark text-xs text-warning">✓</span>
-                    {check}
+                    {t(checkKey)}
                   </div>
                 ))}
               </div>
@@ -1045,21 +1068,21 @@ export default function PartnerStudioBuilderPage() {
 
             <Card className="space-y-4 shadow-arcade">
               <div>
-                <h2 className="text-2xl font-extrabold text-dark">Publication et pilotage</h2>
-                <p className="text-sm text-slate-500">Choisissez le mode dans la barre d’action en bas de l’écran, puis sauvegardez.</p>
+                <h2 className="text-2xl font-extrabold text-dark">{t('builder.publish.title')}</h2>
+                <p className="text-sm text-slate-500">{t('builder.publish.subtitle')}</p>
               </div>
               <ul className="space-y-2 text-sm text-slate-600">
-                <li className="flex items-center gap-2"><StatusBadge status="draft" /> Travail en cours, invisible des joueurs.</li>
-                <li className="flex items-center gap-2"><StatusBadge status="test" /> Accessible à votre équipe pour validation.</li>
-                <li className="flex items-center gap-2"><StatusBadge status="live" /> Publiée et jouable par tous.</li>
+                <li className="flex items-center gap-2"><StatusBadge status="draft" /> {t('builder.publish.draftDesc')}</li>
+                <li className="flex items-center gap-2"><StatusBadge status="test" /> {t('builder.publish.testDesc')}</li>
+                <li className="flex items-center gap-2"><StatusBadge status="live" /> {t('builder.publish.liveDesc')}</li>
               </ul>
               <div className="rounded-2xl border-2 border-dark bg-dark p-4 text-sm text-slate-200">
                 <div className="flex items-center justify-between text-slate-400">
-                  <span>Statut actuel</span>
+                  <span>{t('builder.publish.currentStatus')}</span>
                   <StatusBadge status={config.launchMode} />
                 </div>
                 <p className="mt-2 text-white">
-                  La chasse {config.name} peut être lancée dans son périmètre défini sans sortir du cadre graphique Lootopia.
+                  {t('builder.publish.summary', { name: config.name })}
                 </p>
               </div>
             </Card>
@@ -1073,7 +1096,7 @@ export default function PartnerStudioBuilderPage() {
           <div className="flex items-center gap-3">
             <StatusBadge status={config.launchMode} />
             <span className="text-sm font-medium text-gray-600">
-              {isSaving ? 'Enregistrement…' : lastSaved ? `Enregistré à ${lastSaved}` : 'Non enregistré'}
+              {isSaving ? t('builder.actions.saving') : lastSaved ? t('builder.actions.savedAt', { time: lastSaved }) : t('builder.actions.notSaved')}
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -1087,15 +1110,15 @@ export default function PartnerStudioBuilderPage() {
                     config.launchMode === mode.id ? 'bg-dark text-warning' : 'text-gray-600 hover:bg-cream'
                   }`}
                 >
-                  {mode.label}
+                  {t(mode.labelKey)}
                 </button>
               ))}
             </div>
             <Button variant="outline" onClick={() => router.push('/partner-studio')}>
-              Mes chasses
+              {t('builder.actions.myHunts')}
             </Button>
             <Button onClick={saveChase} isLoading={isSaving}>
-              {config.launchMode === 'live' ? 'Publier' : 'Sauvegarder'}
+              {config.launchMode === 'live' ? t('builder.actions.publish') : t('builder.actions.save')}
             </Button>
           </div>
         </div>

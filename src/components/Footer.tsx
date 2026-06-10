@@ -3,10 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { useI18n } from '@/hooks/useI18n';
+import { useAuth } from '@/hooks/useAuth';
 import { LootopiaLogo } from '@/components/LootopiaLogo';
 
 export const Footer: React.FC = () => {
   const { t } = useI18n();
+  const { user } = useAuth();
+
+  // Les comptes admin et partenaire travaillent dans des interfaces de gestion :
+  // on masque le footer "site vitrine" pour eux.
+  if (user?.role === 'admin' || user?.role === 'partner') {
+    return null;
+  }
 
   return (
     <footer className="bg-white border-t-[3px] border-dark py-10 mt-20 text-sm font-medium text-gray-600">

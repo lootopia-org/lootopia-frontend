@@ -396,5 +396,247 @@
     "contact": "Contact",
     "privacy": "Confidentialité",
     "terms": "Conditions"
+  },
+  "builder": {
+    "loading": {
+      "kicker": "Partner Studio",
+      "title": "Chargement de l’espace partenaire",
+      "subtitle": "Vérification de l’accès et préparation du tableau de bord."
+    },
+    "hero": {
+      "badge": "Studio partenaire autonome",
+      "title": "Concevez, paramétrez et pilotez vos chasses en autonomie.",
+      "subtitle": "Un atelier guidé pour créer rapidement des parcours ludiques cohérents avec la marque, tout en gardant un suivi analytique clair et temps réel.",
+      "startWithTemplate": "Démarrer avec un modèle",
+      "playerView": "Voir la vue joueur",
+      "status": "Statut",
+      "activeTemplate": "Template actif",
+      "targetAudience": "Public cible",
+      "reward": "Récompense"
+    },
+    "defaults": {
+      "huntName": "Chasse boutique printemps"
+    },
+    "templates": {
+      "title": "Choisir un modèle",
+      "subtitle": "Une base rapide à personnaliser selon le contexte partenaire.",
+      "readyBadge": "4 modèles prêts à l’emploi",
+      "retail": {
+        "name": "Chasse boutique",
+        "description": "Idéal pour attirer du trafic en magasin et faire découvrir une gamme.",
+        "objective": "Booster le trafic magasin et la découverte produit",
+        "location": "Point de vente / centre commercial",
+        "reward": "Bon d’achat 20€",
+        "step1": {
+          "title": "Accueil en vitrine",
+          "description": "Trouvez le marqueur près de l’entrée.",
+          "clue": "Repérez le totem d’entrée et scannez le QR code.",
+          "reward": "50 pts"
+        },
+        "step2": {
+          "title": "Produit mystère",
+          "description": "Découvrez le produit caché.",
+          "clue": "Trouvez l’étagère qui porte la couleur du thème.",
+          "reward": "75 pts"
+        },
+        "step3": {
+          "title": "Caisse finale",
+          "description": "Récupérez votre récompense.",
+          "clue": "Entrez le mot révélé par les deux étapes précédentes.",
+          "reward": "Récompense finale"
+        }
+      },
+      "event": {
+        "name": "Parcours événementiel",
+        "description": "Parfait pour un salon, un lancement produit ou un pop-up.",
+        "objective": "Créer un parcours d’engagement rapide et mémorable",
+        "location": "Salon / conférence / événement",
+        "reward": "Goodies premium",
+        "step1": {
+          "title": "Entrée du salon",
+          "description": "Commencez votre aventure.",
+          "clue": "Retrouvez le logo géant sur le stand principal.",
+          "reward": "40 pts"
+        },
+        "step2": {
+          "title": "Mini quiz",
+          "description": "Testez vos connaissances.",
+          "clue": "Répondez à la question affichée sur l’écran d’accueil.",
+          "reward": "60 pts"
+        },
+        "step3": {
+          "title": "Photo finale",
+          "description": "Capturez le moment.",
+          "clue": "Capturez l’espace photo pour débloquer la récompense.",
+          "reward": "Badge événement"
+        }
+      },
+      "team": {
+        "name": "Team building",
+        "description": "Une expérience collaborative pour animer une équipe ou un réseau.",
+        "objective": "Renforcer la cohésion et la participation collective",
+        "location": "Entreprise / site partenaire",
+        "reward": "Badge collectif",
+        "step1": {
+          "title": "Mission d’équipe",
+          "description": "Travaillez ensemble.",
+          "clue": "Chaque groupe récupère une moitié de l’indice.",
+          "reward": "50 pts"
+        },
+        "step2": {
+          "title": "Décodage",
+          "description": "Résolvez l’énigme.",
+          "clue": "Assemblez les réponses pour former le code final.",
+          "reward": "80 pts"
+        },
+        "step3": {
+          "title": "Final collectif",
+          "description": "Finissez ensemble.",
+          "clue": "Validez la zone finale tous ensemble pour gagner.",
+          "reward": "Récompense collective"
+        }
+      },
+      "museum": {
+        "name": "Musée mystérieux",
+        "description": "Une aventure dans un musée avec des énigmes et des trésors cachés.",
+        "objective": "Découvrir les œuvres et résoudre des mystères",
+        "location": "Musée ou galerie d’art",
+        "reward": "Exposition privée",
+        "step1": {
+          "title": "Accueil du musée",
+          "description": "Récupérez votre carte et votre guide.",
+          "clue": "Cherchez le totem à l’entrée et scannez-le.",
+          "reward": "60 pts"
+        },
+        "step2": {
+          "title": "Salle des antiques",
+          "description": "Explorez la salle des antiquités.",
+          "clue": "Trouvez le vase grec avec l’inscription mystérieuse.",
+          "reward": "80 pts"
+        },
+        "step3": {
+          "title": "Salle des tableaux",
+          "description": "Admirez les tableaux et résolvez l’énigme.",
+          "clue": "Le tableau avec le paysage italien contient le code secret.",
+          "reward": "100 pts"
+        }
+      }
+    },
+    "config": {
+      "title": "Paramétrage rapide",
+      "subtitle": "Gardez uniquement les réglages utiles: le reste reste cohérent avec la marque.",
+      "identitySection": "Identité & objectif",
+      "huntName": "Nom de la chasse",
+      "language": "Langue",
+      "objective": "Objectif",
+      "logisticsSection": "Logistique & récompense",
+      "duration": "Durée estimée (min)",
+      "area": "Zone / lieu",
+      "finalReward": "Récompense finale",
+      "difficulty": "Difficulté"
+    },
+    "difficulty": {
+      "easy": "Facile",
+      "medium": "Moyenne",
+      "hard": "Difficile"
+    },
+    "challenges": {
+      "qrLocation": "QR + validation lieu",
+      "visualClue": "Indice visuel",
+      "finalRiddle": "Énigme finale",
+      "quiz": "QCM",
+      "media": "Validation média",
+      "collaboration": "Collaboration",
+      "freeRiddle": "Énigme libre"
+    },
+    "map": {
+      "title": "Carte de la chasse",
+      "subtitle": "Cliquez un marqueur pour sélectionner une étape, ou la carte pour placer l’élément choisi.",
+      "start": "Départ",
+      "stepNumber": "Étape {{number}}",
+      "startMarker": "Départ — {{name}}",
+      "stepMarker": "Étape {{number}}: {{title}}",
+      "manualEntry": "Saisie manuelle",
+      "startPoint": "Point de départ",
+      "searchPlaceholder": "Rechercher une adresse…",
+      "locate": "Localiser",
+      "latitude": "Latitude",
+      "longitude": "Longitude"
+    },
+    "steps": {
+      "title": "Étapes et énigmes",
+      "subtitle": "Sélectionnez une étape et ajustez son contenu et sa localisation sur la carte.",
+      "add": "Ajouter une étape",
+      "dragToReorder": "Glisser pour réordonner",
+      "moveUp": "Monter",
+      "moveUpAria": "Monter l’étape",
+      "moveDown": "Descendre",
+      "moveDownAria": "Descendre l’étape",
+      "deleteTitle": "Supprimer cette étape",
+      "deleteAria": "Supprimer l’étape {{number}}",
+      "titleLabel": "Titre",
+      "rewardLabel": "Récompense",
+      "descriptionLabel": "Description",
+      "clueLabel": "Énigme / indice",
+      "challengeType": "Type de défi",
+      "stepLocation": "Localisation de l’étape :",
+      "placeOnMap": "Placer sur la carte",
+      "newTitle": "Nouvelle étape",
+      "newDescription": "Ajoutez une description.",
+      "newClue": "Ajoutez un indice clair et simple."
+    },
+    "preview": {
+      "title": "Aperçu joueur",
+      "subtitle": "La vue finale reste simple, guidée et compatible mobile.",
+      "mobileFirst": "Mobile first",
+      "challenge": "Défi",
+      "reward": "Récompense",
+      "simulatedProgress": "Progression simulée: 72%",
+      "validateStep": "Valider l’étape"
+    },
+    "analytics": {
+      "title": "Suivi analytique",
+      "subtitle": "Surveillez la participation, les points de friction et les abandons."
+    },
+    "checks": {
+      "brand": "Charte de marque verrouillée",
+      "content": "Contenus validés",
+      "gdpr": "RGPD / consentement activé",
+      "audit": "Journal d’audit actif"
+    },
+    "publish": {
+      "title": "Publication et pilotage",
+      "subtitle": "Choisissez le mode dans la barre d’action en bas de l’écran, puis sauvegardez.",
+      "draftDesc": "Travail en cours, invisible des joueurs.",
+      "testDesc": "Accessible à votre équipe pour validation.",
+      "liveDesc": "Publiée et jouable par tous.",
+      "currentStatus": "Statut actuel",
+      "summary": "La chasse {{name}} peut être lancée dans son périmètre défini sans sortir du cadre graphique Lootopia."
+    },
+    "actions": {
+      "saving": "Enregistrement…",
+      "savedAt": "Enregistré à {{time}}",
+      "notSaved": "Non enregistré",
+      "draft": "Brouillon",
+      "test": "Test",
+      "live": "En ligne",
+      "myHunts": "Mes chasses",
+      "publish": "Publier",
+      "save": "Sauvegarder"
+    },
+    "notifications": {
+      "stepAdded": "Nouvelle étape ajoutée au parcours.",
+      "keepOneStep": "Vous devez conserver au moins une étape.",
+      "stepDeleted": "Étape supprimée.",
+      "addressNotFound": "Adresse introuvable.",
+      "addressLocated": "Adresse localisée sur la carte.",
+      "geocodingUnavailable": "Géocodage indisponible pour le moment.",
+      "templateLoaded": "Le modèle {{name}} a été chargé.",
+      "huntSaved": "Chasse enregistrée avec succès !",
+      "saveError": "Erreur lors de l’enregistrement de la chasse.",
+      "stepLocationUpdated": "Localisation de l’étape {{number}} mise à jour !",
+      "startPointUpdated": "Point de départ mis à jour !",
+      "clickToPlace": "Cliquez sur la carte de la chasse pour positionner cette étape."
+    }
   }
 }

@@ -2,7 +2,7 @@
   "navbar": {
     "explore": "Explore",
     "partnerStudio": "Partner Studio",
-    "myChases": "My Chases",
+    "myChases": "My Hunts",
     "leaderboard": "Leaderboard",
     "logout": "Logout",
     "login": "Login",
@@ -11,7 +11,7 @@
   "home": {
     "welcome": "Welcome to Lootopia",
     "subtitle": "Embark on amazing treasure hunts powered by AR, geolocation, and pure adventure",
-    "exploreChasesBtn": "Explore Chases",
+    "exploreChasesBtn": "Explore Hunts",
     "partnerStudioBtn": "Partner Space",
     "getStartedBtn": "Get Started",
     "whyChoose": "Why Choose Lootopia?",
@@ -27,7 +27,7 @@
     },
     "readyForAdventure": "Ready for an Adventure?",
     "joinThousands": "Join thousands of players discovering treasure hunts around the world",
-    "startQuestBtn": "Start your chase",
+    "startQuestBtn": "Start your hunt",
     "stats": {
       "activePlayers": "Active Players",
       "treasureHunts": "Treasure Hunts",
@@ -93,9 +93,9 @@
       "q1": "What is Lootopia?",
       "a1": "Lootopia is a digital treasure hunt platform that combines AR, geolocation, and gamification to create immersive adventures.",
       "q2": "How do I get started?",
-      "a2": "Sign up for a free account, explore available chases, and start your first adventure. No special equipment needed.",
-      "q3": "Can I create my own chases?",
-      "a3": "Yes. Partners and organizations can create custom chases for their audiences through our partner dashboard.",
+      "a2": "Sign up for a free account, explore available hunts, and start your first adventure. No special equipment needed.",
+      "q3": "Can I create my own hunts?",
+      "a3": "Yes. Partners and organizations can create custom hunts for their audiences through our partner dashboard.",
       "q4": "Is the app free?",
       "a4": "Yes. Lootopia is free to play. We also offer premium features for enhanced experiences."
     },
@@ -107,20 +107,20 @@
     }
   },
   "chases": {
-    "title": "Explore Chases",
+    "title": "Explore Hunts",
     "subtitle": "Discover amazing treasure hunts around the world",
-    "searchPlaceholder": "Search chases by name or location...",
-    "noResults": "No chases found"
+    "searchPlaceholder": "Search hunts by name or location...",
+    "noResults": "No hunts found"
   },
   "chaseDetail": {
     "notifications": {
-      "started": "Chase started! Good luck!",
-      "startError": "Failed to start chase",
+      "started": "Hunt started! Good luck!",
+      "startError": "Failed to start hunt",
       "stepCompleted": "Step completed! +10 points",
       "stepError": "Failed to complete step"
     },
-    "notFound": "Chase not found",
-    "backToChases": "Back to Chases",
+    "notFound": "Hunt not found",
+    "backToChases": "Back to Hunts",
     "difficulty": "Difficulty",
     "duration": "Duration",
     "durationValue": "{{minutes}} minutes",
@@ -129,7 +129,7 @@
     "yourProgress": "Your Progress",
     "stepProgress": "Step {{current}} / {{total}}",
     "pointsValue": "+{{points}} pts",
-    "startChase": "Start Chase",
+    "startChase": "Start Hunt",
     "locationMap": "Location Map",
     "steps": "Steps",
     "stepDetails": "Step Details",
@@ -145,14 +145,14 @@
     "title": "Global Leaderboard",
     "subtitle": "See where you rank among all Lootopia players",
     "topPlayers": "Top Players",
-    "chasesCompleted": "{{count}} chases completed",
+    "chasesCompleted": "{{count}} hunts completed",
     "points": "points"
   },
   "myChases": {
-    "title": "My Chases",
-    "subtitle": "Chases you are currently playing",
-    "empty": "You haven't started any chases yet",
-    "explore": "Explore chases ->"
+    "title": "My Hunts",
+    "subtitle": "Hunts you are currently playing",
+    "empty": "You haven't started any hunts yet",
+    "explore": "Explore hunts ->"
   },
   "profile": {
     "yourStats": "Your Stats",
@@ -283,7 +283,7 @@
     "points": "Points",
     "level": "Level",
     "nextLevel": "Next Level",
-    "chases": "Chases"
+    "chases": "Hunts"
   },
   "common": {
     "roles": {
@@ -363,7 +363,7 @@
     },
     "section4": {
       "title": "4. User-Generated Content",
-      "content": "You may submit content (chases, comments, messages) to Lootopia. By submitting content, you: • Grant Lootopia a perpetual, irrevocable license to use your content • Warrant that you own or have permission to use the content • Agree that your content does not infringe on any third-party rights • Accept that Lootopia may use your content for promotional purposes. We reserve the right to remove content that violates these terms or is inappropriate."
+      "content": "You may submit content (hunts, comments, messages) to Lootopia. By submitting content, you: • Grant Lootopia a perpetual, irrevocable license to use your content • Warrant that you own or have permission to use the content • Agree that your content does not infringe on any third-party rights • Accept that Lootopia may use your content for promotional purposes. We reserve the right to remove content that violates these terms or is inappropriate."
     },
     "section5": {
       "title": "5. Intellectual Property Rights",
@@ -396,5 +396,247 @@
     "contact": "Contact",
     "privacy": "Privacy",
     "terms": "Terms"
+  },
+  "builder": {
+    "loading": {
+      "kicker": "Partner Studio",
+      "title": "Loading the partner workspace",
+      "subtitle": "Verifying access and preparing the dashboard."
+    },
+    "hero": {
+      "badge": "Self-service partner studio",
+      "title": "Design, configure and manage your hunts on your own.",
+      "subtitle": "A guided workshop to quickly create playful trails consistent with your brand, while keeping clear, real-time analytics.",
+      "startWithTemplate": "Start with a template",
+      "playerView": "See the player view",
+      "status": "Status",
+      "activeTemplate": "Active template",
+      "targetAudience": "Target audience",
+      "reward": "Reward"
+    },
+    "defaults": {
+      "huntName": "Spring store hunt"
+    },
+    "templates": {
+      "title": "Choose a template",
+      "subtitle": "A quick starting point to customize for each partner context.",
+      "readyBadge": "4 ready-to-use templates",
+      "retail": {
+        "name": "Store hunt",
+        "description": "Ideal for driving in-store traffic and showcasing a product range.",
+        "objective": "Boost store traffic and product discovery",
+        "location": "Store / shopping mall",
+        "reward": "€20 gift voucher",
+        "step1": {
+          "title": "Window welcome",
+          "description": "Find the marker near the entrance.",
+          "clue": "Spot the entrance totem and scan the QR code.",
+          "reward": "50 pts"
+        },
+        "step2": {
+          "title": "Mystery product",
+          "description": "Discover the hidden product.",
+          "clue": "Find the shelf in the theme color.",
+          "reward": "75 pts"
+        },
+        "step3": {
+          "title": "Final checkout",
+          "description": "Collect your reward.",
+          "clue": "Enter the word revealed by the two previous steps.",
+          "reward": "Final reward"
+        }
+      },
+      "event": {
+        "name": "Event trail",
+        "description": "Perfect for a trade show, product launch or pop-up.",
+        "objective": "Create a quick and memorable engagement journey",
+        "location": "Trade show / conference / event",
+        "reward": "Premium goodies",
+        "step1": {
+          "title": "Show entrance",
+          "description": "Start your adventure.",
+          "clue": "Find the giant logo on the main booth.",
+          "reward": "40 pts"
+        },
+        "step2": {
+          "title": "Mini quiz",
+          "description": "Test your knowledge.",
+          "clue": "Answer the question displayed on the welcome screen.",
+          "reward": "60 pts"
+        },
+        "step3": {
+          "title": "Final photo",
+          "description": "Capture the moment.",
+          "clue": "Capture the photo area to unlock the reward.",
+          "reward": "Event badge"
+        }
+      },
+      "team": {
+        "name": "Team building",
+        "description": "A collaborative experience to energize a team or a network.",
+        "objective": "Strengthen cohesion and collective participation",
+        "location": "Company / partner site",
+        "reward": "Team badge",
+        "step1": {
+          "title": "Team mission",
+          "description": "Work together.",
+          "clue": "Each group collects one half of the clue.",
+          "reward": "50 pts"
+        },
+        "step2": {
+          "title": "Decoding",
+          "description": "Solve the riddle.",
+          "clue": "Combine the answers to form the final code.",
+          "reward": "80 pts"
+        },
+        "step3": {
+          "title": "Group finale",
+          "description": "Finish together.",
+          "clue": "Validate the final zone all together to win.",
+          "reward": "Team reward"
+        }
+      },
+      "museum": {
+        "name": "Mysterious museum",
+        "description": "An adventure through a museum with riddles and hidden treasures.",
+        "objective": "Discover the artworks and solve mysteries",
+        "location": "Museum or art gallery",
+        "reward": "Private exhibition",
+        "step1": {
+          "title": "Museum entrance",
+          "description": "Pick up your map and your guide.",
+          "clue": "Look for the totem at the entrance and scan it.",
+          "reward": "60 pts"
+        },
+        "step2": {
+          "title": "Antiquities room",
+          "description": "Explore the antiquities room.",
+          "clue": "Find the Greek vase with the mysterious inscription.",
+          "reward": "80 pts"
+        },
+        "step3": {
+          "title": "Painting gallery",
+          "description": "Admire the paintings and solve the riddle.",
+          "clue": "The painting with the Italian landscape holds the secret code.",
+          "reward": "100 pts"
+        }
+      }
+    },
+    "config": {
+      "title": "Quick setup",
+      "subtitle": "Keep only the useful settings: everything else stays consistent with the brand.",
+      "identitySection": "Identity & objective",
+      "huntName": "Hunt name",
+      "language": "Language",
+      "objective": "Objective",
+      "logisticsSection": "Logistics & reward",
+      "duration": "Estimated duration (min)",
+      "area": "Area / location",
+      "finalReward": "Final reward",
+      "difficulty": "Difficulty"
+    },
+    "difficulty": {
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard"
+    },
+    "challenges": {
+      "qrLocation": "QR + location check",
+      "visualClue": "Visual clue",
+      "finalRiddle": "Final riddle",
+      "quiz": "Multiple choice",
+      "media": "Media validation",
+      "collaboration": "Collaboration",
+      "freeRiddle": "Open riddle"
+    },
+    "map": {
+      "title": "Hunt map",
+      "subtitle": "Click a marker to select a step, or click the map to place the selected element.",
+      "start": "Start",
+      "stepNumber": "Step {{number}}",
+      "startMarker": "Start — {{name}}",
+      "stepMarker": "Step {{number}}: {{title}}",
+      "manualEntry": "Manual entry",
+      "startPoint": "Starting point",
+      "searchPlaceholder": "Search for an address…",
+      "locate": "Locate",
+      "latitude": "Latitude",
+      "longitude": "Longitude"
+    },
+    "steps": {
+      "title": "Steps and riddles",
+      "subtitle": "Select a step and adjust its content and its location on the map.",
+      "add": "Add a step",
+      "dragToReorder": "Drag to reorder",
+      "moveUp": "Move up",
+      "moveUpAria": "Move the step up",
+      "moveDown": "Move down",
+      "moveDownAria": "Move the step down",
+      "deleteTitle": "Delete this step",
+      "deleteAria": "Delete step {{number}}",
+      "titleLabel": "Title",
+      "rewardLabel": "Reward",
+      "descriptionLabel": "Description",
+      "clueLabel": "Riddle / clue",
+      "challengeType": "Challenge type",
+      "stepLocation": "Step location:",
+      "placeOnMap": "Place on the map",
+      "newTitle": "New step",
+      "newDescription": "Add a description.",
+      "newClue": "Add a clear and simple clue."
+    },
+    "preview": {
+      "title": "Player preview",
+      "subtitle": "The final view stays simple, guided and mobile-friendly.",
+      "mobileFirst": "Mobile first",
+      "challenge": "Challenge",
+      "reward": "Reward",
+      "simulatedProgress": "Simulated progress: 72%",
+      "validateStep": "Complete the step"
+    },
+    "analytics": {
+      "title": "Analytics tracking",
+      "subtitle": "Monitor participation, friction points and drop-offs."
+    },
+    "checks": {
+      "brand": "Brand guidelines locked",
+      "content": "Content approved",
+      "gdpr": "GDPR / consent enabled",
+      "audit": "Audit log active"
+    },
+    "publish": {
+      "title": "Publishing and management",
+      "subtitle": "Choose the mode in the action bar at the bottom of the screen, then save.",
+      "draftDesc": "Work in progress, hidden from players.",
+      "testDesc": "Available to your team for validation.",
+      "liveDesc": "Published and playable by everyone.",
+      "currentStatus": "Current status",
+      "summary": "The hunt {{name}} can be launched within its defined perimeter while staying true to the Lootopia visual identity."
+    },
+    "actions": {
+      "saving": "Saving…",
+      "savedAt": "Saved at {{time}}",
+      "notSaved": "Not saved",
+      "draft": "Draft",
+      "test": "Test",
+      "live": "Live",
+      "myHunts": "My hunts",
+      "publish": "Publish",
+      "save": "Save"
+    },
+    "notifications": {
+      "stepAdded": "New step added to the trail.",
+      "keepOneStep": "You must keep at least one step.",
+      "stepDeleted": "Step deleted.",
+      "addressNotFound": "Address not found.",
+      "addressLocated": "Address located on the map.",
+      "geocodingUnavailable": "Geocoding is currently unavailable.",
+      "templateLoaded": "The {{name}} template has been loaded.",
+      "huntSaved": "Hunt saved successfully!",
+      "saveError": "Error while saving the hunt.",
+      "stepLocationUpdated": "Step {{number}} location updated!",
+      "startPointUpdated": "Starting point updated!",
+      "clickToPlace": "Click on the hunt map to position this step."
+    }
   }
 }
