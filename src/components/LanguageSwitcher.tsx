@@ -10,8 +10,8 @@ export const LanguageSwitcher: React.FC = () => {
         onClick={() => changeLanguage('en')}
         className={`flex items-center gap-1 px-3 py-2 rounded-lg transition ${
           currentLanguage === 'en'
-            ? 'bg-white bg-opacity-20'
-            : 'hover:bg-white hover:bg-opacity-10'
+            ? 'bg-gray-100 text-gray-900'
+            : 'text-gray-500 hover:bg-gray-50'
         }`}
         title="English"
       >
@@ -23,8 +23,8 @@ export const LanguageSwitcher: React.FC = () => {
         onClick={() => changeLanguage('fr')}
         className={`flex items-center gap-1 px-3 py-2 rounded-lg transition ${
           currentLanguage === 'fr'
-            ? 'bg-white bg-opacity-20'
-            : 'hover:bg-white hover:bg-opacity-10'
+            ? 'bg-gray-100 text-gray-900'
+            : 'text-gray-500 hover:bg-gray-50'
         }`}
         title="Français"
       >

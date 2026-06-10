@@ -23,8 +23,8 @@ export default function LeaderboardPage() {
     <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold text-dark mb-4">{t('leaderboard.title')}</h1>
-          <p className="text-gray-600 text-lg">{t('leaderboard.subtitle')}</p>
+          <h1 className="text-4xl font-black tracking-tight text-dark mb-4">{t('leaderboard.title')}</h1>
+          <p className="text-gray-600 font-medium text-lg">{t('leaderboard.subtitle')}</p>
         </div>
 
         {leaderboard && <LeaderboardComponent leaderboard={leaderboard} />}

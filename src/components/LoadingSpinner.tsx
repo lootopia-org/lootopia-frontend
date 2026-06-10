@@ -25,7 +25,7 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   if (fullScreen) {
     return (
-      <div className="fixed inset-0 bg-white bg-opacity-80 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-cream bg-opacity-80 flex items-center justify-center z-50">
         {content}
       </div>
     );

@@ -56,21 +56,21 @@ export default function ProfilePage() {
           alt={user.username}
           width={128}
           height={128}
-          className="w-32 h-32 rounded-full border-4 border-primary object-cover"
+          className="w-32 h-32 rounded-full border-2 border-dark shadow-arcade object-cover"
         />
         <div>
-          <h1 className="text-4xl font-bold text-dark">{user.username}</h1>
+          <h1 className="text-4xl font-black tracking-tight text-dark">{user.username}</h1>
           {user.role && (
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               {t(`common.roles.${user.role}`)}
             </p>
           )}
           {user.role && (
-            <p className="mt-2 inline-flex rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-primary">
+            <p className="mt-2 inline-flex rounded-full border-2 border-dark bg-card-orange px-3 py-1 text-xs font-bold text-dark">
               {t('profile.demoProfile')}
             </p>
           )}
-          <p className="text-gray-600 text-lg">{user.email}</p>
+          <p className="text-gray-600 font-medium text-lg">{user.email}</p>
           {user.profile.bio && (
             <p className="text-gray-600 mt-2">{user.profile.bio}</p>
           )}
@@ -83,7 +83,7 @@ export default function ProfilePage() {
       {/* Stats */}
       {stats && (
         <div>
-          <h2 className="text-2xl font-bold text-dark mb-6">{t('profile.yourStats')}</h2>
+          <h2 className="text-2xl font-black tracking-tight text-dark mb-6">{t('profile.yourStats')}</h2>
           <GamificationStats
             points={user.profile.points}
             level={user.profile.level}
@@ -96,7 +96,7 @@ export default function ProfilePage() {
       {/* Leaderboard */}
       {leaderboard && (
         <div>
-          <h2 className="text-2xl font-bold text-dark mb-6">{t('profile.globalLeaderboard')}</h2>
+          <h2 className="text-2xl font-black tracking-tight text-dark mb-6">{t('profile.globalLeaderboard')}</h2>
           <LeaderboardComponent
             leaderboard={leaderboard}
             currentUserRank={userRank ?? undefined}

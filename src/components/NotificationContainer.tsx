@@ -5,10 +5,10 @@ import { useNotificationStore } from '@/lib/notification-store';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const typeColors = {
-  success: 'bg-success text-white',
+  success: 'bg-card-green text-dark',
   error: 'bg-danger text-white',
-  info: 'bg-blue-500 text-white',
-  warning: 'bg-warning text-dark',
+  info: 'bg-card-blue text-dark',
+  warning: 'bg-card-yellow text-dark',
 };
 
 export const NotificationContainer: React.FC = () => {
@@ -23,7 +23,7 @@ export const NotificationContainer: React.FC = () => {
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
-            className={`${typeColors[notification.type]} px-4 py-3 rounded-lg shadow-lg flex items-center justify-between gap-4`}
+            className={`${typeColors[notification.type]} px-4 py-3 rounded-xl border-2 border-dark shadow-arcade font-bold flex items-center justify-between gap-4`}
           >
             <p>{notification.message}</p>
             <button

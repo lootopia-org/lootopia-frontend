@@ -22,28 +22,28 @@ export const GamificationStats: React.FC<GamificationStatsProps> = ({
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card className="text-center">
+      <Card className="text-center bg-card-orange shadow-arcade">
         <div className="space-y-2">
-          <div className="text-4xl font-bold text-primary">{points}</div>
-          <p className="text-sm text-gray-600">{t('gamification.points')}</p>
+          <div className="text-4xl font-black text-dark">{points}</div>
+          <p className="text-sm font-medium text-gray-600">{t('gamification.points')}</p>
         </div>
       </Card>
 
-      <Card className="text-center">
+      <Card className="text-center bg-card-blue shadow-arcade">
         <div className="space-y-2">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl font-bold text-secondary"
+            className="text-4xl font-black text-dark"
           >
             {level}
           </motion.div>
-          <p className="text-sm text-gray-600">{t('gamification.level')}</p>
+          <p className="text-sm font-medium text-gray-600">{t('gamification.level')}</p>
         </div>
       </Card>
 
-      <Card className="text-center">
+      <Card className="text-center bg-card-yellow shadow-arcade">
         <div className="space-y-2">
           <div className="relative w-16 h-16 mx-auto">
             <svg className="w-full h-full transform -rotate-90">
@@ -67,18 +67,18 @@ export const GamificationStats: React.FC<GamificationStatsProps> = ({
                 animate={{ strokeDasharray: `${(progressPercentage / 100) * 176} 176` }}
               />
             </svg>
-            <div className="absolute inset-0 flex items-center justify-center text-sm font-bold">
+            <div className="absolute inset-0 flex items-center justify-center text-sm font-black text-dark">
               {progressPercentage}%
             </div>
           </div>
-          <p className="text-xs text-gray-600">{t('gamification.nextLevel')}</p>
+          <p className="text-xs font-medium text-gray-600">{t('gamification.nextLevel')}</p>
         </div>
       </Card>
 
-      <Card className="text-center">
+      <Card className="text-center bg-card-green shadow-arcade">
         <div className="space-y-2">
-          <div className="text-4xl font-bold text-accent">{completedChases}</div>
-          <p className="text-sm text-gray-600">{t('gamification.chases')}</p>
+          <div className="text-4xl font-black text-dark">{completedChases}</div>
+          <p className="text-sm font-medium text-gray-600">{t('gamification.chases')}</p>
         </div>
       </Card>
     </div>

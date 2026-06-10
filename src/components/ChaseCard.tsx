@@ -14,9 +14,9 @@ interface ChaseCardProps {
 export const ChaseCard: React.FC<ChaseCardProps> = ({ chase }) => {
   const { t } = useI18n();
   const difficultyColors = {
-    easy: 'bg-green-100 text-green-800',
-    medium: 'bg-yellow-100 text-yellow-800',
-    hard: 'bg-red-100 text-red-800',
+    easy: 'bg-card-green',
+    medium: 'bg-card-yellow',
+    hard: 'bg-card-orange',
   };
 
   return (
@@ -29,16 +29,16 @@ export const ChaseCard: React.FC<ChaseCardProps> = ({ chase }) => {
               alt={chase.title}
               width={640}
               height={320}
-              className="w-full h-40 object-cover rounded-lg"
+              className="w-full h-40 object-cover rounded-xl border-2 border-dark"
             />
           )}
           <div>
-            <h3 className="text-lg font-bold text-dark">{chase.title}</h3>
+            <h3 className="text-lg font-extrabold text-dark">{chase.title}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">{chase.description}</p>
           </div>
 
           <div className="flex items-center justify-between">
-            <span className={`text-xs px-3 py-1 rounded-full font-medium ${difficultyColors[chase.difficulty]}`}>
+            <span className={`text-xs px-3 py-1 rounded-full border-2 border-dark text-dark font-bold ${difficultyColors[chase.difficulty]}`}>
               {t(`common.difficulty.${chase.difficulty}`)}
             </span>
             <span className="text-sm font-semibold text-primary">{chase.rating}/5 ⭐</span>

@@ -102,10 +102,10 @@ export default function ContactPage() {
   return (
     <div className="overflow-hidden">
       {/* Hero Section */}
-      <section className="bg-gradient text-white py-20 px-4">
+      <section className="bg-cream py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">{t('contact.title')}</h1>
-          <p className="text-xl md:text-2xl text-orange-100 max-w-3xl mx-auto">
+          <h1 className="text-5xl md:text-6xl font-black tracking-tight text-dark mb-6">{t('contact.title')}</h1>
+          <p className="text-xl md:text-2xl text-gray-600 font-medium max-w-3xl mx-auto">
             {t('contact.subtitle')}
           </p>
         </div>
@@ -123,7 +123,7 @@ export default function ContactPage() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card className="text-center space-y-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary to-orange-600 rounded-lg flex items-center justify-center mx-auto text-white">
+                  <div className="w-12 h-12 bg-dark rounded-xl flex items-center justify-center mx-auto text-warning">
                     {method.icon}
                   </div>
                   <h3 className="font-bold text-dark text-lg">{method.title}</h3>
@@ -147,7 +147,7 @@ export default function ContactPage() {
           >
             <Card className="space-y-6 p-8">
               <div>
-                <h2 className="text-3xl font-bold text-dark mb-2">{t('contact.title')}</h2>
+                <h2 className="text-3xl font-black text-dark mb-2">{t('contact.title')}</h2>
                 <p className="text-gray-600">{t('contact.subtitle')}</p>
               </div>
 
@@ -187,7 +187,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     rows={6}
-                    className={`w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-primary transition-colors resize-none ${
+                    className={`w-full px-4 py-2 border-2 border-dark rounded-xl bg-white focus:outline-none focus:shadow-arcade-sm transition-all resize-none ${
                       errors.message ? 'border-danger' : ''
                     }`}
                   />
@@ -206,7 +206,7 @@ export default function ContactPage() {
       {/* FAQ Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-dark text-center mb-12">{t('contact.faq.title')}</h2>
+          <h2 className="text-3xl font-black text-dark text-center mb-12">{t('contact.faq.title')}</h2>
 
           <div className="space-y-4">
             {[

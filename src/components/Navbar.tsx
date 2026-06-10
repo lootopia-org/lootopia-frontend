@@ -29,9 +29,9 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-primary to-secondary text-white shadow-lg sticky top-0 z-40">
+    <nav className="bg-white border-b-[3px] border-dark text-dark sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 text-2xl font-bold">
+        <Link href="/" className="flex items-center gap-2 text-2xl font-extrabold text-dark">
           <LootopiaLogo className="w-8 h-8" />
           Lootopia
         </Link>
@@ -39,22 +39,22 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-6">
           {isAuthenticated ? (
             <>
-              <Link href="/chases" className="hover:text-orange-100 transition">
+              <Link href="/chases" className="font-bold hover:text-primary transition">
                 {t('navbar.explore')}
               </Link>
               {(user?.role === 'admin' || user?.role === 'partner') && (
-                <Link href="/partner-studio" className="hover:text-orange-100 transition">
+                <Link href="/partner-studio" className="font-bold hover:text-primary transition">
                   {t('navbar.partnerStudio')}
                 </Link>
               )}
-              <Link href="/my-chases" className="hover:text-orange-100 transition">
+              <Link href="/my-chases" className="font-bold hover:text-primary transition">
                 {t('navbar.myChases')}
               </Link>
-              <Link href="/leaderboard" className="hover:text-orange-100 transition">
+              <Link href="/leaderboard" className="font-bold hover:text-primary transition">
                 {t('navbar.leaderboard')}
               </Link>
               {user?.role === 'admin' && (
-                <Link href="/admin" className="hover:text-orange-100 transition">
+                <Link href="/admin" className="font-bold hover:text-primary transition">
                   Admin
                 </Link>
               )}
@@ -69,7 +69,7 @@ export const Navbar: React.FC = () => {
                 <span className="flex items-center gap-2">
                   {user?.username}
                   {user?.role && (
-                    <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                    <span className="rounded-full border border-dark bg-card-yellow text-dark px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
                       {t(`common.roles.${user.role}`)}
                     </span>
                   )}

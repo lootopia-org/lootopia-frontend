@@ -79,21 +79,20 @@ export default function PartnerStudioDashboard() {
   const partnerName = user?.name || user?.username || 'Partenaire';
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(255,107,53,0.12),_transparent_28%),linear-gradient(180deg,#f8fbff_0%,#eef4fa_100%)]">
-      <div className="absolute inset-x-0 top-0 h-60 bg-gradient opacity-90" />
+    <div className="relative min-h-screen overflow-hidden bg-cream">
       <div className="relative mx-auto max-w-7xl space-y-8 px-4 py-8 md:py-12">
         {/* En-tête */}
         <motion.section
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-center justify-between gap-4 rounded-[2rem] bg-white/80 p-6 shadow-xl ring-1 ring-white/60 backdrop-blur md:p-8"
+          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-dark bg-white p-6 shadow-arcade md:p-8"
         >
           <div className="space-y-2">
-            <div className="inline-flex rounded-full bg-primary/10 px-4 py-1.5 text-sm font-semibold text-primary">
+            <div className="inline-flex rounded-full border-2 border-dark bg-card-yellow px-3 py-1 text-xs font-bold text-dark">
               Partner Studio
             </div>
             <h1 className="text-3xl font-black tracking-tight text-dark md:text-4xl">Bonjour, {partnerName}</h1>
-            <p className="text-slate-600">Pilotez vos chasses, suivez leurs performances et créez-en de nouvelles.</p>
+            <p className="font-medium text-gray-600">Pilotez vos chasses, suivez leurs performances et créez-en de nouvelles.</p>
           </div>
           <Button size="lg" onClick={() => router.push('/partner-studio/builder')}>
             + Nouvelle chasse
@@ -102,11 +101,14 @@ export default function PartnerStudioDashboard() {
 
         {/* KPI globaux */}
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {analyticsTiles.map((tile) => (
-            <Card key={tile.label} className="border border-white/70 bg-white/90">
-              <div className="text-sm font-medium text-slate-500">{tile.label}</div>
+          {analyticsTiles.map((tile, index) => (
+            <Card
+              key={tile.label}
+              className={`shadow-arcade ${['!bg-card-orange', '!bg-card-blue', '!bg-card-yellow', '!bg-card-green'][index % 4]}`}
+            >
+              <div className="text-sm font-bold text-dark">{tile.label}</div>
               <div className="mt-2 text-3xl font-black text-dark">{tile.value}</div>
-              <div className="mt-1 text-sm text-slate-500">{tile.detail}</div>
+              <div className="mt-1 text-sm font-medium text-gray-600">{tile.detail}</div>
             </Card>
           ))}
         </section>
@@ -115,8 +117,8 @@ export default function PartnerStudioDashboard() {
         <section className="space-y-5">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-bold text-dark">Mes chasses</h2>
-              <p className="text-sm text-slate-500">{filteredChases.length} chasse(s) affichée(s).</p>
+              <h2 className="text-2xl font-extrabold text-dark">Mes chasses</h2>
+              <p className="text-sm font-medium text-gray-600">{filteredChases.length} chasse(s) affichée(s).</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <Input
@@ -126,14 +128,14 @@ export default function PartnerStudioDashboard() {
                 onChange={(event) => setSearch(event.target.value)}
                 className="w-64"
               />
-              <div className="flex rounded-lg border border-slate-200 bg-white p-0.5">
+              <div className="flex rounded-xl border-2 border-dark bg-white p-1 shadow-arcade-sm">
                 {statusFilters.map((filter) => (
                   <button
                     key={filter.id}
                     type="button"
                     onClick={() => setStatusFilter(filter.id)}
-                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                      statusFilter === filter.id ? 'bg-secondary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'
+                    className={`rounded-lg px-3 py-1.5 text-sm font-bold transition ${
+                      statusFilter === filter.id ? 'bg-dark text-warning' : 'text-gray-600 hover:bg-cream'
                     }`}
                   >
                     {filter.label}
@@ -144,8 +146,8 @@ export default function PartnerStudioDashboard() {
           </div>
 
           {filteredChases.length === 0 ? (
-            <Card className="border border-white/70 bg-white/90 py-12 text-center">
-              <p className="text-lg text-slate-600">Aucune chasse ne correspond à ces critères.</p>
+            <Card className="py-12 text-center shadow-arcade">
+              <p className="text-lg font-medium text-gray-600">Aucune chasse ne correspond à ces critères.</p>
               <div className="mt-4">
                 <Button onClick={() => router.push('/partner-studio/builder')}>Créer ma première chasse</Button>
               </div>
@@ -153,7 +155,7 @@ export default function PartnerStudioDashboard() {
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
               {filteredChases.map((chase) => (
-                <Card key={chase.id} className="flex flex-col border border-white/70 bg-white/90 !p-0 overflow-hidden">
+                <Card key={chase.id} className="flex flex-col !p-0 overflow-hidden shadow-arcade">
                   {chase.image && (
                     <Image
                       src={chase.image}

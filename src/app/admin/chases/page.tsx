@@ -14,10 +14,10 @@ import { Chase } from '@/types';
 
 const difficultyClass = (difficulty: Chase['difficulty']) =>
   difficulty === 'easy'
-    ? 'bg-green-100 text-green-800'
+    ? 'bg-card-green'
     : difficulty === 'medium'
-    ? 'bg-yellow-100 text-yellow-800'
-    : 'bg-red-100 text-red-800';
+    ? 'bg-card-yellow'
+    : 'bg-card-orange';
 
 /** État réel d'une chasse : launchMode si présent, sinon dérivé du status. */
 const chaseState = (chase: Chase): string => {
@@ -98,11 +98,11 @@ export default function AdminChaseManagementPage() {
 
   if (isLoading || isLoadingChases) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,107,53,0.12),_transparent_28%),linear-gradient(180deg,#f8fbff_0%,#eef4fa_100%)] px-4 py-16">
+      <div className="min-h-screen bg-cream px-4 py-16">
         <div className="mx-auto flex max-w-3xl items-center justify-center">
           <Card className="w-full space-y-4 text-center">
-            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">Gestion des chasses</div>
-            <h1 className="text-3xl font-bold text-dark">Chargement...</h1>
+            <div className="text-sm font-bold uppercase tracking-[0.3em] text-primary">Gestion des chasses</div>
+            <h1 className="text-3xl font-black text-dark">Chargement...</h1>
           </Card>
         </div>
       </div>
@@ -110,13 +110,12 @@ export default function AdminChaseManagementPage() {
   }
 
   return (
-    <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(255,107,53,0.12),_transparent_28%),linear-gradient(180deg,#f8fbff_0%,#eef4fa_100%)]">
-      <div className="absolute inset-x-0 top-0 h-72 bg-gradient opacity-90" />
+    <div className="relative overflow-hidden bg-cream">
       <div className="relative mx-auto max-w-7xl space-y-8 px-4 py-8 md:py-12">
         <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+              <div className="inline-flex rounded-full border-2 border-dark bg-card-orange px-3 py-1 text-xs font-bold text-dark">
                 Administration
               </div>
               <h1 className="mt-3 text-4xl font-black tracking-tight text-dark">Gestion des chasses</h1>
@@ -127,7 +126,7 @@ export default function AdminChaseManagementPage() {
             </div>
           </div>
 
-          <Card className="border border-white/70 bg-white/90">
+          <Card className="shadow-arcade">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="max-w-md flex-1">
                 <Input
@@ -140,19 +139,19 @@ export default function AdminChaseManagementPage() {
             </div>
           </Card>
 
-          <Card className="overflow-hidden border border-white/70 bg-white/90">
+          <Card className="overflow-hidden shadow-arcade !p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="border-b border-slate-200 bg-slate-50">
+                <thead className="border-b-2 border-dark bg-card-yellow">
                   <tr>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Chasse</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Statut</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Difficulté</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Participants</th>
-                    <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wide text-slate-500">Actions</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-dark">Chasse</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-dark">Statut</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-dark">Difficulté</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-dark">Participants</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wide text-dark">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-gray-200">
                   {filteredChases.map((chase) => (
                     <tr key={chase.id} className="transition-colors hover:bg-slate-50">
                       <td className="px-6 py-4">
@@ -163,7 +162,7 @@ export default function AdminChaseManagementPage() {
                         <StatusBadge status={chaseState(chase)} />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${difficultyClass(chase.difficulty)}`}>
+                        <span className={`inline-flex rounded-full border-2 border-dark px-3 py-1 text-xs font-bold text-dark ${difficultyClass(chase.difficulty)}`}>
                           {chase.difficulty}
                         </span>
                       </td>

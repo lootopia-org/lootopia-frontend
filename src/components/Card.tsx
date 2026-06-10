@@ -12,8 +12,8 @@ interface CardProps {
 export const Card: React.FC<CardProps> = ({ className = '', children, hover = false }) => {
   return (
     <motion.div
-      whileHover={hover ? { y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' } : {}}
-      className={`bg-white rounded-xl shadow-md p-6 transition-all ${className}`}
+      whileHover={hover ? { y: -4, boxShadow: '7px 7px 0 #1A1A1A' } : {}}
+      className={`bg-white rounded-2xl border-2 border-dark shadow-arcade-lg p-6 transition-all ${className}`}
     >
       {children}
     </motion.div>

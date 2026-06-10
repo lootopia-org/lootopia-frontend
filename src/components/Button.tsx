@@ -10,10 +10,10 @@ interface ButtonProps extends HTMLMotionProps<'button'> {
 }
 
 const variantClasses = {
-  primary: 'bg-primary text-white hover:bg-orange-600',
-  secondary: 'bg-secondary text-white hover:bg-blue-900',
-  outline: 'border-2 border-primary text-primary hover:bg-orange-50',
-  danger: 'bg-danger text-white hover:bg-red-700',
+  primary: 'bg-primary text-white border-2 border-dark shadow-arcade hover:bg-orange-600',
+  secondary: 'bg-secondary text-white border-2 border-dark shadow-arcade hover:bg-blue-900',
+  outline: 'bg-white text-dark border-2 border-dark shadow-arcade hover:bg-orange-50',
+  danger: 'bg-danger text-white border-2 border-dark shadow-arcade hover:bg-red-700',
 };
 
 const sizeClasses = {
@@ -32,9 +32,9 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className={`rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${className} ${variantClasses[variant]} ${sizeClasses[size]}`}
+      whileHover={{ y: -2 }}
+      whileTap={{ y: 1 }}
+      className={`rounded-xl font-extrabold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${className} ${variantClasses[variant]} ${sizeClasses[size]}`}
       disabled={isLoading || props.disabled}
       {...props}
     >

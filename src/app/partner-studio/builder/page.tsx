@@ -56,7 +56,7 @@ const templates: Array<{
     id: 'retail',
     name: 'Chasse boutique',
     description: 'Idéal pour attirer du trafic en magasin et faire découvrir une gamme.',
-    accent: 'from-primary to-accent',
+    accent: 'bg-card-orange',
     objective: 'Booster le trafic magasin et la découverte produit',
     duration: '35 min',
     location: 'Point de vente / centre commercial',
@@ -98,7 +98,7 @@ const templates: Array<{
     id: 'event',
     name: 'Parcours événementiel',
     description: 'Parfait pour un salon, un lancement produit ou un pop-up.',
-    accent: 'from-secondary to-sky-500',
+    accent: 'bg-card-blue',
     objective: 'Créer un parcours d’engagement rapide et mémorable',
     duration: '20 min',
     location: 'Salon / conférence / événement',
@@ -140,7 +140,7 @@ const templates: Array<{
     id: 'team',
     name: 'Team building',
     description: 'Une expérience collaborative pour animer une équipe ou un réseau.',
-    accent: 'from-slate-700 to-secondary',
+    accent: 'bg-card-green',
     objective: 'Renforcer la cohésion et la participation collective',
     duration: '55 min',
     location: 'Entreprise / site partenaire',
@@ -182,7 +182,7 @@ const templates: Array<{
     id: 'museum',
     name: 'Musée mystérieux',
     description: 'Une aventure dans un musée avec des énigmes et des trésors cachés.',
-    accent: 'from-yellow-600 to-orange-500',
+    accent: 'bg-card-yellow',
     objective: 'Découvrir les œuvres et résoudre des mystères',
     duration: '90 min',
     location: 'Musée ou galerie d’art',
@@ -232,9 +232,9 @@ const publicationChecks = [
 ];
 
 const difficultyOptions: Array<{ value: StudioConfig['difficulty']; label: string; chip: string }> = [
-  { value: 'easy', label: 'Facile', chip: 'bg-green-100 text-green-800 ring-green-600/20' },
-  { value: 'medium', label: 'Moyenne', chip: 'bg-yellow-100 text-yellow-800 ring-yellow-600/20' },
-  { value: 'hard', label: 'Difficile', chip: 'bg-red-100 text-red-800 ring-red-600/20' },
+  { value: 'easy', label: 'Facile', chip: 'bg-card-green' },
+  { value: 'medium', label: 'Moyenne', chip: 'bg-card-yellow' },
+  { value: 'hard', label: 'Difficile', chip: 'bg-card-orange' },
 ];
 
 const CHALLENGE_OPTIONS = [
@@ -337,12 +337,12 @@ export default function PartnerStudioBuilderPage() {
 
   if (isLoading || !isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,107,53,0.12),_transparent_28%),linear-gradient(180deg,#f8fbff_0%,#eef4fa_100%)] px-4 py-16">
+      <div className="min-h-screen bg-cream px-4 py-16">
         <div className="mx-auto flex max-w-3xl items-center justify-center">
           <Card className="w-full space-y-4 text-center">
-            <div className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">Partner Studio</div>
-            <h1 className="text-3xl font-bold text-dark">Chargement de l’espace partenaire</h1>
-            <p className="text-gray-600">Vérification de l’accès et préparation du tableau de bord.</p>
+            <div className="text-sm font-bold uppercase tracking-[0.3em] text-primary">Partner Studio</div>
+            <h1 className="text-3xl font-black text-dark">Chargement de l’espace partenaire</h1>
+            <p className="font-medium text-gray-600">Vérification de l’accès et préparation du tableau de bord.</p>
           </Card>
         </div>
       </div>
@@ -513,23 +513,22 @@ export default function PartnerStudioBuilderPage() {
   ];
 
   return (
-    <div className="relative overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(255,107,53,0.12),_transparent_28%),linear-gradient(180deg,#f8fbff_0%,#eef4fa_100%)]">
-      <div className="absolute inset-x-0 top-0 h-72 bg-gradient opacity-90" />
+    <div className="relative overflow-hidden bg-cream">
       <div className="relative mx-auto max-w-7xl space-y-8 px-4 pt-8 pb-28 md:pt-12">
         <motion.section
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          className="grid gap-6 rounded-[2rem] bg-white/80 p-6 shadow-xl ring-1 ring-white/60 backdrop-blur md:grid-cols-[1.3fr_0.7fr] md:p-8"
+          className="grid gap-6 rounded-2xl border-2 border-dark bg-white p-6 shadow-arcade md:grid-cols-[1.3fr_0.7fr] md:p-8"
         >
           <div className="space-y-5">
-            <div className="inline-flex rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+            <div className="inline-flex rounded-full border-2 border-dark bg-card-yellow px-3 py-1 text-xs font-bold text-dark">
               Studio partenaire autonome
             </div>
             <div className="space-y-3">
               <h1 className="text-4xl font-black tracking-tight text-dark md:text-6xl">
                 Concevez, paramétrez et pilotez vos chasses en autonomie.
               </h1>
-              <p className="max-w-2xl text-lg text-slate-600 md:text-xl">
+              <p className="max-w-2xl text-lg font-medium text-gray-600 md:text-xl">
                 Un atelier guidé pour créer rapidement des parcours ludiques cohérents avec la marque, tout en gardant un suivi analytique clair et temps réel.
               </p>
             </div>
@@ -541,7 +540,7 @@ export default function PartnerStudioBuilderPage() {
             </div>
           </div>
 
-          <Card className="bg-slate-950 text-white shadow-none">
+          <Card className="!bg-dark text-white shadow-arcade">
             <div className="space-y-4">
               <div className="flex items-center justify-between text-sm text-slate-300">
                 <span>Statut</span>
@@ -568,40 +567,40 @@ export default function PartnerStudioBuilderPage() {
 
         <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-6">
-            <Card className="space-y-5 border border-white/70 bg-white/90">
+            <Card className="space-y-5 shadow-arcade">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-dark">Choisir un modèle</h2>
+                  <h2 className="text-2xl font-extrabold text-dark">Choisir un modèle</h2>
                   <p className="text-sm text-slate-500">Une base rapide à personnaliser selon le contexte partenaire.</p>
                 </div>
-                <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">4 modèles prêts à l’emploi</span>
+                <span className="rounded-full border-2 border-dark bg-card-yellow px-3 py-1 text-xs font-bold text-dark">4 modèles prêts à l’emploi</span>
               </div>
               <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 {templates.map((template) => (
                   <button
                     key={template.id}
                     onClick={() => applyTemplate(template.id)}
-                    className={`rounded-2xl border p-4 text-left transition ${
+                    className={`rounded-2xl border-2 p-4 text-left transition ${
                       selectedTemplate.id === template.id
-                        ? 'border-primary bg-primary/5 shadow-sm'
-                        : 'border-slate-200 bg-white hover:border-primary/40 hover:shadow-sm'
+                        ? `border-dark shadow-arcade-sm ${template.accent}`
+                        : 'border-gray-200 bg-white hover:border-dark'
                     }`}
                   >
-                    <div className={`h-2 w-16 rounded-full bg-gradient-to-r ${template.accent}`} />
+                    <div className={`h-2 w-16 rounded-full border border-dark ${selectedTemplate.id === template.id ? 'bg-dark' : template.accent}`} />
                     <div className="mt-4 text-lg font-bold text-dark">{template.name}</div>
                     <p className="mt-2 text-sm text-slate-500">{template.description}</p>
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
-                      <span className="rounded-full bg-slate-100 px-2 py-1">{template.duration}</span>
-                      <span className="rounded-full bg-slate-100 px-2 py-1">{template.reward}</span>
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-dark">
+                      <span className="rounded-full border-2 border-dark bg-white px-2 py-1">{template.duration}</span>
+                      <span className="rounded-full border-2 border-dark bg-white px-2 py-1">{template.reward}</span>
                     </div>
                   </button>
                 ))}
               </div>
             </Card>
 
-            <Card className="space-y-5 border border-white/70 bg-white/90">
+            <Card className="space-y-5 shadow-arcade">
               <div>
-                <h2 className="text-2xl font-bold text-dark">Paramétrage rapide</h2>
+                <h2 className="text-2xl font-extrabold text-dark">Paramétrage rapide</h2>
                 <p className="text-sm text-slate-500">Gardez uniquement les réglages utiles: le reste reste cohérent avec la marque.</p>
               </div>
               <div className="space-y-6">
@@ -661,10 +660,10 @@ export default function PartnerStudioBuilderPage() {
                             type="button"
                             aria-pressed={config.difficulty === option.value}
                             onClick={() => setConfig({ ...config, difficulty: option.value })}
-                            className={`rounded-full px-3 py-1.5 text-sm font-semibold ring-1 ring-inset transition ${
+                            className={`rounded-full border-2 px-3 py-1.5 text-sm font-bold transition ${
                               config.difficulty === option.value
-                                ? `${option.chip} ring-2`
-                                : 'bg-slate-50 text-slate-500 ring-slate-200 hover:bg-slate-100'
+                                ? `${option.chip} border-dark text-dark shadow-arcade-sm`
+                                : 'border-gray-300 bg-white text-gray-600 hover:border-dark'
                             }`}
                           >
                             {option.label}
@@ -677,24 +676,24 @@ export default function PartnerStudioBuilderPage() {
               </div>
             </Card>
 
-            <Card className="space-y-5 border border-white/70 bg-white/90">
+            <Card className="space-y-5 shadow-arcade">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-dark">Carte de la chasse</h2>
+                  <h2 className="text-2xl font-extrabold text-dark">Carte de la chasse</h2>
                   <p className="text-sm text-slate-500">Cliquez un marqueur pour sélectionner une étape, ou la carte pour placer l’élément choisi.</p>
                 </div>
-                <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5 text-sm font-medium">
+                <div className="flex rounded-xl border-2 border-dark bg-white p-1 text-sm font-bold shadow-arcade-sm">
                   <button
                     type="button"
                     onClick={() => setPlacementTarget('start')}
-                    className={`rounded-md px-3 py-1.5 transition ${placementTarget === 'start' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-white'}`}
+                    className={`rounded-lg px-3 py-1.5 transition ${placementTarget === 'start' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-cream'}`}
                   >
                     Départ
                   </button>
                   <button
                     type="button"
                     onClick={() => setPlacementTarget('step')}
-                    className={`rounded-md px-3 py-1.5 transition ${placementTarget === 'step' ? 'bg-secondary text-white shadow-sm' : 'text-slate-600 hover:bg-white'}`}
+                    className={`rounded-lg px-3 py-1.5 transition ${placementTarget === 'step' ? 'bg-secondary text-white' : 'text-gray-600 hover:bg-cream'}`}
                   >
                     Étape {selectedStepIndex + 1}
                   </button>
@@ -748,8 +747,8 @@ export default function PartnerStudioBuilderPage() {
                   className="h-full"
                 />
               </div>
-              <div className="space-y-3 rounded-2xl bg-slate-50 p-3">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="space-y-3 rounded-2xl border-2 border-dark bg-cream p-3">
+                <div className="text-xs font-bold uppercase tracking-wide text-dark">
                   Saisie manuelle — {placementTarget === 'step' ? `Étape ${selectedStepIndex + 1}` : 'Point de départ'}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -805,10 +804,10 @@ export default function PartnerStudioBuilderPage() {
               </div>
             </Card>
 
-            <Card className="space-y-5 border border-white/70 bg-white/90">
+            <Card className="space-y-5 shadow-arcade">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-dark">Étapes et énigmes</h2>
+                  <h2 className="text-2xl font-extrabold text-dark">Étapes et énigmes</h2>
                   <p className="text-sm text-slate-500">Sélectionnez une étape et ajustez son contenu et sa localisation sur la carte.</p>
                 </div>
                 <Button variant="secondary" onClick={addStep}>Ajouter une étape</Button>
@@ -829,16 +828,16 @@ export default function PartnerStudioBuilderPage() {
                         setDragIndex(null);
                       }}
                       onDragEnd={() => setDragIndex(null)}
-                      className={`group flex gap-2 rounded-2xl border p-3 transition ${
+                      className={`group flex gap-2 rounded-2xl border-2 p-3 transition ${
                         selectedStepIndex === index
-                          ? 'border-secondary bg-secondary/5'
-                          : 'border-slate-200 bg-white hover:border-secondary/30'
+                          ? 'border-dark bg-card-blue shadow-arcade-sm'
+                          : 'border-gray-200 bg-white hover:border-dark'
                       } ${dragIndex === index ? 'opacity-40' : ''}`}
                     >
                       <div className="flex cursor-grab flex-col items-center pt-1" title="Glisser pour réordonner">
                         <span
-                          className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                            selectedStepIndex === index ? 'bg-secondary text-white' : 'bg-slate-100 text-slate-500'
+                          className={`flex h-7 w-7 items-center justify-center rounded-full border-2 border-dark text-xs font-bold ${
+                            selectedStepIndex === index ? 'bg-dark text-warning' : 'bg-white text-dark'
                           }`}
                         >
                           {index + 1}
@@ -930,10 +929,10 @@ export default function PartnerStudioBuilderPage() {
                             type="button"
                             aria-pressed={currentStep.challenge === option}
                             onClick={() => updateStep('challenge', option)}
-                            className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm font-medium transition ${
+                            className={`flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-left text-sm font-bold transition ${
                               currentStep.challenge === option
-                                ? 'border-primary bg-primary/5 text-primary'
-                                : 'border-slate-200 text-slate-600 hover:border-primary/40'
+                                ? 'border-dark bg-card-orange text-dark shadow-arcade-sm'
+                                : 'border-gray-200 bg-white text-gray-600 hover:border-dark'
                             }`}
                           >
                             <ChallengeIcon type={option} className="h-4 w-4 shrink-0" />
@@ -944,9 +943,9 @@ export default function PartnerStudioBuilderPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="text-sm text-slate-600">
-                      <span className="font-semibold text-slate-800">Localisation de l’étape : </span>
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-dark bg-cream p-4">
+                    <div className="text-sm font-medium text-gray-600">
+                      <span className="font-bold text-dark">Localisation de l’étape : </span>
                       {currentStep.location.latitude.toFixed(4)}, {currentStep.location.longitude.toFixed(4)}
                     </div>
                     <Button
@@ -966,52 +965,52 @@ export default function PartnerStudioBuilderPage() {
           </div>
 
           <div className="space-y-6">
-            <Card className="border border-white/70 bg-white/90 lg:sticky lg:top-24">
+            <Card className="shadow-arcade lg:sticky lg:top-24">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-dark">Aperçu joueur</h2>
+                  <h2 className="text-2xl font-extrabold text-dark">Aperçu joueur</h2>
                   <p className="text-sm text-slate-500">La vue finale reste simple, guidée et compatible mobile.</p>
                 </div>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">Mobile first</span>
+                <span className="rounded-full border-2 border-dark bg-card-blue px-3 py-1 text-xs font-bold text-dark">Mobile first</span>
               </div>
-              <div className="mt-5 rounded-[2rem] bg-slate-950 p-4 text-white shadow-2xl">
-                <div className="mx-auto max-w-sm rounded-[1.8rem] bg-slate-900 p-4 ring-1 ring-white/10">
+              <div className="mt-5 rounded-[2rem] bg-dark p-4 text-white shadow-arcade">
+                <div className="mx-auto max-w-sm rounded-[1.8rem] bg-dark p-4 ring-1 ring-white/10">
                   <motion.div
                     key={`${selectedStepIndex}-${currentStep.title}-${currentStep.clue}`}
                     initial={{ opacity: 0.35, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.25 }}
-                    className={`rounded-[1.5rem] bg-gradient-to-br ${selectedTemplate.accent} p-5`}
+                    className={`rounded-[1.5rem] border-2 border-dark ${selectedTemplate.accent} p-5 text-dark`}
                   >
-                    <div className="text-xs uppercase tracking-[0.35em] text-white/75">Étape {selectedStepIndex + 1}</div>
-                    <h3 className="mt-2 text-2xl font-bold">{currentStep.title}</h3>
-                    <p className="mt-2 text-sm text-white/80">{currentStep.clue}</p>
-                    <div className="mt-4 rounded-2xl bg-white/15 p-3 text-sm">
-                      <div className="flex items-center gap-1.5 font-semibold">
+                    <div className="text-xs font-bold uppercase tracking-[0.35em] text-gray-600">Étape {selectedStepIndex + 1}</div>
+                    <h3 className="mt-2 text-2xl font-black text-dark">{currentStep.title}</h3>
+                    <p className="mt-2 text-sm font-medium text-gray-600">{currentStep.clue}</p>
+                    <div className="mt-4 rounded-2xl border-2 border-dark bg-white p-3 text-sm">
+                      <div className="flex items-center gap-1.5 font-bold text-dark">
                         <ChallengeIcon type={currentStep.challenge} className="h-4 w-4" />
                         Défi
                       </div>
-                      <div className="text-white/85">{currentStep.challenge}</div>
+                      <div className="font-medium text-gray-600">{currentStep.challenge}</div>
                     </div>
                   </motion.div>
-                  <div className="mt-4 space-y-3 rounded-[1.4rem] bg-white p-4 text-slate-800">
+                  <div className="mt-4 space-y-3 rounded-[1.4rem] border-2 border-dark bg-white p-4 text-dark">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="font-semibold">Récompense</span>
-                      <span className="rounded-full bg-emerald-100 px-2 py-1 text-emerald-700">{currentStep.reward}</span>
+                      <span className="font-bold">Récompense</span>
+                      <span className="rounded-full border-2 border-dark bg-card-green px-2 py-1 text-xs font-bold text-dark">{currentStep.reward}</span>
                     </div>
-                    <div className="h-2 rounded-full bg-slate-100">
-                      <div className="h-2 w-[72%] rounded-full bg-gradient-to-r from-primary to-accent" />
+                    <div className="h-2 rounded-full bg-gray-200">
+                      <div className="h-2 w-[72%] rounded-full bg-primary" />
                     </div>
-                    <div className="text-sm text-slate-500">Progression simulée: 72%</div>
+                    <div className="text-sm font-medium text-gray-600">Progression simulée: 72%</div>
                     <Button className="w-full">Valider l’étape</Button>
                   </div>
                 </div>
               </div>
             </Card>
 
-            <Card className="space-y-4 border border-white/70 bg-white/90">
+            <Card className="space-y-4 shadow-arcade">
               <div>
-                <h2 className="text-2xl font-bold text-dark">Suivi analytique</h2>
+                <h2 className="text-2xl font-extrabold text-dark">Suivi analytique</h2>
                 <p className="text-sm text-slate-500">Surveillez la participation, les points de friction et les abandons.</p>
               </div>
               <div className="space-y-3">
@@ -1019,14 +1018,14 @@ export default function PartnerStudioBuilderPage() {
                   const participation = participationSeries[index] ?? 40;
 
                   return (
-                    <div key={step.id} className="space-y-2 rounded-2xl bg-slate-50 p-3">
-                      <div className="flex items-center justify-between text-sm font-medium text-slate-700">
+                    <div key={step.id} className="space-y-2 rounded-2xl border-2 border-dark bg-cream p-3">
+                      <div className="flex items-center justify-between text-sm font-bold text-dark">
                         <span>{step.title}</span>
                         <span>{participation}%</span>
                       </div>
                       <div className="h-2 rounded-full bg-white">
                         <div
-                          className="h-2 rounded-full bg-gradient-to-r from-primary to-secondary"
+                          className="h-2 rounded-full bg-primary"
                           style={{ width: `${participation}%` }}
                         />
                       </div>
@@ -1036,17 +1035,17 @@ export default function PartnerStudioBuilderPage() {
               </div>
               <div className="grid gap-3 md:grid-cols-2">
                 {publicationChecks.map((check) => (
-                  <div key={check} className="flex items-center gap-2 rounded-2xl bg-emerald-50 px-3 py-3 text-sm font-medium text-emerald-800">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-xs text-white">✓</span>
+                  <div key={check} className="flex items-center gap-2 rounded-2xl border-2 border-dark bg-card-green px-3 py-3 text-sm font-bold text-dark">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-dark text-xs text-warning">✓</span>
                     {check}
                   </div>
                 ))}
               </div>
             </Card>
 
-            <Card className="space-y-4 border border-white/70 bg-white/90">
+            <Card className="space-y-4 shadow-arcade">
               <div>
-                <h2 className="text-2xl font-bold text-dark">Publication et pilotage</h2>
+                <h2 className="text-2xl font-extrabold text-dark">Publication et pilotage</h2>
                 <p className="text-sm text-slate-500">Choisissez le mode dans la barre d’action en bas de l’écran, puis sauvegardez.</p>
               </div>
               <ul className="space-y-2 text-sm text-slate-600">
@@ -1054,7 +1053,7 @@ export default function PartnerStudioBuilderPage() {
                 <li className="flex items-center gap-2"><StatusBadge status="test" /> Accessible à votre équipe pour validation.</li>
                 <li className="flex items-center gap-2"><StatusBadge status="live" /> Publiée et jouable par tous.</li>
               </ul>
-              <div className="rounded-2xl bg-slate-950 p-4 text-sm text-slate-200">
+              <div className="rounded-2xl border-2 border-dark bg-dark p-4 text-sm text-slate-200">
                 <div className="flex items-center justify-between text-slate-400">
                   <span>Statut actuel</span>
                   <StatusBadge status={config.launchMode} />
@@ -1069,23 +1068,23 @@ export default function PartnerStudioBuilderPage() {
       </div>
 
       {/* Barre d'action fixe : statut + mode + action primaire unique */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 shadow-[0_-4px_20px_rgba(15,23,42,0.06)] backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-white border-t-[3px] border-dark">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-3">
             <StatusBadge status={config.launchMode} />
-            <span className="text-sm text-slate-500">
+            <span className="text-sm font-medium text-gray-600">
               {isSaving ? 'Enregistrement…' : lastSaved ? `Enregistré à ${lastSaved}` : 'Non enregistré'}
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+            <div className="flex rounded-xl border-2 border-dark bg-white p-1">
               {launchModes.map((mode) => (
                 <button
                   key={mode.id}
                   type="button"
                   onClick={() => setConfig((current) => ({ ...current, launchMode: mode.id }))}
-                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
-                    config.launchMode === mode.id ? 'bg-secondary text-white shadow-sm' : 'text-slate-600 hover:bg-white'
+                  className={`rounded-lg px-3 py-1.5 text-sm font-bold transition ${
+                    config.launchMode === mode.id ? 'bg-dark text-warning' : 'text-gray-600 hover:bg-cream'
                   }`}
                 >
                   {mode.label}

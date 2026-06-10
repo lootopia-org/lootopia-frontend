@@ -180,18 +180,18 @@ export const SecuritySettings: React.FC = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-dark mb-6">{t('profile.security.title')}</h2>
+      <h2 className="text-2xl font-black tracking-tight text-dark mb-6">{t('profile.security.title')}</h2>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* TOTP */}
         <Card className="space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-lg font-semibold text-dark">{t('profile.security.totp.title')}</h3>
+              <h3 className="text-lg font-extrabold text-dark">{t('profile.security.totp.title')}</h3>
               <p className="text-sm text-gray-600">{t('profile.security.totp.description')}</p>
             </div>
             <span
-              className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
-                totpEnabled ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+              className={`shrink-0 rounded-full border-2 border-dark px-3 py-1 text-xs font-bold text-dark ${
+                totpEnabled ? 'bg-card-green' : 'bg-gray-100'
               }`}
             >
               {totpEnabled ? t('profile.security.statusEnabled') : t('profile.security.statusDisabled')}
@@ -220,12 +220,12 @@ export const SecuritySettings: React.FC = () => {
                 <img
                   src={qrDataUrl}
                   alt="TOTP QR code"
-                  className="mx-auto h-48 w-48 rounded-lg border border-gray-200 bg-white p-2"
+                  className="mx-auto h-48 w-48 rounded-xl border-2 border-dark bg-white p-2 shadow-arcade-sm"
                 />
               )}
               {secret && (
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs uppercase tracking-wide text-gray-500">
+                <div className="rounded-xl border-2 border-dark bg-card-yellow p-3">
+                  <p className="text-xs font-bold uppercase tracking-wide text-gray-600">
                     {t('profile.security.totp.manualEntry')}
                   </p>
                   <div className="mt-1 flex items-center justify-between gap-2">
@@ -288,10 +288,10 @@ export const SecuritySettings: React.FC = () => {
         <Card className="space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-lg font-semibold text-dark">{t('profile.security.passkeys.title')}</h3>
+              <h3 className="text-lg font-extrabold text-dark">{t('profile.security.passkeys.title')}</h3>
               <p className="text-sm text-gray-600">{t('profile.security.passkeys.description')}</p>
             </div>
-            <span className="shrink-0 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+            <span className="shrink-0 rounded-full border-2 border-dark bg-card-blue px-3 py-1 text-xs font-bold text-dark">
               {credentials.length}
             </span>
           </div>
@@ -301,7 +301,7 @@ export const SecuritySettings: React.FC = () => {
           )}
 
           {credentials.length > 0 && (
-            <ul className="divide-y divide-gray-100 rounded-lg border border-gray-100">
+            <ul className="divide-y divide-gray-200 rounded-xl border-2 border-dark">
               {credentials.map((cred) => (
                 <li key={cred.id} className="flex items-center justify-between gap-3 px-3 py-2">
                   <div className="min-w-0">

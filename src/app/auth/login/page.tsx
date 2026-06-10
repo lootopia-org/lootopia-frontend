@@ -239,11 +239,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-cream flex items-center justify-center px-4 py-8">
       <Card className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-dark">{t('auth.login.title')}</h1>
-          <p className="text-gray-600">{t('auth.login.subtitle')}</p>
+          <h1 className="text-3xl font-black tracking-tight text-dark">{t('auth.login.title')}</h1>
+          <p className="text-gray-600 font-medium">{t('auth.login.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -279,7 +279,7 @@ export default function LoginPage() {
             />
           )}
 
-          {mfaMessage && <p className="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-800">{mfaMessage}</p>}
+          {mfaMessage && <p className="rounded-xl border-2 border-dark bg-card-blue px-4 py-3 text-sm font-medium text-dark">{mfaMessage}</p>}
 
           <Button type="submit" className="w-full" isLoading={isLoading}>
             {stage === 'mfa' ? t('auth.login.mfa.submit') : t('auth.login.form.submit')}
@@ -320,16 +320,16 @@ export default function LoginPage() {
         </form>
 
         {emailNotVerified && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-3">
-            <p className="text-sm text-amber-900">{t('auth.login.messages.emailNotVerified')}</p>
+          <div className="rounded-xl border-2 border-dark bg-card-orange p-4 space-y-3">
+            <p className="text-sm font-medium text-dark">{t('auth.login.messages.emailNotVerified')}</p>
             <Button type="button" variant="outline" className="w-full" isLoading={isLoading} onClick={resendVerification}>
               {t('auth.login.mfa.resendVerification')}
             </Button>
           </div>
         )}
 
-        <div className="space-y-3 rounded-lg border border-orange-100 bg-orange-50 p-4">
-          <div className="text-sm font-semibold text-dark">{t('auth.login.mock.title')}</div>
+        <div className="space-y-3 rounded-xl border-2 border-dark bg-card-yellow p-4">
+          <div className="text-sm font-bold text-dark">{t('auth.login.mock.title')}</div>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <Button
               type="button"

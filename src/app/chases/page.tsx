@@ -43,8 +43,8 @@ export default function ChaseListPage() {
     <div className="max-w-7xl mx-auto px-4 py-12">
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold text-dark mb-4">{t('chases.title')}</h1>
-          <p className="text-gray-600 text-lg">{t('chases.subtitle')}</p>
+          <h1 className="text-4xl font-black tracking-tight text-dark mb-4">{t('chases.title')}</h1>
+          <p className="text-gray-600 font-medium text-lg">{t('chases.subtitle')}</p>
         </div>
 
         <Input

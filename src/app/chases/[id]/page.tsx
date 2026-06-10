@@ -110,35 +110,35 @@ export default function ChaseDetailPage() {
             alt={chase.title}
             width={1280}
             height={640}
-            className="w-full h-80 object-cover rounded-xl"
+            className="w-full h-80 object-cover rounded-2xl border-2 border-dark shadow-arcade"
           />
         )}
         <div>
-          <h1 className="text-4xl font-bold text-dark">{chase.title}</h1>
-          <p className="text-gray-600 mt-2">{chase.description}</p>
+          <h1 className="text-4xl font-black tracking-tight text-dark">{chase.title}</h1>
+          <p className="text-gray-600 font-medium mt-2">{chase.description}</p>
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <div>
+          <div className="rounded-xl border-2 border-dark bg-card-orange px-4 py-2 shadow-arcade-sm">
             <p className="text-sm text-gray-600">{t('chaseDetail.difficulty')}</p>
-            <p className="font-semibold text-dark capitalize">{chase.difficulty}</p>
+            <p className="font-bold text-dark capitalize">{chase.difficulty}</p>
           </div>
-          <div>
+          <div className="rounded-xl border-2 border-dark bg-card-blue px-4 py-2 shadow-arcade-sm">
             <p className="text-sm text-gray-600">{t('chaseDetail.duration')}</p>
-            <p className="font-semibold text-dark">{t('chaseDetail.durationValue', { minutes: chase.estimatedDuration })}</p>
+            <p className="font-bold text-dark">{t('chaseDetail.durationValue', { minutes: chase.estimatedDuration })}</p>
           </div>
-          <div>
+          <div className="rounded-xl border-2 border-dark bg-card-yellow px-4 py-2 shadow-arcade-sm">
             <p className="text-sm text-gray-600">{t('chaseDetail.rating')}</p>
-            <p className="font-semibold text-dark">{chase.rating}/5 ⭐</p>
+            <p className="font-bold text-dark">{chase.rating}/5 ⭐</p>
           </div>
-          <div>
+          <div className="rounded-xl border-2 border-dark bg-card-green px-4 py-2 shadow-arcade-sm">
             <p className="text-sm text-gray-600">{t('chaseDetail.players')}</p>
-            <p className="font-semibold text-dark">{chase.participants}</p>
+            <p className="font-bold text-dark">{chase.participants}</p>
           </div>
         </div>
 
         {progress ? (
-          <Card className="bg-orange-50 border-2 border-primary">
+          <Card className="bg-card-orange shadow-arcade">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">{t('chaseDetail.yourProgress')}</p>
@@ -146,7 +146,7 @@ export default function ChaseDetailPage() {
                   {t('chaseDetail.stepProgress', { current: progress.currentStep, total: progress.totalSteps })}
                 </p>
               </div>
-              <p className="text-2xl font-bold text-primary">{t('chaseDetail.pointsValue', { points: progress.pointsEarned })}</p>
+              <p className="text-2xl font-black text-dark">{t('chaseDetail.pointsValue', { points: progress.pointsEarned })}</p>
             </div>
           </Card>
         ) : (
@@ -158,7 +158,7 @@ export default function ChaseDetailPage() {
 
       {/* Map Section */}
       <Card>
-        <h2 className="text-2xl font-bold text-dark mb-4">{t('chaseDetail.locationMap')}</h2>
+        <h2 className="text-2xl font-black tracking-tight text-dark mb-4">{t('chaseDetail.locationMap')}</h2>
         <div style={{ height: '400px' }}>
           <InteractiveMap
             center={[chase.location.latitude, chase.location.longitude] as [number, number]}
@@ -187,7 +187,7 @@ export default function ChaseDetailPage() {
       {/* Steps */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <h2 className="text-2xl font-bold text-dark mb-4">{t('chaseDetail.steps')}</h2>
+          <h2 className="text-2xl font-black tracking-tight text-dark mb-4">{t('chaseDetail.steps')}</h2>
           <StepList
             steps={chase.steps}
             currentStepIndex={progress ? progress.currentStep - 1 : 0}
@@ -197,8 +197,8 @@ export default function ChaseDetailPage() {
 
         {/* Step Details */}
         {selectedStep && (
-          <Card className="bg-blue-50">
-            <h3 className="text-xl font-bold text-dark mb-4">{t('chaseDetail.stepDetails')}</h3>
+          <Card className="bg-card-blue">
+            <h3 className="text-xl font-extrabold text-dark mb-4">{t('chaseDetail.stepDetails')}</h3>
             {(() => {
               const step = chase.steps.find((s) => s.id === selectedStep);
               if (!step) return null;
@@ -236,7 +236,7 @@ export default function ChaseDetailPage() {
                   )}
 
                   {step.reward && (
-                    <div className="bg-yellow-100 p-3 rounded-lg text-center">
+                    <div className="bg-card-yellow border-2 border-dark p-3 rounded-xl text-center">
                       <p className="font-bold text-dark">{t('chaseDetail.rewardPoints', { points: step.reward })}</p>
                     </div>
                   )}

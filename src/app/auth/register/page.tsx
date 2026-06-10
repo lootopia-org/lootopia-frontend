@@ -91,11 +91,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient flex items-center justify-center px-4 py-8">
+    <div className="min-h-screen bg-cream flex items-center justify-center px-4 py-8">
       <Card className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-dark">{t('auth.register.title')}</h1>
-          <p className="text-gray-600">{t('auth.register.subtitle')}</p>
+          <h1 className="text-3xl font-black tracking-tight text-dark">{t('auth.register.title')}</h1>
+          <p className="text-gray-600 font-medium">{t('auth.register.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
