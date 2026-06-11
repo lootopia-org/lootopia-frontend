@@ -1,35 +1,27 @@
-// User types
+export type UserRole = 'admin' | 'partner' | 'player';
+
 export interface User {
   id: string;
   email: string;
   username: string;
-  name?: string;
+  bio?: string;
   avatar?: string;
-  role?: 'admin' | 'partner' | 'player';
-  // Champs de gamification top-level : optionnels car la vraie API /me ne les
-  // renvoie pas (la gamification reste en mock). La source canonique est `profile`.
-  points?: number;
-  level?: number;
+  role: UserRole;
   createdAt?: string;
   updatedAt?: string;
-  profile: {
-    bio?: string;
-    completedChases: number;
-    avatar?: string;
-    points: number;
-    level: number;
-  };
-  badges?: Array<{
-    id: string;
-    name: string;
-    icon?: string;
-    unlockedAt: string;
-  }>;
 }
 
-export interface AuthResponse {
-  token: string;
-  user: User;
+export interface Profile {
+  id: string;
+  userId: string;
+  username: string;
+  bio?: string;
+  avatar?: string;
+  points: number;
+  level: number;
+  completedHunts?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type MfaMethod = 'totp' | 'webauthn';
@@ -40,107 +32,87 @@ export interface LoginResponse {
   mfaMethods: MfaMethod[];
 }
 
-export interface WebauthnBeginResponse {
-  handle: string;
-  publicKey: PublicKeyCredentialRequestOptions;
-}
-
-export interface WebauthnCompleteResponse {
+export interface AuthTokenResponse {
   token: string;
 }
 
-// Hunt/Chase types
-export interface Chase {
+export interface WebauthnBeginResponse {
+  handle: string;
+  publicKey: PublicKeyCredentialRequestOptions | PublicKeyCredentialCreationOptions;
+}
+
+export interface TotpEnrollBeginResponse {
+  secret: string;
+  otpauthUri: string;
+}
+
+export interface WebauthnCredential {
+  id: string;
+  name?: string;
+  createdAt: string;
+  lastUsedAt?: string;
+}
+
+export type HuntDifficulty = 'easy' | 'medium' | 'hard';
+export type HuntStatus = 'active' | 'draft' | 'archived';
+export type HuntStepType = 'checkpoint' | 'riddle' | 'qr_code' | 'clue' | 'ar';
+
+export interface HuntStep {
+  id?: string;
+  order: number;
+  title: string;
+  description: string;
+  type: HuntStepType;
+  clue?: string;
+  answer?: string;
+  latitude: string;
+  longitude: string;
+  reward: number;
+}
+
+export interface Hunt {
   id: string;
   title: string;
   description: string;
   image?: string;
-  partner: Partner;
-  difficulty: 'easy' | 'medium' | 'hard';
-  estimatedDuration: number; // minutes
-  location: {
-    latitude: number;
-    longitude: number;
-  };
-  createdAt: string;
-  updatedAt: string;
-  status: 'active' | 'draft' | 'archived';
-  /** État de publication côté studio : seul 'live' (→ status 'active') est visible des joueurs. */
-  launchMode?: 'draft' | 'test' | 'live';
-  participants: number;
-  rating: number;
-  steps: ChaseStep[];
+  partnerId: string;
+  difficulty: HuntDifficulty;
+  estimatedDuration: number;
+  status: HuntStatus;
+  steps: HuntStep[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface ChaseStep {
-  id: string;
-  order: number;
+export interface CreateHuntPayload {
   title: string;
   description: string;
-  clue: string;
-  location: {
-    latitude: number;
-    longitude: number;
-  };
-  arContent?: ARContent;
-  reward?: number; // points
-  completed: boolean;
+  image?: string;
+  partnerId: string;
+  difficulty: HuntDifficulty;
+  estimatedDuration: number;
+  status?: HuntStatus;
+  steps: Omit<HuntStep, 'id'>[];
 }
 
-export interface ARContent {
-  id: string;
-  type: 'model' | 'image' | 'marker';
-  data: string; // URL or data
-  scale?: number;
-  rotation?: [number, number, number];
-}
-
-export interface Partner {
-  id: string;
-  name: string;
-  email: string;
+export interface UpdateHuntPayload {
+  title?: string;
   description?: string;
-  logo?: string;
-  chases: Chase[];
+  image?: string;
+  difficulty?: HuntDifficulty;
+  estimatedDuration?: number;
+  status?: HuntStatus;
+  steps?: HuntStep[];
 }
 
-// Gamification types
-export interface UserProgress {
-  userId: string;
-  chaseId: string;
-  currentStep: number;
-  totalSteps: number;
-  pointsEarned: number;
-  startedAt: string;
-  completedAt?: string;
-  stepProgress: StepProgress[];
-}
-
-export interface StepProgress {
-  stepId: string;
-  completed: boolean;
-  completedAt?: string;
-  arInteraction?: boolean;
-}
-
-export interface Leaderboard {
-  rank: number;
-  user: User;
-  points: number;
-  chases_completed: number;
-}
-
-// Map types
-export interface MapLocation {
-  latitude: number;
-  longitude: number;
-  zoom?: number;
-}
-
-// Notification types
-export interface Notification {
-  id: string;
-  type: 'success' | 'error' | 'info' | 'warning';
+export interface ApiError {
   message: string;
-  duration?: number;
+  code?: string;
+}
+
+export interface LiveEvent {
+  topic: string;
+  type: string;
+  payload: unknown;
+  timestamp?: string;
 }

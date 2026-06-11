@@ -1,15 +1,17 @@
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-# Ensure public/ exists even if not in the repo
 RUN mkdir -p /app/public
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN npm run build -- --no-lint
+ARG NEXT_PUBLIC_API_URL=https://api.wookiesrpeople2.dev
+ARG NEXT_PUBLIC_APP_DOWNLOAD_URL=https://your-server.com/lootopia.apk
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_APP_DOWNLOAD_URL=$NEXT_PUBLIC_APP_DOWNLOAD_URL
+RUN npm run build
 
-# Stage de production
-FROM node:18-alpine
+FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -17,6 +19,6 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.* ./
+COPY --from=builder /app/next.config.ts ./
 EXPOSE 3000
 CMD ["npm", "run", "start"]

@@ -1,25 +1,43 @@
 import type { Metadata } from 'next';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
-import { NotificationContainer } from '@/components/NotificationContainer';
-import { I18nProvider } from '@/components/I18nProvider';
+import { DM_Sans, Syne } from 'next/font/google';
+import { Providers } from './providers';
+import { Navbar } from '@/components/layout/navbar';
+import { Footer } from '@/components/layout/footer';
 import './globals.css';
 
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-syne',
+  display: 'swap',
+});
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
-  title: 'Lootopia - Digital Treasure Hunt',
-  description: 'Discover and participate in amazing treasure hunts with AR and geolocation',
+  title: 'Lootopia — Treasure Hunts Reimagined',
+  description:
+    'Discover treasure hunts, track your progress, and play immersive adventures in the Lootopia mobile app.',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body className="bg-cream">
-        <I18nProvider>
-          <Navbar />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <NotificationContainer />
-        </I18nProvider>
+    <html lang="en" className={`${syne.variable} ${dmSans.variable}`}>
+      <body>
+        <Providers>
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
       </body>
     </html>
   );

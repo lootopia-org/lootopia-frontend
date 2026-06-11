@@ -20,7 +20,7 @@ spec:
         - name: lootopia-frontend
           image: ghcr.io/lootopia-org/lootopia-frontend:latest
           ports:
-            - containerPort: 80
+            - containerPort: 3000
           envFrom:
             - configMapRef:
                 name: app-config
