@@ -79,7 +79,8 @@ export const authApi = {
   resetPassword: (token: string, newPassword: string) =>
     apiRequest<void>('/auth/reset-password', {
       method: 'POST',
-      body: { token, newPassword },
+      // Contrat API : le champ attendu est `new_password` (snake_case).
+      body: { token, new_password: newPassword },
       auth: false,
     }),
 

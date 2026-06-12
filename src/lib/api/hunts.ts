@@ -11,6 +11,9 @@ import type { Profile } from '@/types';
 export const profileApi = {
   get: () => apiRequest<Profile>('/profile', { skipAuthRedirect: true }),
 
+  // POST /profile — crée le profil (l'API renvoie 409 s'il existe déjà).
+  create: () => apiRequest<Profile>('/profile', { method: 'POST' }),
+
   update: (huntId: string) =>
     apiRequest<Profile>('/profile', {
       method: 'PATCH',
