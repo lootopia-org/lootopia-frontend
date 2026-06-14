@@ -170,6 +170,7 @@ export interface ApiError {
 }
 
 export interface LiveEvent {
+  resourceId?: string;
   topic: string;
   type: string;
   payload: unknown;

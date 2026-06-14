@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     return new Response('Failed to fetch image', { status: 502 });
   }
 
-  return new Response(payload.bytes, {
+  return new Response(payload.bytes as unknown as ArrayBuffer, {
     headers: {
       'Content-Type': payload.contentType,
       'Cache-Control': 'private, max-age=300',
