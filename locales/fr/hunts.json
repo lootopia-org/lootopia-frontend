@@ -162,6 +162,7 @@
     "notFound": "Chasse introuvable ou indisponible.",
     "backToCatalog": "Retour au catalogue",
     "bannerInProgress": "En cours",
+    "bannerCompleted": "Vous avez terminé cette chasse.",
     "primaryAction": {
       "launch": "Lancer",
       "continue": "Continuer"
@@ -183,6 +184,8 @@
     },
     "steps": {
       "title": "Étapes ({count})",
+      "progress": "{current} / {total} terminées",
+      "completed": "Terminée",
       "participantsLabel": "Participants"
     },
     "sidebar": {

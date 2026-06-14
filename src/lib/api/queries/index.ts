@@ -14,6 +14,8 @@ export const queryKeys = {
   hunts: ['hunts'] as const,
   hunt: (id: string) => ['hunts', id] as const,
   joinedHunts: ['hunts', 'joined'] as const,
+  completedHunts: ['hunts', 'completed'] as const,
+  completedStepIds: (huntId: string) => ['hunts', huntId, 'completed-steps'] as const,
   huntParticipants: (id: string) => ['hunts', id, 'participants'] as const,
   huntAnalytics: (id: string) => ['hunts', id, 'analytics'] as const,
   webauthnCredentials: ['auth', 'webauthn', 'credentials'] as const,
@@ -120,6 +122,44 @@ export function useJoinedHunts(enabled = true) {
   });
 }
 
+export function useCompletedHunts(enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.completedHunts,
+    queryFn: async () => {
+      try {
+        return await huntApi.completed();
+      } catch (err) {
+        if (err instanceof ApiRequestError && err.status === 401) {
+          return [];
+        }
+        throw err;
+      }
+    },
+    enabled,
+    retry: false,
+    staleTime: 30_000,
+  });
+}
+
+export function useCompletedStepIds(huntId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.completedStepIds(huntId),
+    queryFn: async () => {
+      try {
+        return await huntApi.completedStepIds(huntId);
+      } catch (err) {
+        if (err instanceof ApiRequestError && err.status === 401) {
+          return [];
+        }
+        throw err;
+      }
+    },
+    enabled: enabled && !!huntId,
+    retry: false,
+    staleTime: 30_000,
+  });
+}
+
 export function useCreateHunt() {
   const qc = useQueryClient();
   return useMutation({
@@ -153,6 +193,7 @@ export function useUpdateHuntStatus(id: string) {
       qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
       qc.invalidateQueries({ queryKey: queryKeys.hunt(id) });
       qc.invalidateQueries({ queryKey: queryKeys.joinedHunts });
+      qc.invalidateQueries({ queryKey: queryKeys.completedHunts });
     },
   });
 }
@@ -257,6 +298,7 @@ export function invalidateLiveQueries(
       qc.invalidateQueries({ queryKey: queryKeys.hunts });
       qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
       qc.invalidateQueries({ queryKey: queryKeys.joinedHunts });
+      qc.invalidateQueries({ queryKey: queryKeys.completedHunts });
       if (
         event.payload &&
         typeof event.payload === 'object' &&
@@ -293,14 +335,21 @@ export function invalidateLiveQueries(
         'huntId' in event.payload &&
         typeof (event.payload as { huntId: string }).huntId === 'string'
       ) {
+        const huntId = (event.payload as { huntId: string }).huntId;
         qc.invalidateQueries({
-          queryKey: queryKeys.hunt((event.payload as { huntId: string }).huntId),
+          queryKey: queryKeys.hunt(huntId),
         });
         qc.invalidateQueries({
-          queryKey: queryKeys.huntAnalytics((event.payload as { huntId: string }).huntId),
+          queryKey: queryKeys.huntAnalytics(huntId),
         });
+        qc.invalidateQueries({
+          queryKey: queryKeys.completedStepIds(huntId),
+        });
+      } else if (event.resourceId) {
+        qc.invalidateQueries({ queryKey: queryKeys.completedStepIds(event.resourceId) });
       }
       qc.invalidateQueries({ queryKey: queryKeys.joinedHunts });
+      qc.invalidateQueries({ queryKey: queryKeys.completedHunts });
       break;
     default:
       break;

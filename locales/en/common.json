@@ -152,6 +152,12 @@
       "stepMeta": "{stepCount} steps · {duration}",
       "empty": "You haven't joined any hunts yet. Browse the catalog and start one in the app.",
       "browseCatalog": "Browse the catalog"
+    },
+    "completedHunts": {
+      "heading": "Completed hunts",
+      "badge": "{count} finished",
+      "completed": "Completed",
+      "empty": "No completed hunts yet — finish a hunt in the app to see it here."
     }
   },
   "settings": {

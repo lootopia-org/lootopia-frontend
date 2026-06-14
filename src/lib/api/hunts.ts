@@ -150,6 +150,29 @@ export const huntApi = {
     return hunts.map(fromApiHunt);
   },
 
+  completed: async () => {
+    const hunts = await apiRequest<ApiHunt[]>('/hunt/completed', { skipAuthRedirect: true });
+    return hunts.map(fromApiHunt);
+  },
+
+  completedStepIds: async (huntId: string) => {
+    const response = await apiRequest<unknown>(`/hunt/step/completed/${huntId}`, {
+      skipAuthRedirect: true,
+    });
+    if (!Array.isArray(response)) {
+      return [];
+    }
+    return response
+      .map((step) => {
+        if (!step || typeof step !== 'object') {
+          return undefined;
+        }
+        const stepId = (step as { id?: string }).id;
+        return typeof stepId === 'string' && stepId.length > 0 ? stepId : undefined;
+      })
+      .filter((stepId): stepId is string => Boolean(stepId));
+  },
+
   syncSteps: async (huntId: string, steps: HuntStep[]): Promise<Hunt> => {
     const body = {
       steps: steps.map((step, index) => ({

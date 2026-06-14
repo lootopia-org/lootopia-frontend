@@ -1,14 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Search } from 'lucide-react';
-import { toast } from 'sonner';
+import { MapPin } from 'lucide-react';
 import { geocodeAddress } from '@/lib/geocoding';
 import { CheckpointMap } from '@/components/hunts/checkpoint-map';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+interface Suggestion {
+  place_id: string;
+  display_name: string;
+  lat: string;
+  lon: string;
+}
 
 interface StepLocationPickerProps {
   mapKey: string;
@@ -30,26 +35,58 @@ export function StepLocationPicker({
   error,
 }: StepLocationPickerProps) {
   const t = useTranslations('hunts.wizard.location');
-  const [lookingUp, setLookingUp] = useState(false);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleLookup = async () => {
-    const query = address.trim();
-    if (!query) {
-      toast.error(t('toasts.enterAddress'));
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleChange = (value: string) => {
+    onAddressChange(value);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (value.trim().length < 3) {
+      setSuggestions([]);
+      setOpen(false);
       return;
     }
 
-    setLookingUp(true);
-    try {
-      const result = await geocodeAddress(query);
-      onAddressChange(result.displayName);
-      onLocationChange(Number(result.latitude), Number(result.longitude));
-      toast.success(t('toasts.found'));
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('toasts.lookupFailed'));
-    } finally {
-      setLookingUp(false);
-    }
+    setLoading(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5`,
+          { headers: { 'Accept-Language': 'en' } }
+        );
+        const data: Suggestion[] = await res.json();
+        setSuggestions(data);
+        setOpen(data.length > 0);
+      } catch {
+        setSuggestions([]);
+        setOpen(false);
+      } finally {
+        setLoading(false);
+      }
+    }, 350);
+  };
+
+  const handleSelect = (suggestion: Suggestion) => {
+    onAddressChange(suggestion.display_name);
+    onLocationChange(parseFloat(suggestion.lat), parseFloat(suggestion.lon));
+    setSuggestions([]);
+    setOpen(false);
   };
 
   return (
@@ -59,31 +96,34 @@ export function StepLocationPicker({
         {t('heading')}
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2" ref={containerRef}>
         <Label htmlFor="step-address">{t('address')}</Label>
-        <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="relative">
           <Input
             id="step-address"
             value={address}
-            onChange={(e) => onAddressChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             placeholder={t('addressPlaceholder')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                void handleLookup();
-              }
-            }}
+            autoComplete="off"
           />
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => void handleLookup()}
-            disabled={lookingUp}
-            className="shrink-0"
-          >
-            <Search className="h-4 w-4" />
-            {lookingUp ? t('lookingUp') : t('lookup')}
-          </Button>
+          {loading && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/30 animate-pulse">
+              {t('lookingUp')}
+            </span>
+          )}
+          {open && (
+            <ul className="absolute z-50 mt-1 w-full rounded-md border border-white/10 bg-background shadow-lg overflow-hidden">
+              {suggestions.map((s) => (
+                <li
+                  key={s.place_id}
+                  onMouseDown={() => handleSelect(s)}
+                  className="cursor-pointer px-3 py-2 text-sm text-white/80 hover:bg-white/10 truncate"
+                >
+                  {s.display_name}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <p className="text-xs text-white/40">{t('hint')}</p>
       </div>
