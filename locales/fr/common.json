@@ -152,6 +152,12 @@
       "stepMeta": "{stepCount} étapes · {duration}",
       "empty": "Vous n’avez rejoint aucune chasse. Parcourez le catalogue et commencez-en une dans l’app.",
       "browseCatalog": "Parcourir le catalogue"
+    },
+    "completedHunts": {
+      "heading": "Chasses terminées",
+      "badge": "{count} terminées",
+      "completed": "Terminée",
+      "empty": "Aucune chasse terminée — finissez une chasse dans l’app pour la retrouver ici."
     }
   },
   "settings": {

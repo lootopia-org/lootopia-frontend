@@ -162,6 +162,7 @@
     "notFound": "Hunt not found or unavailable.",
     "backToCatalog": "Back to catalog",
     "bannerInProgress": "In progress",
+    "bannerCompleted": "You have completed this hunt.",
     "primaryAction": {
       "launch": "Launch",
       "continue": "Continue"
@@ -183,6 +184,8 @@
     },
     "steps": {
       "title": "Steps ({count})",
+      "progress": "{current} / {total} completed",
+      "completed": "Completed",
       "participantsLabel": "Participants"
     },
     "sidebar": {

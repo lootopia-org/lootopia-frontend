@@ -75,8 +75,8 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-8">
+<div className={`grid gap-8 ${showDownloadCta ? 'lg:grid-cols-3' : 'lg:grid-cols-1 max-w-3xl mx-auto w-full'}`}>
+  <div className={`${showDownloadCta ? 'lg:col-span-2' : ''} space-y-8`}>
             <ProfileSettings />
 
             <Card>

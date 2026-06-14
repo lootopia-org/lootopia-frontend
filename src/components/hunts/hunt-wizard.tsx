@@ -488,7 +488,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
               </span>
               <span className="rounded-full bg-gold/20 px-3 py-1 text-xs text-gold">
                 {t('review.badges.totalPoints', {
-                  count: fields.reduce((sum, _, i) => sum + (form.watch(`steps.${i}.points`) || 0), 0),
+                  totalPoints: fields.reduce((sum, _, i) => sum + (form.watch(`steps.${i}.points`) || 0), 0),
                 })}
               </span>
             </div>
@@ -503,7 +503,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                 return (
                   <li key={field.fieldKey} className="text-sm text-white/70">
                     {i + 1}. {form.watch(`steps.${i}.title`)} ({formatStepType(stepType, (key) => tHunts(key))})
-                    <span className="text-gold"> · {tCommon('points', { count: form.watch(`steps.${i}.points`) })}</span>
+                    <span className="text-gold"> · {tCommon('points', { points: form.watch(`steps.${i}.points`) })}</span>
                     {showPhotoPreview ? (
                       <div className="mt-2 flex items-center gap-2">
                         <div className="relative h-16 w-24 overflow-hidden rounded-md border border-white/10 bg-black/20">
@@ -526,7 +526,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                       </div>
                     ) : normalizedAnswer ? (
                       <span className="mt-0.5 block text-xs text-white/40">
-                        {t('review.answer', { value: normalizedAnswer })}
+                        {t('review.answer', { answer: normalizedAnswer })}
                       </span>
                     ) : null}
                     {form.watch(`steps.${i}.address`) && (

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { ArrowLeft, Clock, Download, MapPin, ListOrdered, Users } from 'lucide-react';
-import { useHunt, useHuntAnalytics, useMe } from '@/lib/api/queries';
+import { useHunt, useHuntAnalytics, useMe, useCompletedHunts, useCompletedStepIds } from '@/lib/api/queries';
 import { AppDownloadBanner } from '@/components/layout/app-download-banner';
 import { HuntHeatmap } from '@/components/hunts/hunt-heatmap';
 import { HuntParticipantsPanel } from '@/components/hunts/hunt-participants-panel';
@@ -40,6 +40,8 @@ export default function HuntDetailPage({
   const { data: user, isLoading: userLoading } = useMe();
   const { data: hunt, isLoading, error } = useHunt(id);
   const { data: analytics, isLoading: analyticsLoading } = useHuntAnalytics(id, !!user);
+  const { data: completedHunts } = useCompletedHunts(!!user);
+  const { data: completedStepIds } = useCompletedStepIds(id, !!user);
 
   if (!userLoading && !user) {
     return (
@@ -75,6 +77,68 @@ export default function HuntDetailPage({
   const totalPoints = sortedSteps.reduce((sum, step) => sum + (step.points ?? 0), 0);
   const canManage = canManageHunt(hunt, user);
   const showDownloadCta = !isStaffRole(user);
+  const huntCompleted = (completedHunts ?? []).some((item) => item.id === hunt.id);
+  const completedStepIdSet = new Set(completedStepIds ?? []);
+  const completedStepCount = huntCompleted
+    ? sortedSteps.length
+    : sortedSteps.filter((step) => step.id && completedStepIdSet.has(step.id)).length;
+
+  const heatmapCard =  canManage && (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <MapPin className="h-5 w-5 text-gold" />
+          {t('heatmap.title')}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {analyticsLoading || !analytics ? (
+          <div className="h-72 rounded-xl glass animate-pulse" />
+        ) : (
+          <>
+            <HuntHeatmap
+              analytics={analytics}
+              mapKey={analytics.steps
+                .map(
+                  (step) =>
+                    `${step.stepId}:${step.order}:${step.latitude ?? ''}:${step.longitude ?? ''}:${step.title}`
+                )
+                .join('|')}
+            />
+            <div className="flex flex-wrap gap-4 text-xs text-white/50">
+              <span className="flex items-center gap-2">
+                <span className="inline-block h-3 w-3 rounded-full bg-gold/70" />
+                {t('heatmap.legend.stepCompletions')}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="inline-block h-3 w-3 rounded-full bg-teal-400/70" />
+                {t('heatmap.legend.recentLocations')}
+              </span>
+              <span>
+                {t('heatmap.stats', {
+                  participantCount: analytics.participantCount,
+                  completedCount: analytics.completedHuntCount,
+                })}
+              </span>
+            </div>
+            {analytics.steps.length > 0 && (
+              <ol className="space-y-2">
+                {[...analytics.steps]
+                  .sort((a, b) => b.completionCount - a.completionCount)
+                  .slice(0, 5)
+                  .map((step) => (
+                    <li key={step.stepId} className="flex justify-between text-sm text-white/70">
+                      <span>{step.order}. {step.title}</span>
+                      <span className="text-gold">{t('heatmap.visits', { count: step.completionCount })}</span>
+                    </li>
+                  ))}
+              </ol>
+            )}
+          </>
+        )}
+      </CardContent>
+    </Card>
+  );
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
@@ -109,64 +173,17 @@ export default function HuntDetailPage({
         </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
+      <div className={cn('grid gap-8', showDownloadCta ? 'lg:grid-cols-3' : 'lg:grid-cols-1')}>
+        <div className={cn('space-y-6', showDownloadCta && 'lg:col-span-2')}>
           <p className="text-white/70 leading-relaxed">{hunt.description}</p>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-gold" />
-                {t('heatmap.title')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {analyticsLoading || !analytics ? (
-                <div className="h-72 rounded-xl glass animate-pulse" />
-              ) : (
-                <>
-                  <HuntHeatmap
-                    analytics={analytics}
-                    mapKey={analytics.steps
-                      .map(
-                        (step) =>
-                          `${step.stepId}:${step.order}:${step.latitude ?? ''}:${step.longitude ?? ''}:${step.title}`
-                      )
-                      .join('|')}
-                  />
-                  <div className="flex flex-wrap gap-4 text-xs text-white/50">
-                    <span className="flex items-center gap-2">
-                      <span className="inline-block h-3 w-3 rounded-full bg-gold/70" />
-                      {t('heatmap.legend.stepCompletions')}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      <span className="inline-block h-3 w-3 rounded-full bg-teal-400/70" />
-                      {t('heatmap.legend.recentLocations')}
-                    </span>
-                    <span>
-                      {t('heatmap.stats', {
-                        participantCount: analytics.participantCount,
-                        completedCount: analytics.completedHuntCount,
-                      })}
-                    </span>
-                  </div>
-                  {analytics.steps.length > 0 && (
-                    <ol className="space-y-2">
-                      {[...analytics.steps]
-                        .sort((a, b) => b.completionCount - a.completionCount)
-                        .slice(0, 5)
-                        .map((step) => (
-                          <li key={step.stepId} className="flex justify-between text-sm text-white/70">
-                            <span>{step.order}. {step.title}</span>
-                            <span className="text-gold">{t('heatmap.visits', { count: step.completionCount })}</span>
-                          </li>
-                        ))}
-                    </ol>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
+          {huntCompleted && (
+            <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white/50">
+              {t('bannerCompleted')}
+            </div>
+          )}
+
+          {heatmapCard}
 
           <Card>
             <CardHeader>
@@ -174,24 +191,57 @@ export default function HuntDetailPage({
                 <ListOrdered className="h-5 w-5 text-gold" />
                 {t('steps.title', { count: sortedSteps.length })}
               </CardTitle>
+              {!canManage && completedStepCount > 0 && (
+                <p className="text-sm text-white/45">
+                  {t('steps.progress', { current: completedStepCount, total: sortedSteps.length })}
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               <ol className="space-y-4">
-                {sortedSteps.map((step) => (
-                  <li key={step.id ?? step.order} className="flex gap-4 rounded-xl glass p-4">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold/20 text-gold text-sm font-bold">
+                {sortedSteps.map((step) => {
+                  const stepCompleted =
+                  !canManage && (huntCompleted || Boolean(step.id && completedStepIdSet.has(step.id)));
+                  return (
+                  <li
+                    key={step.id ?? step.order}
+                    className={cn(
+                      'flex gap-4 rounded-xl glass p-4',
+                      stepCompleted && 'border border-white/10 bg-white/[0.03] opacity-55'
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold',
+                        stepCompleted
+                          ? 'bg-white/10 text-white/40'
+                          : 'bg-gold/20 text-gold'
+                      )}
+                    >
                       {step.order}
                     </span>
                     <div>
-                      <p className="font-medium">{step.title}</p>
-                      <p className="text-sm text-white/50 mt-1">{step.description}</p>
+                      <p className={cn('font-medium', stepCompleted && 'text-white/45 line-through')}>
+                        {step.title}
+                      </p>
+                      <p className={cn('text-sm mt-1', stepCompleted ? 'text-white/30' : 'text-white/50')}>
+                        {step.description}
+                      </p>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        <Badge variant="default">{formatStepType(step.type, (key) => tHunts(key))}</Badge>
-                        <Badge variant="gold">{tCommon('points', { points: step.points })}</Badge>
+                        {stepCompleted && (
+                          <Badge variant="default">{t('steps.completed')}</Badge>
+                        )}
+                        <Badge variant="default" className={stepCompleted ? 'opacity-70' : undefined}>
+                          {formatStepType(step.type, (key) => tHunts(key))}
+                        </Badge>
+                        <Badge variant={stepCompleted ? 'default' : 'gold'} className={stepCompleted ? 'opacity-70' : undefined}>
+                          {tCommon('points', { points: step.points })}
+                        </Badge>
                       </div>
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ol>
             </CardContent>
           </Card>
@@ -207,36 +257,48 @@ export default function HuntDetailPage({
           )}
         </div>
 
-        <div className="space-y-6">
-          <Card className="sticky top-24">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center gap-2 text-sm text-white/60">
-                <Clock className="h-4 w-4" />
-                {formatDuration(hunt.estimatedDuration, (key, values) => tShared(key, values))}
-              </div>
-              <div className="flex items-center gap-2 text-sm text-white/60">
-                <MapPin className="h-4 w-4" />
-                {tCommon('stepsPoints', {
-                  stepCount: sortedSteps.length,
-                  totalPoints,
-                })}
-              </div>
-              {hunt.status === 'paused' && (
-                <p className="text-sm text-gold">{tShared('pause.pausedMessage')}</p>
-              )}
-              <Button className="w-full" size="lg" asChild>
-                <a href={getAppDownloadUrl()} download>
-                  <Download className="h-5 w-5" />
-                  {t('sidebar.downloadToPlay')}
-                </a>
-              </Button>
-              <p className="text-xs text-white/40 text-center">{t('sidebar.requiresApp')}</p>
-            </CardContent>
-          </Card>
-        </div>
+        {showDownloadCta && (
+          <div className="space-y-6">
+            <div className="sticky top-24 space-y-4">
+              {heatmapCard}
+              <Card>
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center gap-2 text-sm text-white/60">
+                    <Clock className="h-4 w-4" />
+                    {formatDuration(hunt.estimatedDuration, (key, values) => tShared(key, values))}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-white/60">
+                    <MapPin className="h-4 w-4" />
+                    {tCommon('stepsPoints', {
+                      stepCount: sortedSteps.length,
+                      totalPoints,
+                    })}
+                  </div>
+                  {hunt.status === 'paused' && (
+                    <p className="text-sm text-gold">{tShared('pause.pausedMessage')}</p>
+                  )}
+                  {!huntCompleted && (
+                    <>
+                      <Button className="w-full" size="lg" asChild>
+                        <a href={getAppDownloadUrl()} download>
+                          <Download className="h-5 w-5" />
+                          {t('sidebar.downloadToPlay')}
+                        </a>
+                      </Button>
+                      <p className="text-xs text-white/40 text-center">{t('sidebar.requiresApp')}</p>
+                    </>
+                  )}
+                  {huntCompleted && (
+                    <p className="text-sm text-white/45 text-center">{t('bannerCompleted')}</p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
       </div>
 
-      {showDownloadCta && (
+      {showDownloadCta && !huntCompleted && (
         <div className="mt-12">
           <AppDownloadBanner
             title={t('downloadBanner.title')}

@@ -6,7 +6,7 @@ import { Search } from 'lucide-react';
 import { HuntCard } from '@/components/hunts/hunt-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useHunts, useMe } from '@/lib/api/queries';
+import { useHunts, useMe, useCompletedHunts } from '@/lib/api/queries';
 import type { HuntDifficulty } from '@/types';
 import { isPublicHuntStatus } from '@/lib/utils';
 import { useMemo, useState } from 'react';
@@ -18,8 +18,14 @@ export default function HuntsPage() {
   const tDiff = useTranslations('hunts.shared.difficulties');
   const { data: user, isLoading: userLoading } = useMe();
   const { data: hunts, isLoading, error } = useHunts(!!user);
+  const { data: completedHunts } = useCompletedHunts(!!user);
   const [search, setSearch] = useState('');
   const [difficulty, setDifficulty] = useState<HuntDifficulty | 'all'>('all');
+
+  const completedIds = useMemo(
+    () => new Set((completedHunts ?? []).map((hunt) => hunt.id)),
+    [completedHunts]
+  );
 
   const filtered = useMemo(() => {
     if (!hunts) return [];
@@ -27,9 +33,10 @@ export default function HuntsPage() {
       const matchesSearch = h.title.toLowerCase().includes(search.toLowerCase());
       const matchesDifficulty = difficulty === 'all' || h.difficulty === difficulty;
       const isVisible = isPublicHuntStatus(h.status);
-      return matchesSearch && matchesDifficulty && isVisible;
+      const notCompleted = !completedIds.has(h.id);
+      return matchesSearch && matchesDifficulty && isVisible && notCompleted;
     });
-  }, [hunts, search, difficulty]);
+  }, [hunts, search, difficulty, completedIds]);
 
   if (!userLoading && !user) {
     return (

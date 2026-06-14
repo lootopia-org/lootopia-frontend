@@ -55,9 +55,6 @@ export function HuntParticipantsPanel({ huntId }: HuntParticipantsPanelProps) {
                   <Badge variant={p.completedAt ? 'teal' : 'default'}>
                     {p.completedAt ? t('status.completed') : t('status.inProgress')}
                   </Badge>
-                  <Badge variant="gold" className="mt-1">
-                    {t('points', { points: p.pointsAwarded ?? 0 })}
-                  </Badge>
                 </div>
               </div>
             ))}
