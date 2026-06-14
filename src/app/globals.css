@@ -1,73 +1,70 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@theme {
+  --color-background: #0b0f1a;
+  --color-foreground: #f8fafc;
+  --color-gold: #d4af37;
+  --color-teal: #2dd4bf;
+  --color-glass: rgba(255, 255, 255, 0.06);
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --font-display: var(--font-syne);
+  --font-body: var(--font-dm-sans);
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #f8f9fa;
-  color: #1a1a1a;
-}
-
-a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* Leaflet Map Styles */
-.leaflet-container {
-  height: 100%;
-  width: 100%;
-}
-
-/* Animations */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
+@layer base {
+  * {
+    @apply border-white/10;
   }
-  50% {
-    transform: translateY(-20px);
+
+  html {
+    @apply scroll-smooth;
   }
-}
 
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
   body {
-    font-size: 14px;
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body), system-ui, sans-serif;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 175, 55, 0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(45, 212, 191, 0.08), transparent);
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display), system-ui, sans-serif;
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+@layer utilities {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-strong {
+    @apply bg-white/10 backdrop-blur-2xl border border-white/15;
+  }
+
+  .text-gradient-gold {
+    @apply bg-gradient-to-r from-gold via-amber-200 to-teal bg-clip-text text-transparent;
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+  }
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+/* Leaflet dark theme overrides */
+.leaflet-container {
+  background: #0b0f1a !important;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #ff6b35;
-  border-radius: 4px;
+.leaflet-popup-content-wrapper {
+  background: rgba(11, 15, 26, 0.95) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #e55a2b;
+.leaflet-popup-tip {
+  background: rgba(11, 15, 26, 0.95) !important;
 }
