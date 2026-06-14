@@ -1,26 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray, type FieldPath } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Plus, Trash2, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { Plus, Trash2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Check } from 'lucide-react';
 import {
   huntBasicsSchema,
   huntFormSchema,
   huntStepSchema,
   HUNT_STEP_TYPE_OPTIONS,
   createDefaultHuntStep,
-  DEFAULT_STEP_REWARD,
+  DEFAULT_STEP_POINTS,
   type HuntFormValues,
   type HuntStepTypeValue,
 } from '@/lib/schemas/hunt';
-import { useCreateHunt, useUpdateHunt, useMe } from '@/lib/api/queries';
+import { useCreateHunt, useSaveHuntEdit, useMe } from '@/lib/api/queries';
 import { StepLocationPicker } from '@/components/hunts/step-location-picker';
 import { ArStepPreview } from '@/components/hunts/ar-step-preview';
-import { formatStepType } from '@/lib/utils';
+import { ImagePicker } from '@/components/ui/image-picker';
+import { PhotoStepCaptureFields } from '@/components/hunts/photo-step-capture-fields';
+import { normalizeImageReference, isHttpStoredImageUrl } from '@/lib/image-utils';
+import { RemoteStoredImage } from '@/components/ui/remote-stored-image';
+import { formatStepType, huntStatusLabel } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,8 +47,10 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
   const router = useRouter();
   const { data: user } = useMe();
   const [step, setStep] = useState(0);
+  const [mapEpoch, setMapEpoch] = useState(0);
   const createHunt = useCreateHunt();
-  const updateHunt = useUpdateHunt(hunt?.id ?? '');
+  const saveHuntEdit = useSaveHuntEdit(hunt?.id ?? '');
+  const originalStepsRef = useRef<Hunt['steps']>(hunt?.steps ?? []);
 
   const form = useForm<HuntFormValues>({
     resolver: zodResolver(huntFormSchema),
@@ -57,23 +63,35 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
       status: hunt?.status ?? 'draft',
       partnerId: hunt?.partnerId ?? user?.id ?? '',
       steps: hunt?.steps?.map((s) => ({
+        id: s.id,
         order: s.order,
         title: s.title,
         description: s.description,
         type: s.type,
-        clue: s.clue,
-        answer: s.answer,
+        answer: s.answer ?? '',
         latitude: s.latitude?.toString() ?? '37.7749',
         longitude: s.longitude?.toString() ?? '-122.4194',
-        reward: s.reward ?? DEFAULT_STEP_REWARD,
+        points: s.points ?? DEFAULT_STEP_POINTS,
       })) ?? [createDefaultHuntStep(1)],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control: form.control,
     name: 'steps',
+    keyName: 'fieldKey',
   });
+
+  const reorderStep = (from: number, to: number) => {
+    move(from, to);
+    requestAnimationFrame(() => {
+      const reordered = form.getValues('steps');
+      reordered.forEach((_, index) => {
+        form.setValue(`steps.${index}.order`, index + 1, { shouldDirty: true });
+      });
+      setMapEpoch((epoch) => epoch + 1);
+    });
+  };
 
   const steps = ['Basics', 'Steps', 'Review'];
   const { errors } = form.formState;
@@ -92,24 +110,37 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
   };
 
   const onSubmit = async (data: HuntFormValues) => {
-    const payload = {
-      ...data,
-      image: data.image || undefined,
-      steps: data.steps.map((s, i) => ({
-        ...s,
+    const steps = data.steps.map((s, i) => {
+      const { address: _address, ...step } = s;
+      return {
+        ...step,
         order: i + 1,
         latitude: String(s.latitude),
         longitude: String(s.longitude),
-        reward: s.reward,
-      })),
+        points: Number(s.points),
+        answer: s.answer?.trim() || undefined,
+      };
+    });
+
+    const metadata = {
+      title: data.title,
+      description: data.description,
+      image: data.image || undefined,
+      difficulty: data.difficulty,
+      estimatedDuration: data.estimatedDuration,
+      status: data.status,
     };
 
     try {
       if (mode === 'create') {
-        await createHunt.mutateAsync(payload);
+        await createHunt.mutateAsync({ ...metadata, partnerId: data.partnerId, steps });
         toast.success('Hunt created!');
-      } else {
-        await updateHunt.mutateAsync(payload);
+      } else if (hunt) {
+        await saveHuntEdit.mutateAsync({
+          metadata,
+          steps,
+          originalSteps: originalStepsRef.current ?? [],
+        });
         toast.success('Hunt updated!');
       }
       router.push('/partner');
@@ -204,13 +235,14 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                 <p className="text-xs text-rose-400">{errors.description.message}</p>
               )}
             </div>
-            <div className="space-y-2">
-              <Label>Cover image URL</Label>
-              <Input {...form.register('image')} placeholder="https://…" />
-              {errors.image && (
-                <p className="text-xs text-rose-400">{errors.image.message}</p>
-              )}
-            </div>
+            <ImagePicker
+              label="Cover image"
+              description="Upload an image for the hunt card and detail page."
+              uploadKind="hunt"
+              value={form.watch('image')}
+              onChange={(value) => form.setValue('image', value ?? '', { shouldDirty: true, shouldValidate: true })}
+              error={errors.image?.message}
+            />
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label>Difficulty</Label>
@@ -243,6 +275,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                   <SelectContent>
                     <SelectItem value="draft">Draft</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="paused">Paused</SelectItem>
                     <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>
@@ -264,24 +297,56 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
             const stepType = form.watch(`steps.${index}.type`) as HuntStepTypeValue;
 
             return (
-              <Card key={field.id}>
+              <Card key={field.fieldKey}>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-base">Step {index + 1}</CardTitle>
-                  {fields.length > 1 && (
-                    <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                      <Trash2 className="h-4 w-4 text-rose-400" />
-                    </Button>
-                  )}
+                  <div className="flex items-center gap-1">
+                    {index > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => reorderStep(index, index - 1)}
+                        aria-label="Move step up"
+                      >
+                        <ChevronUp className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {index < fields.length - 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => reorderStep(index, index + 1)}
+                        aria-label="Move step down"
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {fields.length > 1 && (
+                      <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
+                        <Trash2 className="h-4 w-4 text-rose-400" />
+                      </Button>
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <input type="hidden" {...form.register(`steps.${index}.id`)} />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label>Type</Label>
                       <Select
                         value={stepType}
-                        onValueChange={(v: HuntStepTypeValue) =>
-                          form.setValue(`steps.${index}.type`, v)
-                        }
+                        onValueChange={(v: HuntStepTypeValue) => {
+                          const prev = form.getValues(`steps.${index}.type`);
+                          form.setValue(`steps.${index}.type`, v);
+                          if (prev === 'photo' && v !== 'photo') {
+                            form.setValue(`steps.${index}.answer`, '', {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            });
+                          }
+                        }}
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
@@ -308,10 +373,11 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                       <Input
                         type="number"
                         min={1}
-                        {...form.register(`steps.${index}.reward`, { valueAsNumber: true })}
+                        step="0.1"
+                        {...form.register(`steps.${index}.points`, { valueAsNumber: true })}
                       />
-                      {errors.steps?.[index]?.reward && (
-                        <p className="text-xs text-rose-400">{errors.steps[index]?.reward?.message}</p>
+                      {errors.steps?.[index]?.points && (
+                        <p className="text-xs text-rose-400">{errors.steps[index]?.points?.message}</p>
                       )}
                       <p className="text-xs text-white/40">Awarded when players complete this step</p>
                     </div>
@@ -325,72 +391,39 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                     )}
                   </div>
 
-                  {stepType === 'riddle' && (
-                    <>
-                      <div className="space-y-2">
-                        <Label>Clue (optional)</Label>
-                        <Input
-                          {...form.register(`steps.${index}.clue`)}
-                          placeholder="Hint shown to players"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Answer</Label>
-                        <Input {...form.register(`steps.${index}.answer`)} />
-                        {errors.steps?.[index]?.answer && (
-                          <p className="text-xs text-rose-400">{errors.steps[index]?.answer?.message}</p>
-                        )}
-                      </div>
-                    </>
-                  )}
-
-                  {stepType === 'qr_code' && (
+                  {stepType === 'photo' ? (
+                    <PhotoStepCaptureFields
+                      index={index}
+                      stepKey={field.fieldKey}
+                      huntId={hunt?.id}
+                      control={form.control}
+                      setValue={form.setValue}
+                      error={errors.steps?.[index]?.answer?.message}
+                    />
+                  ) : (
                     <div className="space-y-2">
-                      <Label>QR code payload</Label>
+                      <Label>Answer</Label>
                       <Input
                         {...form.register(`steps.${index}.answer`)}
-                        placeholder="Text or URL encoded in the QR code"
+                        placeholder="Clue, code, riddle solution, QR payload, or any verification value"
                       />
-                      {errors.steps?.[index]?.answer && (
-                        <p className="text-xs text-rose-400">{errors.steps[index]?.answer?.message}</p>
-                      )}
+                      <p className="text-xs text-white/40">
+                        Optional verification value used across all step types.
+                      </p>
                     </div>
                   )}
 
-                  {stepType === 'clue' && (
-                    <div className="space-y-2">
-                      <Label>Clue text</Label>
-                      <Input
-                        {...form.register(`steps.${index}.clue`)}
-                        placeholder="What players need to find or read"
-                      />
-                      {errors.steps?.[index]?.clue && (
-                        <p className="text-xs text-rose-400">{errors.steps[index]?.clue?.message}</p>
-                      )}
-                    </div>
-                  )}
-
-                  {stepType === 'ar' && (
-                    <>
-                      <ArStepPreview />
-                      <div className="space-y-2">
-                        <Label>AR hint (optional)</Label>
-                        <Input
-                          {...form.register(`steps.${index}.clue`)}
-                          placeholder="e.g. Look for the golden glow near the fountain"
-                        />
-                      </div>
-                    </>
-                  )}
+                  {stepType === 'ar' && <ArStepPreview />}
 
                   <StepLocationPicker
+                    mapKey={`${field.fieldKey}-${index}-${mapEpoch}`}
                     address={form.watch(`steps.${index}.address`)}
                     latitude={form.watch(`steps.${index}.latitude`)}
                     longitude={form.watch(`steps.${index}.longitude`)}
                     onAddressChange={(value) => form.setValue(`steps.${index}.address`, value)}
                     onLocationChange={(lat, lng) => {
-                      form.setValue(`steps.${index}.latitude`, lat.toString(), { shouldDirty: true });
-                      form.setValue(`steps.${index}.longitude`, lng.toString(), { shouldDirty: true });
+                      form.setValue(`steps.${index}.latitude`, lat.toFixed(6), { shouldDirty: true });
+                      form.setValue(`steps.${index}.longitude`, lng.toFixed(6), { shouldDirty: true });
                     }}
                     error={errors.steps?.[index]?.latitude?.message}
                   />
@@ -422,28 +455,64 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
               <span className="rounded-full bg-gold/20 px-3 py-1 text-xs text-gold capitalize">
                 {form.watch('difficulty')}
               </span>
-              <span className="rounded-full bg-teal-500/20 px-3 py-1 text-xs text-teal capitalize">
-                {form.watch('status')}
+              <span className="rounded-full bg-teal-500/20 px-3 py-1 text-xs text-teal">
+                {huntStatusLabel(form.watch('status'))}
               </span>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs">
                 {fields.length} steps
               </span>
               <span className="rounded-full bg-gold/20 px-3 py-1 text-xs text-gold">
-                {fields.reduce((sum, _, i) => sum + (form.watch(`steps.${i}.reward`) || 0), 0)} total points
+                {fields.reduce((sum, _, i) => sum + (form.watch(`steps.${i}.points`) || 0), 0)} total points
               </span>
             </div>
-            <ol className="space-y-2">
-              {fields.map((_, i) => (
-                <li key={i} className="text-sm text-white/70">
-                  {i + 1}. {form.watch(`steps.${i}.title`)} ({formatStepType(form.watch(`steps.${i}.type`))})
-                  <span className="text-gold"> · {form.watch(`steps.${i}.reward`)} pts</span>
-                  {form.watch(`steps.${i}.address`) && (
-                    <span className="block text-xs text-white/40 mt-0.5">
-                      {form.watch(`steps.${i}.address`)}
-                    </span>
-                  )}
-                </li>
-              ))}
+            <ol className="space-y-3">
+              {fields.map((field, i) => {
+                const stepType = form.watch(`steps.${i}.type`) as HuntStepTypeValue;
+                const answer = form.watch(`steps.${i}.answer`);
+                const normalizedAnswer = normalizeImageReference(answer);
+                const showPhotoPreview =
+                  stepType === 'photo' &&
+                  (isHttpStoredImageUrl(normalizedAnswer) ||
+                    normalizedAnswer?.startsWith('data:'));
+
+                return (
+                  <li key={field.fieldKey} className="text-sm text-white/70">
+                    {i + 1}. {form.watch(`steps.${i}.title`)} ({formatStepType(stepType)})
+                    <span className="text-gold"> · {form.watch(`steps.${i}.points`)} pts</span>
+                    {showPhotoPreview ? (
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="relative h-16 w-24 overflow-hidden rounded-md border border-white/10 bg-black/20">
+                          {normalizedAnswer!.startsWith('data:') ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={normalizedAnswer!}
+                              alt="Reference photo"
+                              className="h-full w-full object-contain"
+                            />
+                          ) : (
+                            <RemoteStoredImage
+                              key={normalizedAnswer!}
+                              storedUrl={normalizedAnswer!}
+                              alt="Reference photo"
+                              className="max-h-16 py-0"
+                            />
+                          )}
+                        </div>
+                        <span className="text-xs text-white/40">Reference photo attached</span>
+                      </div>
+                    ) : normalizedAnswer ? (
+                      <span className="mt-0.5 block text-xs text-white/40">
+                        Answer: {normalizedAnswer}
+                      </span>
+                    ) : null}
+                    {form.watch(`steps.${i}.address`) && (
+                      <span className="mt-0.5 block text-xs text-white/40">
+                        {form.watch(`steps.${i}.address`)}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
             </ol>
           </CardContent>
         </Card>
@@ -466,7 +535,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
           <Button
             type="button"
             onClick={handleCreateHunt}
-            disabled={createHunt.isPending || updateHunt.isPending}
+            disabled={createHunt.isPending || saveHuntEdit.isPending}
           >
             {mode === 'create' ? 'Create hunt' : 'Save changes'}
           </Button>

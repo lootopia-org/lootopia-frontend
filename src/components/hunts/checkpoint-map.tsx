@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 
 interface CheckpointMapProps {
+  mapKey: string;
   latitude?: string;
   longitude?: string;
   onSelect: (lat: number, lng: number) => void;

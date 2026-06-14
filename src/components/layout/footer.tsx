@@ -1,7 +1,16 @@
+'use client';
+
 import Link from 'next/link';
 import { Compass } from 'lucide-react';
+import { useMe } from '@/lib/api/queries';
 
 export function Footer() {
+  const { data: user } = useMe();
+
+  if (user?.role === 'admin' || user?.role === 'partner') {
+    return null;
+  }
+
   return (
     <footer className="border-t border-white/5 bg-background/50">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">

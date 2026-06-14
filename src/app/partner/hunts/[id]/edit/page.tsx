@@ -30,7 +30,11 @@ export default function EditHuntPage({
         {isLoading ? (
           <div className="glass rounded-2xl h-96 animate-pulse" />
         ) : hunt ? (
-          <HuntWizard mode="edit" hunt={hunt} key={hunt.id} />
+          <HuntWizard
+            mode="edit"
+            hunt={hunt}
+            key={`${hunt.id}:${hunt.steps?.map((s) => s.id).join(',') ?? ''}`}
+          />
         ) : (
           <p className="text-white/50">Hunt not found.</p>
         )}

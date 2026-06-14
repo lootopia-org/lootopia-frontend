@@ -80,7 +80,7 @@ export default function DashboardPage() {
   const completed = profile?.completedHunts ?? 0;
 
   return (
-    <RoleGuard allowed={['player', 'partner', 'admin']}>
+    <RoleGuard allowed={['player']}>
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between mb-10">
           <div>

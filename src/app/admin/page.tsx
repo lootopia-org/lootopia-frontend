@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { Users, Map, LogOut } from 'lucide-react';
 import { authApi } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/auth/session-store';
-import { useHunts, useProfiles } from '@/lib/api/queries';
+import { useManagedHunts, useProfiles } from '@/lib/api/queries';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function AdminPage() {
   const { data: profiles } = useProfiles(true);
-  const { data: hunts } = useHunts();
+  const { data: hunts } = useManagedHunts();
   const reset = useAuthStore((s) => s.reset);
 
   const handleLogout = async () => {

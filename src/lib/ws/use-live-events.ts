@@ -4,6 +4,8 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getAuthToken } from '@/lib/api/client';
 import { invalidateLiveQueries } from '@/lib/api/queries';
+import { isStepPhotoCapturedEvent, parseStepPhotoCapturedPayload } from '@/lib/api/step-photo-sessions';
+import { emitStepPhotoCaptured } from '@/lib/ws/step-photo-events';
 import type { LiveEvent } from '@/types';
 
 function getWsUrl(): string {
@@ -55,6 +57,11 @@ export function useLiveEvents(enabled: boolean) {
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data) as unknown;
+        if (isStepPhotoCapturedEvent(data)) {
+          emitStepPhotoCaptured(
+            parseStepPhotoCapturedPayload(data.payload as Record<string, unknown>)
+          );
+        }
         if (isLiveEvent(data)) {
           invalidateLiveQueries(qc, data);
         }

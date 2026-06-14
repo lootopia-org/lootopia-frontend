@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface StepLocationPickerProps {
+  mapKey: string;
   address?: string;
   latitude?: string;
   longitude?: string;
@@ -19,6 +20,7 @@ interface StepLocationPickerProps {
 }
 
 export function StepLocationPicker({
+  mapKey,
   address = '',
   latitude,
   longitude,
@@ -93,6 +95,7 @@ export function StepLocationPicker({
       )}
 
       <CheckpointMap
+        mapKey={mapKey}
         latitude={latitude}
         longitude={longitude}
         onSelect={onLocationChange}

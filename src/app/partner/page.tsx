@@ -1,19 +1,51 @@
 'use client';
 
 import Link from 'next/link';
-import { Plus, Pencil, Trash2, LogOut } from 'lucide-react';
+import { Plus, Pencil, Trash2, LogOut, Pause, Play } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '@/lib/api/auth';
+import { useManagedHunts, useDeleteHunt, useMe, useUpdateHuntStatus } from '@/lib/api/queries';
 import { useAuthStore } from '@/lib/auth/session-store';
-import { useHunts, useDeleteHunt, useMe } from '@/lib/api/queries';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { HuntCard } from '@/components/hunts/hunt-card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import type { Hunt, HuntStatus } from '@/types';
+
+function HuntStatusToggle({ hunt }: { hunt: Hunt }) {
+  const updateStatus = useUpdateHuntStatus(hunt.id);
+  if (hunt.status !== 'active' && hunt.status !== 'paused') return null;
+
+  const isPaused = hunt.status === 'paused';
+  const nextStatus: HuntStatus = isPaused ? 'active' : 'paused';
+
+  const handleToggle = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await updateStatus.mutateAsync(nextStatus);
+      toast.success(isPaused ? 'Hunt resumed' : 'Hunt paused');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Status update failed');
+    }
+  };
+
+  return (
+    <Button
+      size="icon"
+      variant="secondary"
+      className="h-8 w-8"
+      onClick={(e) => void handleToggle(e)}
+      disabled={updateStatus.isPending}
+      title={isPaused ? 'Resume hunt' : 'Pause hunt'}
+    >
+      {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+    </Button>
+  );
+}
 
 export default function PartnerPage() {
   const { data: user } = useMe();
-  const { data: hunts, isLoading } = useHunts();
+  const { data: hunts, isLoading } = useManagedHunts();
   const deleteHunt = useDeleteHunt();
   const reset = useAuthStore((s) => s.reset);
 
@@ -75,6 +107,7 @@ export default function PartnerPage() {
               <div key={hunt.id} className="relative group">
                 <HuntCard hunt={hunt} />
                 <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <HuntStatusToggle hunt={hunt} />
                   <Button size="icon" variant="secondary" className="h-8 w-8" asChild>
                     <Link href={`/partner/hunts/${hunt.id}/edit`}>
                       <Pencil className="h-3.5 w-3.5" />
@@ -88,11 +121,6 @@ export default function PartnerPage() {
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
-                </div>
-                <div className="absolute top-3 left-3">
-                  <Badge variant={hunt.status === 'active' ? 'teal' : 'draft'}>
-                    {hunt.status}
-                  </Badge>
                 </div>
               </div>
             ))}

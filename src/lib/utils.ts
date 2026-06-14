@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { HuntStatus } from '@/types';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -55,9 +56,70 @@ export function formatStepType(type: string): string {
       return 'Clue';
     case 'ar':
       return 'AR Treasure';
+    case 'photo':
+      return 'Photo match';
     default:
       return type;
   }
+}
+
+export const PUBLIC_HUNT_STATUSES: HuntStatus[] = ['active', 'draft'];
+
+export function isPublicHuntStatus(status: HuntStatus): boolean {
+  return PUBLIC_HUNT_STATUSES.includes(status);
+}
+
+export function huntStatusLabel(status: HuntStatus): string {
+  switch (status) {
+    case 'draft':
+      return 'Upcoming';
+    case 'active':
+      return 'Active';
+    case 'paused':
+      return 'Paused';
+    case 'archived':
+      return 'Archived';
+  }
+}
+
+export function huntStatusSortOrder(status: HuntStatus): number {
+  switch (status) {
+    case 'active':
+      return 0;
+    case 'draft':
+      return 1;
+    case 'paused':
+      return 2;
+    default:
+      return 3;
+  }
+}
+
+export function huntStatusBadgeVariant(
+  status: HuntStatus
+): 'default' | 'gold' | 'teal' | 'draft' {
+  switch (status) {
+    case 'active':
+      return 'teal';
+    case 'draft':
+      return 'draft';
+    case 'paused':
+      return 'gold';
+    default:
+      return 'default';
+  }
+}
+
+export function isStaffRole(user?: { role: string } | null): boolean {
+  return user?.role === 'admin' || user?.role === 'partner';
+}
+
+export function canManageHunt(
+  hunt: { partnerId: string },
+  user?: { id: string; role: string } | null
+): boolean {
+  if (!user) return false;
+  return user.role === 'admin' || hunt.partnerId === user.id;
 }
 
 export function difficultyBg(difficulty: string): string {

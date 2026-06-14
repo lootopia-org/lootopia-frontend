@@ -17,25 +17,17 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const { data: user } = useMe();
 
-  const dashboardLink =
+  const dashboardHref =
     user?.role === 'admin'
       ? '/admin'
       : user?.role === 'partner'
         ? '/partner'
         : '/dashboard';
 
-  const portalLink =
-    user?.role === 'admin'
-      ? { href: '/admin', label: 'Admin' }
-      : user?.role === 'partner'
-        ? { href: '/partner', label: 'Partner' }
-        : null;
-
   const navLinks = user
     ? [
         ...publicLinks,
-        { href: '/dashboard', label: 'Dashboard' },
-        ...(portalLink ? [portalLink] : []),
+        { href: dashboardHref, label: 'Dashboard' },
         { href: '/settings', label: 'Settings' },
       ]
     : publicLinks;
@@ -76,7 +68,7 @@ export function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           {user ? (
             <Button variant="secondary" size="sm" asChild>
-              <Link href={dashboardLink}>
+              <Link href={dashboardHref}>
                 {user.username}
               </Link>
             </Button>

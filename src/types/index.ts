@@ -15,6 +15,7 @@ export interface Profile {
   id: string;
   userId: string;
   username: string;
+  email?: string;
   bio?: string;
   avatar?: string;
   points: number;
@@ -22,6 +23,12 @@ export interface Profile {
   completedHunts?: number;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface UpdateAdminProfilePayload {
+  points?: number;
+  level?: number;
+  completedHunts?: number;
 }
 
 export type MfaMethod = 'totp' | 'webauthn';
@@ -54,8 +61,8 @@ export interface WebauthnCredential {
 }
 
 export type HuntDifficulty = 'easy' | 'medium' | 'hard';
-export type HuntStatus = 'active' | 'draft' | 'archived';
-export type HuntStepType = 'checkpoint' | 'riddle' | 'qr_code' | 'clue' | 'ar';
+export type HuntStatus = 'active' | 'draft' | 'archived' | 'paused';
+export type HuntStepType = 'checkpoint' | 'riddle' | 'qr_code' | 'clue' | 'ar' | 'photo';
 
 export interface HuntStep {
   id?: string;
@@ -63,11 +70,10 @@ export interface HuntStep {
   title: string;
   description: string;
   type: HuntStepType;
-  clue?: string;
   answer?: string;
   latitude: string;
   longitude: string;
-  reward: number;
+  points: number;
 }
 
 export interface Hunt {
@@ -102,7 +108,57 @@ export interface UpdateHuntPayload {
   difficulty?: HuntDifficulty;
   estimatedDuration?: number;
   status?: HuntStatus;
-  steps?: HuntStep[];
+}
+
+export interface UpdateHuntStepPayload {
+  order?: number;
+  title?: string;
+  description?: string;
+  type?: HuntStepType;
+  answer?: string | null;
+  latitude?: string;
+  longitude?: string;
+  points?: number;
+}
+
+export interface CreateHuntStepPayload {
+  huntId: string;
+  order: number;
+  title: string;
+  description: string;
+  type: HuntStepType;
+  answer?: string;
+  latitude: string;
+  longitude: string;
+  points: number;
+}
+
+export interface HuntParticipant {
+  userId: string;
+  email: string;
+  points?: number;
+  level?: number;
+  completedHunts?: number;
+  pointsAwarded: number;
+  joinedAt?: string;
+  completedAt?: string;
+}
+
+export interface HuntStepAnalytics {
+  stepId: string;
+  order: number;
+  title: string;
+  latitude?: string;
+  longitude?: string;
+  completionCount: number;
+}
+
+export interface HuntAnalytics {
+  huntId: string;
+  participantCount: number;
+  completedHuntCount: number;
+  steps: HuntStepAnalytics[];
+  userLocations: Array<{ latitude: string; longitude: string }>;
 }
 
 export interface ApiError {

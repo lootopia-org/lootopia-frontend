@@ -1,17 +1,47 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Trash2, Pencil } from 'lucide-react';
+import { ArrowLeft, Trash2, Pencil, Pause, Play } from 'lucide-react';
 import { toast } from 'sonner';
-import { useHunts, useDeleteHunt } from '@/lib/api/queries';
+import { useManagedHunts, useDeleteHunt, useUpdateHuntStatus } from '@/lib/api/queries';
 import { RoleGuard } from '@/components/auth/role-guard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDuration } from '@/lib/utils';
+import { formatDuration, huntStatusBadgeVariant, huntStatusLabel } from '@/lib/utils';
+import type { Hunt, HuntStatus } from '@/types';
+
+function HuntStatusToggle({ hunt }: { hunt: Hunt }) {
+  const updateStatus = useUpdateHuntStatus(hunt.id);
+  if (hunt.status !== 'active' && hunt.status !== 'paused') return null;
+
+  const isPaused = hunt.status === 'paused';
+  const nextStatus: HuntStatus = isPaused ? 'active' : 'paused';
+
+  const handleToggle = async () => {
+    try {
+      await updateStatus.mutateAsync(nextStatus);
+      toast.success(isPaused ? 'Hunt resumed' : 'Hunt paused');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Status update failed');
+    }
+  };
+
+  return (
+    <Button
+      size="sm"
+      variant="secondary"
+      onClick={() => void handleToggle()}
+      disabled={updateStatus.isPending}
+    >
+      {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+      {isPaused ? 'Resume' : 'Pause'}
+    </Button>
+  );
+}
 
 export default function AdminHuntsPage() {
-  const { data: hunts, isLoading } = useHunts();
+  const { data: hunts, isLoading } = useManagedHunts();
   const deleteHunt = useDeleteHunt();
 
   const handleDelete = async (id: string, title: string) => {
@@ -64,15 +94,16 @@ export default function AdminHuntsPage() {
                         <Link href={`/hunts/${hunt.id}`} className="font-medium hover:text-gold">
                           {hunt.title}
                         </Link>
-                        <Badge variant={hunt.status === 'active' ? 'teal' : 'draft'}>
-                          {hunt.status}
+                        <Badge variant={huntStatusBadgeVariant(hunt.status)}>
+                          {huntStatusLabel(hunt.status)}
                         </Badge>
                       </div>
                       <p className="text-xs text-white/40 mt-1">
                         {hunt.steps?.length ?? 0} steps · {formatDuration(hunt.estimatedDuration)} · Partner {hunt.partnerId.slice(0, 8)}…
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
+                      <HuntStatusToggle hunt={hunt} />
                       <Button size="sm" variant="secondary" asChild>
                         <Link href={`/partner/hunts/${hunt.id}/edit`}>
                           <Pencil className="h-3.5 w-3.5" />

@@ -4,7 +4,7 @@ import { Clock, MapPin, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Hunt } from '@/types';
-import { cn, difficultyBg, formatDuration } from '@/lib/utils';
+import { cn, difficultyBg, formatDuration, huntStatusBadgeVariant, huntStatusLabel } from '@/lib/utils';
 
 interface HuntCardProps {
   hunt: Hunt;
@@ -33,7 +33,11 @@ export function HuntCard({ hunt, showPartner = false }: HuntCardProps) {
             <Badge className={cn('capitalize', difficultyBg(hunt.difficulty))}>
               {hunt.difficulty}
             </Badge>
-            {hunt.status === 'draft' && <Badge variant="draft">Draft</Badge>}
+            {hunt.status !== 'active' && (
+              <Badge variant={huntStatusBadgeVariant(hunt.status)}>
+                {huntStatusLabel(hunt.status)}
+              </Badge>
+            )}
           </div>
         </div>
         <CardContent className="p-5">
@@ -46,7 +50,6 @@ export function HuntCard({ hunt, showPartner = false }: HuntCardProps) {
               <Clock className="h-3.5 w-3.5" />
               {formatDuration(hunt.estimatedDuration)}
             </span>
-            <span>{hunt.steps?.length ?? 0} steps</span>
           </div>
           {showPartner && (
             <p className="mt-2 text-xs text-teal/70">Partner: {hunt.partnerId.slice(0, 8)}…</p>

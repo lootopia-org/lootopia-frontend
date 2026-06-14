@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useHunts, useMe } from '@/lib/api/queries';
 import type { HuntDifficulty } from '@/types';
+import { isPublicHuntStatus } from '@/lib/utils';
 import { useMemo, useState } from 'react';
 
 const difficulties: (HuntDifficulty | 'all')[] = ['all', 'easy', 'medium', 'hard'];
@@ -22,7 +23,7 @@ export default function HuntsPage() {
     return hunts.filter((h) => {
       const matchesSearch = h.title.toLowerCase().includes(search.toLowerCase());
       const matchesDifficulty = difficulty === 'all' || h.difficulty === difficulty;
-      const isVisible = h.status === 'active' || h.status === 'draft';
+      const isVisible = isPublicHuntStatus(h.status);
       return matchesSearch && matchesDifficulty && isVisible;
     });
   }, [hunts, search, difficulty]);

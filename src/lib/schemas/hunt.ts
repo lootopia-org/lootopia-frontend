@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isValidImageReference } from '@/lib/image-utils';
 
 export const HUNT_STEP_TYPES = [
   'checkpoint',
@@ -6,11 +7,12 @@ export const HUNT_STEP_TYPES = [
   'qr_code',
   'clue',
   'ar',
+  'photo',
 ] as const;
 
 export type HuntStepTypeValue = (typeof HUNT_STEP_TYPES)[number];
 
-export const DEFAULT_STEP_REWARD = 10;
+export const DEFAULT_STEP_POINTS = 10;
 
 export const HUNT_STEP_TYPE_OPTIONS: {
   value: HuntStepTypeValue;
@@ -42,22 +44,31 @@ export const HUNT_STEP_TYPE_OPTIONS: {
     label: 'AR Treasure',
     description: 'Reveal augmented-reality loot at this location in the app',
   },
-];
+  {
+    value: 'photo',
+    label: 'Photo match',
+    description: 'Players take a matching photo at this location to complete the step',
+  },
+] as const;
+
+const optionalStepIdSchema = z.preprocess(
+  (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+  z.string().uuid().optional(),
+);
 
 export const huntStepSchema = z
   .object({
+    id: optionalStepIdSchema,
     order: z.number().int().min(1),
     title: z.string().min(1, 'Title is required'),
     description: z.string().min(1, 'Description is required'),
     type: z.enum(HUNT_STEP_TYPES),
     address: z.string().optional(),
-    clue: z.string().optional(),
     answer: z.string().optional(),
     latitude: z.coerce.string(),
     longitude: z.coerce.string(),
-    reward: z
+    points: z
       .number({ invalid_type_error: 'Points are required' })
-      .int()
       .min(1, 'Points must be at least 1'),
   })
   .superRefine((step, ctx) => {
@@ -69,27 +80,11 @@ export const huntStepSchema = z
       });
     }
 
-    if (step.type === 'riddle' && !step.answer?.trim()) {
+    if (step.type === 'photo' && !step.answer?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: 'Riddle steps require an answer',
+        message: 'Add a reference photo for players to match',
         path: ['answer'],
-      });
-    }
-
-    if (step.type === 'qr_code' && !step.answer?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'QR code steps require a payload value',
-        path: ['answer'],
-      });
-    }
-
-    if (step.type === 'clue' && !step.clue?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Clue steps require clue text',
-        path: ['clue'],
       });
     }
   });
@@ -100,12 +95,12 @@ export const huntBasicsSchema = z.object({
   image: z
     .string()
     .optional()
-    .refine((value) => !value || z.string().url().safeParse(value).success, {
-      message: 'Must be a valid URL',
+    .refine((value) => !value || isValidImageReference(value), {
+      message: 'Upload an image or provide a valid image URL',
     }),
   difficulty: z.enum(['easy', 'medium', 'hard']),
   estimatedDuration: z.number().int().min(5).max(480),
-  status: z.enum(['active', 'draft', 'archived']),
+  status: z.enum(['active', 'draft', 'archived', 'paused']),
   partnerId: z.string().min(1, 'Partner ID is required'),
 });
 
@@ -150,6 +145,6 @@ export function createDefaultHuntStep(order = 1): HuntStepForm {
     type: 'checkpoint',
     latitude: '37.7749',
     longitude: '-122.4194',
-    reward: DEFAULT_STEP_REWARD,
+    points: DEFAULT_STEP_POINTS,
   };
 }

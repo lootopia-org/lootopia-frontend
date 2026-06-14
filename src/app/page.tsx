@@ -8,7 +8,7 @@ import { AppDownloadBanner } from '@/components/layout/app-download-banner';
 import { HuntCard } from '@/components/hunts/hunt-card';
 import { Button } from '@/components/ui/button';
 import { useHunts, useMe } from '@/lib/api/queries';
-import { getAppDownloadUrl } from '@/lib/utils';
+import { getAppDownloadUrl, huntStatusSortOrder, isPublicHuntStatus, isStaffRole } from '@/lib/utils';
 
 const features = [
   {
@@ -31,7 +31,12 @@ const features = [
 export default function HomePage() {
   const { data: user } = useMe();
   const { data: hunts, isLoading } = useHunts(!!user);
-  const featured = hunts?.filter((h) => h.status === 'active').slice(0, 3) ?? [];
+  const showDownloadCta = !isStaffRole(user);
+  const featured =
+    hunts
+      ?.filter((h) => isPublicHuntStatus(h.status))
+      .sort((a, b) => huntStatusSortOrder(a.status) - huntStatusSortOrder(b.status))
+      .slice(0, 3) ?? [];
 
   return (
     <>
@@ -58,12 +63,14 @@ export default function HomePage() {
               Browse hunts on the web, track your stats, and download the app to play with AR, GPS, and live riddles.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button size="lg" asChild>
-                <a href={getAppDownloadUrl()} download>
-                  <Download className="h-5 w-5" />
-                  Download app
-                </a>
-              </Button>
+              {showDownloadCta && (
+                <Button size="lg" asChild>
+                  <a href={getAppDownloadUrl()} download>
+                    <Download className="h-5 w-5" />
+                    Download app
+                  </a>
+                </Button>
+              )}
               <Button variant="secondary" size="lg" asChild>
                 <Link href="/hunts">
                   Browse hunts
@@ -130,15 +137,16 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="glass rounded-2xl p-12 text-center text-white/50">
-            No active hunts yet. Check back soon!
+            No hunts available yet. Check back soon!
           </div>
         )}
       </section>
 
-      {/* Download CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
-        <AppDownloadBanner />
-      </section>
+      {showDownloadCta && (
+        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6">
+          <AppDownloadBanner />
+        </section>
+      )}
     </>
   );
 }

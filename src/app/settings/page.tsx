@@ -7,17 +7,20 @@ import { authApi } from '@/lib/api/auth';
 import { useAuthStore } from '@/lib/auth/session-store';
 import { useMe, useJoinedHunts } from '@/lib/api/queries';
 import { AppDownloadBanner, AppDownloadQr } from '@/components/layout/app-download-banner';
+import { ProfileSettings } from '@/components/auth/profile-settings';
 import { SecuritySettings } from '@/components/auth/security-settings';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RoleGuard } from '@/components/auth/role-guard';
-import { formatDuration } from '@/lib/utils';
+import { RoleGuard, ROLE_HOME } from '@/components/auth/role-guard';
+import { formatDuration, isStaffRole } from '@/lib/utils';
 
 export default function SettingsPage() {
   const { data: user } = useMe();
   const { data: joinedHunts } = useJoinedHunts(!!user);
   const reset = useAuthStore((s) => s.reset);
+
+  const showDownloadCta = !isStaffRole(user);
 
   const handleLogout = async () => {
     try {
@@ -46,7 +49,13 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" size="sm" asChild>
-              <Link href="/dashboard">View stats</Link>
+              <Link href={user ? ROLE_HOME[user.role] : '/dashboard'}>
+                {user?.role === 'admin'
+                  ? 'Admin console'
+                  : user?.role === 'partner'
+                    ? 'Partner studio'
+                    : 'View stats'}
+              </Link>
             </Button>
             <Button variant="outline" size="sm" onClick={handleLogout}>
               <LogOut className="h-4 w-4" />
@@ -55,12 +64,16 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="mb-8">
-          <AppDownloadBanner compact />
-        </div>
+        {showDownloadCta && (
+          <div className="mb-8">
+            <AppDownloadBanner compact />
+          </div>
+        )}
 
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-8">
+            <ProfileSettings />
+
             <Card>
               <CardHeader>
                 <CardTitle>Active hunts</CardTitle>
@@ -97,9 +110,11 @@ export default function SettingsPage() {
             <SecuritySettings />
           </div>
 
-          <div>
-            <AppDownloadQr />
-          </div>
+          {showDownloadCta ? (
+            <div>
+              <AppDownloadQr />
+            </div>
+          ) : null}
         </div>
       </div>
     </RoleGuard>

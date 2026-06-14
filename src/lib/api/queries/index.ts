@@ -5,7 +5,7 @@ import { ApiRequestError } from '@/lib/api/client';
 import { authApi } from '@/lib/api/auth';
 import { profileApi, huntApi } from '@/lib/api/hunts';
 import { useAuthStore } from '@/lib/auth/session-store';
-import type { CreateHuntPayload, LiveEvent, UpdateHuntPayload } from '@/types';
+import type { CreateHuntPayload, Hunt, HuntStatus, HuntStep, LiveEvent, UpdateAdminProfilePayload, UpdateHuntPayload } from '@/types';
 
 export const queryKeys = {
   me: ['auth', 'me'] as const,
@@ -14,6 +14,8 @@ export const queryKeys = {
   hunts: ['hunts'] as const,
   hunt: (id: string) => ['hunts', id] as const,
   joinedHunts: ['hunts', 'joined'] as const,
+  huntParticipants: (id: string) => ['hunts', id, 'participants'] as const,
+  huntAnalytics: (id: string) => ['hunts', id, 'analytics'] as const,
   webauthnCredentials: ['auth', 'webauthn', 'credentials'] as const,
 };
 
@@ -80,11 +82,22 @@ export function useHunts(enabled = true) {
   });
 }
 
+export function useManagedHunts(enabled = true) {
+  return useQuery({
+    queryKey: [...queryKeys.hunts, 'managed'] as const,
+    queryFn: () => huntApi.listManaged(),
+    enabled,
+    retry: false,
+  });
+}
+
 export function useHunt(id: string) {
   return useQuery({
     queryKey: queryKeys.hunt(id),
     queryFn: () => huntApi.get(id),
     enabled: !!id,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 
@@ -111,8 +124,10 @@ export function useCreateHunt() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (payload: CreateHuntPayload) => huntApi.create(payload),
-    onSuccess: () => {
+    onSuccess: (hunt) => {
+      qc.setQueryData(queryKeys.hunt(hunt.id), hunt);
       qc.invalidateQueries({ queryKey: queryKeys.hunts });
+      qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
     },
   });
 }
@@ -123,7 +138,79 @@ export function useUpdateHunt(id: string) {
     mutationFn: (payload: UpdateHuntPayload) => huntApi.update(id, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.hunts });
+      qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
       qc.invalidateQueries({ queryKey: queryKeys.hunt(id) });
+    },
+  });
+}
+
+export function useUpdateHuntStatus(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (status: HuntStatus) => huntApi.updateStatus(id, status),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.hunts });
+      qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
+      qc.invalidateQueries({ queryKey: queryKeys.hunt(id) });
+      qc.invalidateQueries({ queryKey: queryKeys.joinedHunts });
+    },
+  });
+}
+
+export function useSaveHuntEdit(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      metadata,
+      steps,
+      originalSteps,
+    }: {
+      metadata: UpdateHuntPayload;
+      steps: HuntStep[];
+      originalSteps: HuntStep[];
+    }) => huntApi.saveEdit(id, metadata, steps, originalSteps),
+    onSuccess: (hunt) => {
+      qc.setQueryData(queryKeys.hunt(id), hunt);
+      qc.invalidateQueries({ queryKey: queryKeys.hunts });
+      qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
+      qc.invalidateQueries({ queryKey: queryKeys.huntAnalytics(id) });
+    },
+  });
+}
+
+export function useHuntParticipants(huntId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.huntParticipants(huntId),
+    queryFn: () => huntApi.participants(huntId),
+    enabled: enabled && !!huntId,
+    retry: false,
+  });
+}
+
+export function useHuntAnalytics(huntId: string, enabled = true) {
+  return useQuery({
+    queryKey: queryKeys.huntAnalytics(huntId),
+    queryFn: () => huntApi.analytics(huntId),
+    enabled: enabled && !!huntId,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    retry: false,
+  });
+}
+
+export function useUpdateAdminProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      userId,
+      payload,
+    }: {
+      userId: string;
+      payload: UpdateAdminProfilePayload;
+    }) => profileApi.adminUpdate(userId, payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.profiles });
+      qc.invalidateQueries({ queryKey: queryKeys.profile });
     },
   });
 }
@@ -134,6 +221,7 @@ export function useDeleteHunt() {
     mutationFn: (id: string) => huntApi.delete(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.hunts });
+      qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
     },
   });
 }
@@ -190,6 +278,9 @@ export function invalidateLiveQueries(
       ) {
         qc.invalidateQueries({
           queryKey: queryKeys.hunt((event.payload as { huntId: string }).huntId),
+        });
+        qc.invalidateQueries({
+          queryKey: queryKeys.huntAnalytics((event.payload as { huntId: string }).huntId),
         });
       }
       qc.invalidateQueries({ queryKey: queryKeys.joinedHunts });

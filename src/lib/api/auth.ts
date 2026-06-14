@@ -122,5 +122,11 @@ export const authApi = {
       skipAuthRedirect: true,
     }),
 
+  updateProfile: (data: { bio?: string; avatar?: string }) =>
+    apiRequest<{ bio?: string; avatar?: string }>('/auth/me/update', {
+      method: 'PATCH',
+      body: data,
+    }),
+
   persistToken: setAuthToken,
 };

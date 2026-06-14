@@ -5,10 +5,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useMe } from '@/lib/api/queries';
 import type { UserRole } from '@/types';
 
+export const ROLE_HOME: Record<UserRole, string> = {
+  player: '/dashboard',
+  partner: '/partner',
+  admin: '/admin',
+};
+
 export function RoleGuard({
   children,
   allowed,
-  fallback = '/dashboard',
+  fallback,
 }: {
   children: React.ReactNode;
   allowed: UserRole[];
@@ -22,8 +28,9 @@ export function RoleGuard({
 
   useEffect(() => {
     if (!isLoading && user && !allowedSet.has(user.role)) {
-      if (pathname !== fallback) {
-        router.replace(fallback);
+      const redirectTo = fallback ?? ROLE_HOME[user.role];
+      if (pathname !== redirectTo) {
+        router.replace(redirectTo);
       }
     }
   }, [user, isLoading, allowedSet, fallback, router, pathname]);
