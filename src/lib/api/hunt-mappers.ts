@@ -17,6 +17,7 @@ interface ApiHuntStep {
   description: string;
   type: HuntStepType;
   awnser?: string | null;
+  scanInAr?: boolean;
   latitude: string;
   longitude: string;
   points: number;
@@ -31,7 +32,7 @@ export type ApiHunt = Omit<Hunt, 'steps'> & {
 function toApiStep(
   step: Omit<HuntStep, 'id'> & { address?: string }
 ): Omit<ApiHuntStep, 'id'> {
-  const { order, latitude, longitude, address: _address, points, answer, type, title, description } = step;
+  const { order, latitude, longitude, address: _address, points, answer, scanInAr, type, title, description } = step;
   return {
     stepOrder: order,
     title,
@@ -41,11 +42,12 @@ function toApiStep(
     longitude: String(longitude),
     points: Number(points),
     awnser: answer?.trim() || null,
+    scanInAr: scanInAr ?? false,
   };
 }
 
 function toUpdateApiStep(step: UpdateHuntStepPayload) {
-  const { order, answer, latitude, longitude, points, type, title, description } = step;
+  const { order, answer, scanInAr, latitude, longitude, points, type, title, description } = step;
   return {
     ...(order !== undefined ? { stepOrder: order } : {}),
     ...(title !== undefined ? { title } : {}),
@@ -55,11 +57,12 @@ function toUpdateApiStep(step: UpdateHuntStepPayload) {
     ...(longitude !== undefined ? { longitude: String(longitude) } : {}),
     ...(points !== undefined ? { points: Number(points) } : {}),
     ...(answer !== undefined ? { awnser: answer?.trim() || null } : {}),
+    ...(scanInAr !== undefined ? { scanInAr } : {}),
   };
 }
 
 function fromApiStep(step: ApiHuntStep): HuntStep {
-  const { stepOrder, latitude, longitude, points, awnser, ...rest } = step;
+  const { stepOrder, latitude, longitude, points, awnser, scanInAr, ...rest } = step;
   return {
     ...rest,
     order: stepOrder,
@@ -67,6 +70,7 @@ function fromApiStep(step: ApiHuntStep): HuntStep {
     longitude: String(longitude),
     points: Math.round(points ?? 0),
     answer: awnser ?? undefined,
+    scanInAr: scanInAr ?? false,
   };
 }
 
@@ -91,7 +95,7 @@ export function toUpdateHuntPayload(payload: UpdateHuntPayload) {
 }
 
 export function toCreateStepPayload(payload: CreateHuntStepPayload) {
-  const { huntId, order, answer, latitude, longitude, points, type, title, description } = payload;
+  const { huntId, order, answer, scanInAr, latitude, longitude, points, type, title, description } = payload;
   return {
     huntId,
     stepOrder: order,
@@ -102,6 +106,7 @@ export function toCreateStepPayload(payload: CreateHuntStepPayload) {
     longitude: String(longitude),
     points: Number(points),
     awnser: answer?.trim() || null,
+    scanInAr: scanInAr ?? false,
   };
 }
 

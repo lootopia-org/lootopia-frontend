@@ -22,7 +22,8 @@ import { StepLocationPicker } from '@/components/hunts/step-location-picker';
 import { ArStepPreview } from '@/components/hunts/ar-step-preview';
 import { ImagePicker } from '@/components/ui/image-picker';
 import { PhotoStepCaptureFields } from '@/components/hunts/photo-step-capture-fields';
-import { normalizeImageReference, isHttpStoredImageUrl, toDisplayImageSrc } from '@/lib/image-utils';
+import { QrStepFields } from '@/components/hunts/qr-step-fields';
+import { normalizeImageReference, isStoredImageReference, toDisplayImageSrc } from '@/lib/image-utils';
 import { RemoteStoredImage } from '@/components/ui/remote-stored-image';
 import { formatStepType } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -83,6 +84,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
         description: s.description,
         type: s.type,
         answer: s.answer ?? '',
+        scanInAr: s.scanInAr ?? false,
         latitude: s.latitude?.toString() ?? '37.7749',
         longitude: s.longitude?.toString() ?? '-122.4194',
         points: s.points ?? DEFAULT_STEP_POINTS,
@@ -137,6 +139,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
         longitude: String(s.longitude),
         points: Number(s.points),
         answer: s.answer?.trim() || undefined,
+        scanInAr: s.type === 'qr_code' ? Boolean(s.scanInAr) : false,
       };
     });
 
@@ -417,6 +420,13 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                       setValue={form.setValue}
                       error={errors.steps?.[index]?.answer?.message}
                     />
+                  ) : stepType === 'qr_code' ? (
+                    <QrStepFields
+                      index={index}
+                      control={form.control}
+                      setValue={form.setValue}
+                      error={errors.steps?.[index]?.answer?.message}
+                    />
                   ) : (
                     <div className="space-y-2">
                       <Label>{t('stepEditor.fields.answer')}</Label>
@@ -497,9 +507,8 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                     {showPhotoPreview ? (
                       <div className="mt-2 flex items-center gap-2">
                         <div className="relative h-16 w-24 overflow-hidden rounded-md border border-white/10 bg-black/20">
-                          {isHttpStoredImageUrl(normalizedAnswer) ? (
+                          {isStoredImageReference(normalizedAnswer) ? (
                             <RemoteStoredImage
-                              key={normalizedAnswer!}
                               storedUrl={normalizedAnswer!}
                               alt={t('review.referencePhotoAlt')}
                               className="max-h-16 py-0"

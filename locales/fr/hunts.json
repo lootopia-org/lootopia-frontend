@@ -214,6 +214,7 @@
       "inProgress": "En cours"
     },
     "points": "{points} pts",
+    "totalPoints": "{points} pts au total",
     "loadFailed": "Impossible de charger les participants.",
     "empty": "Aucun participant pour le moment."
   },
@@ -263,6 +264,16 @@
       "answerPlaceholder": "Indice, code, solution, payload QR ou valeur de vérification",
       "answerHint": "Valeur de vérification optionnelle pour tous les types d’étapes.",
       "addStep": "Ajouter une étape"
+    },
+    "qrStep": {
+      "contentLabel": "Contenu du QR code",
+      "contentPlaceholder": "Texte ou code que les joueurs doivent scanner",
+      "contentHint": "Cette chaîne exacte est encodée dans le QR code et validée au scan.",
+      "scanInArLabel": "Scanner en AR",
+      "scanInArHint": "Les joueurs ouvrent l'écran caméra AR pour scanner ce QR code.",
+      "previewAlt": "Aperçu du QR code",
+      "previewEmpty": "Saisissez un contenu ci-dessus pour générer un QR code imprimable.",
+      "download": "Télécharger le QR code"
     },
     "location": {
       "heading": "Emplacement",

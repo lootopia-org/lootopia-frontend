@@ -9,9 +9,11 @@ import { emitStepPhotoCaptured } from '@/lib/ws/step-photo-events';
 import type { LiveEvent } from '@/types';
 
 function getWsUrl(): string {
+  const token = getAuthToken();
   if (typeof window !== 'undefined') {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${protocol}//${window.location.host}/api/ws`;
+    const base = `${protocol}//${window.location.host}/api/ws`;
+    return token ? `${base}?token=${encodeURIComponent(token)}` : base;
   }
   const apiUrl =
     process.env.NEXT_PUBLIC_API_URL || 'https://api.wookiesrpeople2.dev';

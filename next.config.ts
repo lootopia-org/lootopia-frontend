@@ -9,7 +9,7 @@ const backendUrl =
   'https://api.wookiesrpeople2.dev';
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },

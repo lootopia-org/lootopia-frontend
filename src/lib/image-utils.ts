@@ -29,14 +29,54 @@ export function normalizeImageReference(value?: string | null): string | undefin
   return trimmed;
 }
 
-/** Same-origin proxy → backend `/upload/image/view` (see `app/media/stored-image/route.ts`). */
+/** Extract S3 object key from a stored image URL when possible. */
+export function extractStoredImageKey(storedUrl: string): string | undefined {
+  const trimmed = storedUrl.trim();
+  if (!trimmed) return undefined;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    try {
+      const pathname = new URL(trimmed).pathname.replace(/^\/+/, '');
+      const lootopiaIdx = pathname.indexOf('lootopia/');
+      if (lootopiaIdx >= 0) {
+        return pathname.slice(lootopiaIdx);
+      }
+      return pathname || undefined;
+    } catch {
+      return undefined;
+    }
+  }
+  return trimmed.includes('/') ? trimmed : undefined;
+}
+
+/** Same-origin proxy path for `<img src>` (browser sends session cookies). */
 export function toImageProxySrc(url: string): string {
-  return `/media/stored-image?url=${encodeURIComponent(url)}`;
+  const params = new URLSearchParams({ url });
+  const key = extractStoredImageKey(url);
+  if (key) {
+    params.set('key', key);
+  }
+  return `/media/stored-image?${params.toString()}`;
 }
 
 export function isHttpStoredImageUrl(value?: string | null): boolean {
   const normalized = normalizeImageReference(value);
   return !!normalized && (normalized.startsWith('http://') || normalized.startsWith('https://'));
+}
+
+/** True when the value is an HTTP(S) URL or S3 object key that must be loaded via the image proxy. */
+export function isStoredImageReference(value?: string | null): boolean {
+  const normalized = normalizeImageReference(value);
+  if (!normalized) return false;
+  if (
+    normalized.startsWith('data:') ||
+    normalized.startsWith('blob:') ||
+    normalized.startsWith('/media/')
+  ) {
+    return false;
+  }
+  if (isHttpStoredImageUrl(normalized)) return true;
+  if (extractStoredImageKey(normalized)) return true;
+  return false;
 }
 
 /** Same-origin display URL for previews (handles base64, relative paths, and storage URLs). */
@@ -56,6 +96,10 @@ export function toDisplayImageSrc(value?: string | null): string | undefined {
     return toImageProxySrc(normalized);
   }
 
+  if (extractStoredImageKey(normalized)) {
+    return toImageProxySrc(normalized);
+  }
+
   if (isLikelyBase64Image(normalized)) {
     return `data:image/jpeg;base64,${normalized}`;
   }
@@ -68,11 +112,16 @@ export function toImageSrc(value?: string | null): string | undefined {
   if (!normalized) return undefined;
   if (
     normalized.startsWith('data:') ||
-    normalized.startsWith('http') ||
-    normalized.startsWith('/') ||
-    normalized.startsWith('blob:')
+    normalized.startsWith('blob:') ||
+    (normalized.startsWith('/') && !extractStoredImageKey(normalized))
   ) {
     return normalized;
+  }
+  if (normalized.startsWith('http://') || normalized.startsWith('https://')) {
+    return toImageProxySrc(normalized);
+  }
+  if (extractStoredImageKey(normalized)) {
+    return toImageProxySrc(normalized);
   }
   if (isLikelyBase64Image(normalized)) {
     return `data:image/jpeg;base64,${normalized}`;
@@ -84,6 +133,7 @@ export function isValidImageReference(value: string): boolean {
   if (!value) return false;
   if (zodUrl(value)) return true;
   if (value.startsWith('/uploads/')) return true;
+  if (extractStoredImageKey(value)) return true;
   return isLikelyBase64Image(value);
 }
 

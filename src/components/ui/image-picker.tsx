@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Camera, ImageUp, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { apiUploadFile } from '@/lib/api/upload';
-import { compressImageFile, isHttpStoredImageUrl, normalizeImageReference, toDisplayImageSrc } from '@/lib/image-utils';
+import { compressImageFile, isStoredImageReference, normalizeImageReference, toDisplayImageSrc } from '@/lib/image-utils';
 import { RemoteStoredImage } from '@/components/ui/remote-stored-image';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -71,11 +71,12 @@ export function ImagePicker({
         { kind: uploadKind }
       );
 
-      const storedUrl = normalizeImageReference(uploaded.url);
+      const storedRef =
+        normalizeImageReference(uploaded.key) ?? normalizeImageReference(uploaded.url);
       revokeBlob(localPreviewUrl);
       localPreviewRef.current = false;
       setLocalPreviewUrl(undefined);
-      onChange(storedUrl);
+      onChange(storedRef);
       toast.success(t('uploaded'));
     } catch (err) {
       revokeBlob(nextLocalPreview);
@@ -97,8 +98,8 @@ export function ImagePicker({
   };
 
   const showPreviewFrame = !!normalizedValue || !!localPreviewUrl;
-  const storedDisplaySrc = !localPreviewUrl ? toDisplayImageSrc(normalizedValue) : undefined;
-  const showRemotePreview = !localPreviewUrl && isHttpStoredImageUrl(normalizedValue);
+  const showStoredPreview =
+    !localPreviewUrl && !!normalizedValue && isStoredImageReference(normalizedValue);
 
   return (
     <div className={cn('space-y-3', className)}>
@@ -131,11 +132,15 @@ export function ImagePicker({
             {localPreviewUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={localPreviewUrl} alt={t('selectedReference')} className="max-h-80 w-full object-contain" />
-            ) : showRemotePreview && normalizedValue ? (
-              <RemoteStoredImage key={normalizedValue} storedUrl={normalizedValue} alt={t('selectedReference')} />
-            ) : storedDisplaySrc ? (
+            ) : showStoredPreview ? (
+              <RemoteStoredImage storedUrl={normalizedValue!} alt={t('selectedReference')} />
+            ) : normalizedValue && toDisplayImageSrc(normalizedValue) ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={storedDisplaySrc} alt={t('selectedReference')} className="max-h-80 w-full object-contain" />
+              <img
+                src={toDisplayImageSrc(normalizedValue)}
+                alt={t('selectedReference')}
+                className="max-h-80 w-full object-contain"
+              />
             ) : null}
           </div>
           {busy && (

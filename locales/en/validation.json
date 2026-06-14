@@ -19,7 +19,8 @@
       "pointsInvalidType": "Points are required",
       "pointsMin": "Points must be at least 1",
       "locationRequired": "Set a location using the address lookup or map",
-      "photoAnswerRequired": "Add a reference photo for players to match"
+      "photoAnswerRequired": "Add a reference photo for players to match",
+      "qrContentRequired": "Enter the content to encode in the QR code"
     },
     "form": {
       "stepsMin": "At least one step is required"

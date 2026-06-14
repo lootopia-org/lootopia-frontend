@@ -162,6 +162,7 @@ export const huntApi = {
         longitude: String(step.longitude),
         points: Number(step.points),
         awnser: step.answer?.trim() || null,
+        scanInAr: step.type === 'qr_code' ? Boolean(step.scanInAr) : false,
       })),
     };
 

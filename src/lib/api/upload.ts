@@ -6,7 +6,7 @@ export async function apiUploadFile(
   path: string,
   file: File,
   options?: { fieldName?: string; kind?: 'hunt' | 'step' | 'avatar' }
-): Promise<{ url: string }> {
+): Promise<{ url: string; key?: string }> {
   const formData = new FormData();
   formData.append(options?.fieldName ?? 'file', file);
 
@@ -46,5 +46,5 @@ export async function apiUploadFile(
     );
   }
 
-  return (await response.json()) as { url: string };
+  return (await response.json()) as { url: string; key?: string };
 }

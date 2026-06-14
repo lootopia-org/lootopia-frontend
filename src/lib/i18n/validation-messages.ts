@@ -15,6 +15,7 @@ export function getValidationMessages(tv: ValidationTranslator): ValidationMessa
       pointsMin: tv('hunt.step.pointsMin'),
       locationRequired: tv('hunt.step.locationRequired'),
       photoRequired: tv('hunt.step.photoAnswerRequired'),
+      qrRequired: tv('hunt.step.qrContentRequired'),
       stepsMin: tv('hunt.form.stepsMin'),
     },
     auth: {

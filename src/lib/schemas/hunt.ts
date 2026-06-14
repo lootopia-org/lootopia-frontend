@@ -26,6 +26,7 @@ export type ValidationMessages = {
     pointsMin: string;
     locationRequired: string;
     photoRequired: string;
+    qrRequired: string;
     stepsMin: string;
   };
   auth: {
@@ -51,6 +52,7 @@ export function createHuntSchemas(v: ValidationMessages) {
       type: z.enum(HUNT_STEP_TYPES),
       address: z.string().optional(),
       answer: z.string().optional(),
+      scanInAr: z.boolean().optional(),
       latitude: z.coerce.string(),
       longitude: z.coerce.string(),
       points: z
@@ -70,6 +72,14 @@ export function createHuntSchemas(v: ValidationMessages) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: v.hunt.photoRequired,
+          path: ['answer'],
+        });
+      }
+
+      if (step.type === 'qr_code' && !step.answer?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: v.hunt.qrRequired,
           path: ['answer'],
         });
       }
@@ -144,6 +154,7 @@ const defaultSchemas = createHuntSchemas({
     pointsMin: 'Points must be at least 1',
     locationRequired: 'Set a location using the address lookup or map',
     photoRequired: 'Add a reference photo for players to match',
+    qrRequired: 'Enter the content to encode in the QR code',
     stepsMin: 'At least one step is required',
   },
   auth: {
@@ -176,6 +187,7 @@ export function createDefaultHuntStep(order = 1): HuntStepForm {
     latitude: '37.7749',
     longitude: '-122.4194',
     points: DEFAULT_STEP_POINTS,
+    scanInAr: false,
   };
 }
 

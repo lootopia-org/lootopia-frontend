@@ -214,6 +214,7 @@
       "inProgress": "In progress"
     },
     "points": "{points} pts",
+    "totalPoints": "{points} total pts",
     "loadFailed": "Unable to load participants.",
     "empty": "No participants yet."
   },
@@ -263,6 +264,16 @@
       "answerPlaceholder": "Clue, code, riddle solution, QR payload, or any verification value",
       "answerHint": "Optional verification value used across all step types.",
       "addStep": "Add step"
+    },
+    "qrStep": {
+      "contentLabel": "QR code content",
+      "contentPlaceholder": "Text or code players must scan",
+      "contentHint": "This exact string is encoded in the QR code and validated when scanned.",
+      "scanInArLabel": "Scan in AR",
+      "scanInArHint": "Players open the AR camera screen to scan this QR code.",
+      "previewAlt": "QR code preview",
+      "previewEmpty": "Enter content above to generate a printable QR code.",
+      "download": "Download QR code"
     },
     "location": {
       "heading": "Location",

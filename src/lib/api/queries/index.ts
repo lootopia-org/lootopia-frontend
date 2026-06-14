@@ -255,6 +255,7 @@ export function invalidateLiveQueries(
   switch (topic) {
     case 'hunts':
       qc.invalidateQueries({ queryKey: queryKeys.hunts });
+      qc.invalidateQueries({ queryKey: [...queryKeys.hunts, 'managed'] });
       qc.invalidateQueries({ queryKey: queryKeys.joinedHunts });
       if (
         event.payload &&

@@ -71,6 +71,7 @@ export interface HuntStep {
   description: string;
   type: HuntStepType;
   answer?: string;
+  scanInAr?: boolean;
   latitude: string;
   longitude: string;
   points: number;
@@ -116,6 +117,7 @@ export interface UpdateHuntStepPayload {
   description?: string;
   type?: HuntStepType;
   answer?: string | null;
+  scanInAr?: boolean;
   latitude?: string;
   longitude?: string;
   points?: number;
@@ -128,6 +130,7 @@ export interface CreateHuntStepPayload {
   description: string;
   type: HuntStepType;
   answer?: string;
+  scanInAr?: boolean;
   latitude: string;
   longitude: string;
   points: number;

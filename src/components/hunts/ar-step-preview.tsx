@@ -14,7 +14,7 @@ export function ArStepPreview() {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm text-white/50">{t('arPreview')}</p>
+      <p className="text-sm text-white/50">{t('arPreview.message')}</p>
       <Suspense
         fallback={
           <div className="h-48 w-full rounded-xl border border-teal-500/20 bg-teal-500/5 animate-pulse" />

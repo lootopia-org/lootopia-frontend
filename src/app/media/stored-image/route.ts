@@ -1,30 +1,46 @@
-import { cookies } from 'next/headers';
 import { NextRequest } from 'next/server';
 import { fetchStoredImageFromBackend } from '@/lib/server/fetch-stored-image';
 
-/**
- * Same-origin proxy to backend `GET /upload/image/view`.
- * Lives outside `/api/*` so it is not swallowed by the API rewrite.
- */
-export async function GET(request: NextRequest) {
-  const storedUrl = request.nextUrl.searchParams.get('url');
-  if (!storedUrl) {
-    return new Response('Missing url parameter', { status: 400 });
+function sessionFromRequest(request: NextRequest): string | undefined {
+  const cookieSession =
+    request.cookies.get('session')?.value ?? request.cookies.get('authToken')?.value;
+  if (cookieSession) {
+    return cookieSession;
   }
 
-  const cookieStore = await cookies();
-  const session =
-    cookieStore.get('session')?.value ?? cookieStore.get('authToken')?.value;
+  const authorization = request.headers.get('authorization');
+  if (authorization?.startsWith('Bearer ')) {
+    const token = authorization.slice('Bearer '.length).trim();
+    if (token) {
+      return token;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Same-origin proxy to backend `GET /upload/image/view`.
+ * Used by `<img src="…">` (cookies) and optional Bearer from client fetch.
+ */
+export async function GET(request: NextRequest) {
+  const storedUrl =
+    request.nextUrl.searchParams.get('url') ?? request.nextUrl.searchParams.get('key');
+  if (!storedUrl) {
+    return new Response('Missing url or key parameter', { status: 400 });
+  }
+
+  const session = sessionFromRequest(request);
   if (!session) {
     return new Response('Unauthorized', { status: 401 });
   }
 
   const payload = await fetchStoredImageFromBackend(storedUrl, session);
-  if (!payload) {
+  if (!payload || payload.bytes.length === 0) {
     return new Response('Failed to fetch image', { status: 502 });
   }
 
-  return new Response(new Uint8Array(payload.bytes), {
+  return new Response(payload.bytes, {
     headers: {
       'Content-Type': payload.contentType,
       'Cache-Control': 'private, max-age=300',

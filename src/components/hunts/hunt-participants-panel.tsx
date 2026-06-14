@@ -13,6 +13,10 @@ export function HuntParticipantsPanel({ huntId }: HuntParticipantsPanelProps) {
   const t = useTranslations('hunts.participants');
   const { data: participants, isLoading, error } = useHuntParticipants(huntId);
 
+  const sortedParticipants = [...(participants ?? [])].sort(
+    (a, b) => (b.pointsAwarded ?? 0) - (a.pointsAwarded ?? 0)
+  );
+
   return (
     <Card>
       <CardHeader>
@@ -27,9 +31,9 @@ export function HuntParticipantsPanel({ huntId }: HuntParticipantsPanelProps) {
           </div>
         ) : error ? (
           <p className="text-sm text-white/50">{t('loadFailed')}</p>
-        ) : participants && participants.length > 0 ? (
+        ) : sortedParticipants.length > 0 ? (
           <div className="space-y-2 max-h-64 overflow-y-auto">
-            {participants.map((p) => (
+            {sortedParticipants.map((p) => (
               <div
                 key={p.userId}
                 className="flex items-center justify-between rounded-lg glass px-3 py-2 text-sm"
@@ -41,12 +45,19 @@ export function HuntParticipantsPanel({ huntId }: HuntParticipantsPanelProps) {
                       date: p.joinedAt ? new Date(p.joinedAt).toLocaleDateString() : '—',
                     })}
                   </p>
+                  {typeof p.points === 'number' && (
+                    <p className="mt-1 text-xs text-white/50">
+                      {t('totalPoints', { points: p.points })}
+                    </p>
+                  )}
                 </div>
                 <div className="text-right">
                   <Badge variant={p.completedAt ? 'teal' : 'default'}>
                     {p.completedAt ? t('status.completed') : t('status.inProgress')}
                   </Badge>
-                  <p className="mt-1 text-xs text-gold">{t('points', { points: p.pointsAwarded })}</p>
+                  <Badge variant="gold" className="mt-1">
+                    {t('points', { points: p.pointsAwarded ?? 0 })}
+                  </Badge>
                 </div>
               </div>
             ))}
