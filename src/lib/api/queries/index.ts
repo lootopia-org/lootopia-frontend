@@ -183,6 +183,8 @@ export function useHuntParticipants(huntId: string, enabled = true) {
     queryKey: queryKeys.huntParticipants(huntId),
     queryFn: () => huntApi.participants(huntId),
     enabled: enabled && !!huntId,
+    staleTime: 0,
+    refetchOnMount: 'always',
     retry: false,
   });
 }
@@ -263,6 +265,20 @@ export function invalidateLiveQueries(
         qc.invalidateQueries({
           queryKey: queryKeys.hunt((event.payload as { id: string }).id),
         });
+      }
+      if (
+        event.payload &&
+        typeof event.payload === 'object' &&
+        'huntId' in event.payload &&
+        typeof (event.payload as { huntId: string }).huntId === 'string'
+      ) {
+        const huntId = (event.payload as { huntId: string }).huntId;
+        qc.invalidateQueries({ queryKey: queryKeys.hunt(huntId) });
+        qc.invalidateQueries({ queryKey: queryKeys.huntParticipants(huntId) });
+        qc.invalidateQueries({ queryKey: queryKeys.huntAnalytics(huntId) });
+      } else if (event.resourceId) {
+        qc.invalidateQueries({ queryKey: queryKeys.huntParticipants(event.resourceId) });
+        qc.invalidateQueries({ queryKey: queryKeys.huntAnalytics(event.resourceId) });
       }
       break;
     case 'profiles':

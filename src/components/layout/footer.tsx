@@ -1,10 +1,13 @@
 'use client';
 
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { Compass } from 'lucide-react';
 import { useMe } from '@/lib/api/queries';
 
 export function Footer() {
+  const t = useTranslations('common.footer');
+  const tNav = useTranslations('common.nav.links');
   const { data: user } = useMe();
 
   if (user?.role === 'admin' || user?.role === 'partner') {
@@ -22,29 +25,27 @@ export function Footer() {
               </div>
               <span className="font-display text-lg font-bold">Lootopia</span>
             </div>
-            <p className="text-sm text-white/50 max-w-xs">
-              Real-world treasure hunts with AR, riddles, and adventure. Play in the app — track progress on the web.
-            </p>
+            <p className="text-sm text-white/50 max-w-xs">{t('tagline')}</p>
           </div>
           <div>
-            <h4 className="font-display font-semibold mb-4 text-gold">Explore</h4>
+            <h4 className="font-display font-semibold mb-4 text-gold">{t('explore.heading')}</h4>
             <ul className="space-y-2 text-sm text-white/60">
-              <li><Link href="/hunts" className="hover:text-teal transition-colors">Hunt catalog</Link></li>
-              <li><Link href="/auth/register" className="hover:text-teal transition-colors">Create account</Link></li>
-              <li><Link href="/dashboard" className="hover:text-teal transition-colors">Dashboard</Link></li>
-              <li><Link href="/settings" className="hover:text-teal transition-colors">Settings</Link></li>
+              <li><Link href="/hunts" className="hover:text-teal transition-colors">{t('explore.huntCatalog')}</Link></li>
+              <li><Link href="/auth/register" className="hover:text-teal transition-colors">{t('explore.createAccount')}</Link></li>
+              <li><Link href="/dashboard" className="hover:text-teal transition-colors">{tNav('dashboard')}</Link></li>
+              <li><Link href="/settings" className="hover:text-teal transition-colors">{tNav('settings')}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-display font-semibold mb-4 text-gold">Portals</h4>
+            <h4 className="font-display font-semibold mb-4 text-gold">{t('portals.heading')}</h4>
             <ul className="space-y-2 text-sm text-white/60">
-              <li><Link href="/partner" className="hover:text-teal transition-colors">Partner studio</Link></li>
-              <li><Link href="/admin" className="hover:text-teal transition-colors">Admin console</Link></li>
+              <li><Link href="/partner" className="hover:text-teal transition-colors">{t('portals.partnerStudio')}</Link></li>
+              <li><Link href="/admin" className="hover:text-teal transition-colors">{t('portals.adminConsole')}</Link></li>
             </ul>
           </div>
         </div>
         <div className="mt-10 border-t border-white/5 pt-6 text-center text-xs text-white/40">
-          © {new Date().getFullYear()} Lootopia. All rights reserved.
+          {t('copyright', { year: new Date().getFullYear() })}
         </div>
       </div>
     </footer>

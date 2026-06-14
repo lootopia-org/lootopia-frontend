@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { isHttpStoredImageUrl, toImageProxySrc } from '@/lib/image-utils';
 import { cn } from '@/lib/utils';
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export function RemoteStoredImage({ storedUrl, alt, className }: Props) {
+  const t = useTranslations('common.image');
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
@@ -24,7 +26,7 @@ export function RemoteStoredImage({ storedUrl, alt, className }: Props) {
   if (!isHttpStoredImageUrl(storedUrl)) {
     return (
       <div className={cn('px-4 py-8 text-center', className)}>
-        <p className="text-sm text-white/60">Preview unavailable</p>
+        <p className="text-sm text-white/60">{t('previewUnavailable')}</p>
       </div>
     );
   }
@@ -34,7 +36,7 @@ export function RemoteStoredImage({ storedUrl, alt, className }: Props) {
   if (failed) {
     return (
       <div className={cn('px-4 py-8 text-center', className)}>
-        <p className="text-sm text-white/60">Preview unavailable</p>
+        <p className="text-sm text-white/60">{t('previewUnavailable')}</p>
         <p className="mt-2 break-all text-xs text-white/40">{storedUrl}</p>
       </div>
     );
@@ -45,7 +47,7 @@ export function RemoteStoredImage({ storedUrl, alt, className }: Props) {
       {loading ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-white/50">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span className="text-xs">Loading preview…</span>
+          <span className="text-xs">{t('loadingPreview')}</span>
         </div>
       ) : null}
       {/* eslint-disable-next-line @next/next/no-img-element */}

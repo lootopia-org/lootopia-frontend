@@ -1,30 +1,30 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm, useFieldArray, type FieldPath } from 'react-hook-form';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter } from '@/i18n/navigation';
+import { useForm, useFieldArray, type FieldPath, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { Plus, Trash2, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Check } from 'lucide-react';
 import {
-  huntBasicsSchema,
-  huntFormSchema,
-  huntStepSchema,
-  HUNT_STEP_TYPE_OPTIONS,
+  createHuntSchemas,
   createDefaultHuntStep,
   DEFAULT_STEP_POINTS,
+  getHuntStepTypeOptions,
   type HuntFormValues,
   type HuntStepTypeValue,
 } from '@/lib/schemas/hunt';
+import { getValidationMessages } from '@/lib/i18n/validation-messages';
 import { useCreateHunt, useSaveHuntEdit, useMe } from '@/lib/api/queries';
 import { StepLocationPicker } from '@/components/hunts/step-location-picker';
 import { ArStepPreview } from '@/components/hunts/ar-step-preview';
 import { ImagePicker } from '@/components/ui/image-picker';
 import { PhotoStepCaptureFields } from '@/components/hunts/photo-step-capture-fields';
-import { normalizeImageReference, isHttpStoredImageUrl } from '@/lib/image-utils';
+import { normalizeImageReference, isHttpStoredImageUrl, toDisplayImageSrc } from '@/lib/image-utils';
 import { RemoteStoredImage } from '@/components/ui/remote-stored-image';
-import { formatStepType, huntStatusLabel } from '@/lib/utils';
+import { formatStepType } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -44,6 +44,10 @@ interface HuntWizardProps {
 }
 
 export function HuntWizard({ hunt, mode }: HuntWizardProps) {
+  const t = useTranslations('hunts.wizard');
+  const tHunts = useTranslations('hunts');
+  const tCommon = useTranslations('common');
+  const tv = useTranslations('validation');
   const router = useRouter();
   const { data: user } = useMe();
   const [step, setStep] = useState(0);
@@ -52,8 +56,18 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
   const saveHuntEdit = useSaveHuntEdit(hunt?.id ?? '');
   const originalStepsRef = useRef<Hunt['steps']>(hunt?.steps ?? []);
 
+  const schemas = useMemo(
+    () => createHuntSchemas(getValidationMessages(tv)),
+    [tv]
+  );
+
+  const stepTypeOptions = useMemo(
+    () => getHuntStepTypeOptions((key) => tHunts(key)),
+    [tHunts]
+  );
+
   const form = useForm<HuntFormValues>({
-    resolver: zodResolver(huntFormSchema),
+    resolver: zodResolver(schemas.huntFormSchema) as Resolver<HuntFormValues>,
     defaultValues: {
       title: hunt?.title ?? '',
       description: hunt?.description ?? '',
@@ -93,7 +107,11 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
     });
   };
 
-  const steps = ['Basics', 'Steps', 'Review'];
+  const wizardSteps = [
+    t('steps.basics'),
+    t('steps.steps'),
+    t('steps.review'),
+  ];
   const { errors } = form.formState;
 
   useEffect(() => {
@@ -111,9 +129,9 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
 
   const onSubmit = async (data: HuntFormValues) => {
     const steps = data.steps.map((s, i) => {
-      const { address: _address, ...step } = s;
+      const { address: _address, ...stepData } = s;
       return {
-        ...step,
+        ...stepData,
         order: i + 1,
         latitude: String(s.latitude),
         longitude: String(s.longitude),
@@ -134,18 +152,18 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
     try {
       if (mode === 'create') {
         await createHunt.mutateAsync({ ...metadata, partnerId: data.partnerId, steps });
-        toast.success('Hunt created!');
+        toast.success(t('toasts.created'));
       } else if (hunt) {
         await saveHuntEdit.mutateAsync({
           metadata,
           steps,
           originalSteps: originalStepsRef.current ?? [],
         });
-        toast.success('Hunt updated!');
+        toast.success(t('toasts.updated'));
       }
       router.push('/partner');
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to save hunt');
+      toast.error(err instanceof Error ? err.message : t('toasts.saveFailed'));
     }
   };
 
@@ -154,10 +172,10 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
 
     if (step === 0) {
       form.clearErrors();
-      const result = huntBasicsSchema.safeParse(values);
+      const result = schemas.huntBasicsSchema.safeParse(values);
       if (!result.success) {
         applyZodErrors(result.error.issues);
-        toast.error('Please fix the highlighted fields');
+        toast.error(t('toasts.fixFields'));
         return;
       }
     }
@@ -165,12 +183,12 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
     if (step === 1) {
       form.clearErrors('steps');
       const result = z
-        .array(huntStepSchema)
-        .min(1, 'At least one step is required')
+        .array(schemas.huntStepSchema)
+        .min(1, tv('hunt.form.stepsMin'))
         .safeParse(values.steps);
       if (!result.success) {
         applyZodErrors(result.error.issues, 'steps');
-        toast.error('Please complete all hunt steps');
+        toast.error(t('toasts.completeSteps'));
         return;
       }
     }
@@ -196,9 +214,8 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
         }
       }}
     >
-      {/* Step indicator */}
       <div className="flex items-center justify-center gap-4">
-        {steps.map((label, i) => (
+        {wizardSteps.map((label, i) => (
           <div key={label} className="flex items-center gap-2">
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
@@ -210,7 +227,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
             <span className={`text-sm hidden sm:inline ${i <= step ? 'text-gold' : 'text-white/40'}`}>
               {label}
             </span>
-            {i < steps.length - 1 && <div className="w-8 h-px bg-white/20 hidden sm:block" />}
+            {i < wizardSteps.length - 1 && <div className="w-8 h-px bg-white/20 hidden sm:block" />}
           </div>
         ))}
       </div>
@@ -218,26 +235,26 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
       {step === 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Hunt basics</CardTitle>
+            <CardTitle>{t('basics.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Title</Label>
+              <Label>{t('basics.fields.title')}</Label>
               <Input {...form.register('title')} />
               {form.formState.errors.title && (
                 <p className="text-xs text-rose-400">{form.formState.errors.title.message}</p>
               )}
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t('basics.fields.description')}</Label>
               <Input {...form.register('description')} />
               {errors.description && (
                 <p className="text-xs text-rose-400">{errors.description.message}</p>
               )}
             </div>
             <ImagePicker
-              label="Cover image"
-              description="Upload an image for the hunt card and detail page."
+              label={t('basics.fields.coverImage')}
+              description={t('basics.fields.coverImageDescription')}
               uploadKind="hunt"
               value={form.watch('image')}
               onChange={(value) => form.setValue('image', value ?? '', { shouldDirty: true, shouldValidate: true })}
@@ -245,45 +262,45 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
             />
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="space-y-2">
-                <Label>Difficulty</Label>
+                <Label>{t('basics.fields.difficulty')}</Label>
                 <Select
                   value={form.watch('difficulty')}
                   onValueChange={(v: HuntFormValues['difficulty']) => form.setValue('difficulty', v)}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
+                    <SelectItem value="easy">{tCommon('difficulty.easy')}</SelectItem>
+                    <SelectItem value="medium">{tCommon('difficulty.medium')}</SelectItem>
+                    <SelectItem value="hard">{tCommon('difficulty.hard')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Duration (min)</Label>
+                <Label>{t('basics.fields.durationMin')}</Label>
                 <Input type="number" {...form.register('estimatedDuration', { valueAsNumber: true })} />
                 {errors.estimatedDuration && (
                   <p className="text-xs text-rose-400">{errors.estimatedDuration.message}</p>
                 )}
               </div>
               <div className="space-y-2">
-                <Label>Status</Label>
+                <Label>{t('basics.fields.status')}</Label>
                 <Select
                   value={form.watch('status')}
                   onValueChange={(v: HuntFormValues['status']) => form.setValue('status', v)}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="paused">Paused</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
+                    <SelectItem value="draft">{tCommon('status.draft')}</SelectItem>
+                    <SelectItem value="active">{tCommon('status.active')}</SelectItem>
+                    <SelectItem value="paused">{tCommon('status.paused')}</SelectItem>
+                    <SelectItem value="archived">{tCommon('status.archived')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             {user?.role === 'admin' && (
               <div className="space-y-2">
-                <Label>Partner ID</Label>
+                <Label>{t('basics.fields.partnerId')}</Label>
                 <Input {...form.register('partnerId')} />
               </div>
             )}
@@ -299,7 +316,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
             return (
               <Card key={field.fieldKey}>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-base">Step {index + 1}</CardTitle>
+                  <CardTitle className="text-base">{t('stepEditor.stepTitle', { number: index + 1 })}</CardTitle>
                   <div className="flex items-center gap-1">
                     {index > 0 && (
                       <Button
@@ -307,7 +324,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                         variant="ghost"
                         size="icon"
                         onClick={() => reorderStep(index, index - 1)}
-                        aria-label="Move step up"
+                        aria-label={t('stepEditor.aria.moveUp')}
                       >
                         <ChevronUp className="h-4 w-4" />
                       </Button>
@@ -318,7 +335,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                         variant="ghost"
                         size="icon"
                         onClick={() => reorderStep(index, index + 1)}
-                        aria-label="Move step down"
+                        aria-label={t('stepEditor.aria.moveDown')}
                       >
                         <ChevronDown className="h-4 w-4" />
                       </Button>
@@ -334,7 +351,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                   <input type="hidden" {...form.register(`steps.${index}.id`)} />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>Type</Label>
+                      <Label>{t('stepEditor.fields.type')}</Label>
                       <Select
                         value={stepType}
                         onValueChange={(v: HuntStepTypeValue) => {
@@ -350,7 +367,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          {HUNT_STEP_TYPE_OPTIONS.map((option) => (
+                          {stepTypeOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
@@ -358,18 +375,18 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-white/40">
-                        {HUNT_STEP_TYPE_OPTIONS.find((o) => o.value === stepType)?.description}
+                        {stepTypeOptions.find((o) => o.value === stepType)?.description}
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label>Title</Label>
+                      <Label>{t('stepEditor.fields.title')}</Label>
                       <Input {...form.register(`steps.${index}.title`)} />
                       {errors.steps?.[index]?.title && (
                         <p className="text-xs text-rose-400">{errors.steps[index]?.title?.message}</p>
                       )}
                     </div>
                     <div className="space-y-2">
-                      <Label>Points</Label>
+                      <Label>{t('stepEditor.fields.points')}</Label>
                       <Input
                         type="number"
                         min={1}
@@ -379,12 +396,12 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                       {errors.steps?.[index]?.points && (
                         <p className="text-xs text-rose-400">{errors.steps[index]?.points?.message}</p>
                       )}
-                      <p className="text-xs text-white/40">Awarded when players complete this step</p>
+                      <p className="text-xs text-white/40">{tHunts('shared.points.awarded')}</p>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Description</Label>
+                    <Label>{t('stepEditor.fields.description')}</Label>
                     <Input {...form.register(`steps.${index}.description`)} />
                     {errors.steps?.[index]?.description && (
                       <p className="text-xs text-rose-400">{errors.steps[index]?.description?.message}</p>
@@ -402,14 +419,12 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                     />
                   ) : (
                     <div className="space-y-2">
-                      <Label>Answer</Label>
+                      <Label>{t('stepEditor.fields.answer')}</Label>
                       <Input
                         {...form.register(`steps.${index}.answer`)}
-                        placeholder="Clue, code, riddle solution, QR payload, or any verification value"
+                        placeholder={t('stepEditor.answerPlaceholder')}
                       />
-                      <p className="text-xs text-white/40">
-                        Optional verification value used across all step types.
-                      </p>
+                      <p className="text-xs text-white/40">{t('stepEditor.answerHint')}</p>
                     </div>
                   )}
 
@@ -436,7 +451,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
             variant="secondary"
             onClick={() => append(createDefaultHuntStep(fields.length + 1))}
           >
-            <Plus className="h-4 w-4" /> Add step
+            <Plus className="h-4 w-4" /> {t('stepEditor.addStep')}
           </Button>
         </div>
       )}
@@ -444,7 +459,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
       {step === 2 && (
         <Card>
           <CardHeader>
-            <CardTitle>Review & publish</CardTitle>
+            <CardTitle>{t('review.title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -453,16 +468,18 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
             </div>
             <div className="flex gap-2 flex-wrap">
               <span className="rounded-full bg-gold/20 px-3 py-1 text-xs text-gold capitalize">
-                {form.watch('difficulty')}
+                {tCommon(`difficulty.${form.watch('difficulty')}`)}
               </span>
               <span className="rounded-full bg-teal-500/20 px-3 py-1 text-xs text-teal">
-                {huntStatusLabel(form.watch('status'))}
+                {tHunts(`shared.statusSelect.${form.watch('status')}`)}
               </span>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs">
-                {fields.length} steps
+                {tCommon('steps', { count: fields.length })}
               </span>
               <span className="rounded-full bg-gold/20 px-3 py-1 text-xs text-gold">
-                {fields.reduce((sum, _, i) => sum + (form.watch(`steps.${i}.points`) || 0), 0)} total points
+                {t('review.badges.totalPoints', {
+                  count: fields.reduce((sum, _, i) => sum + (form.watch(`steps.${i}.points`) || 0), 0),
+                })}
               </span>
             </div>
             <ol className="space-y-3">
@@ -470,39 +487,37 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
                 const stepType = form.watch(`steps.${i}.type`) as HuntStepTypeValue;
                 const answer = form.watch(`steps.${i}.answer`);
                 const normalizedAnswer = normalizeImageReference(answer);
-                const showPhotoPreview =
-                  stepType === 'photo' &&
-                  (isHttpStoredImageUrl(normalizedAnswer) ||
-                    normalizedAnswer?.startsWith('data:'));
+                const photoDisplaySrc = toDisplayImageSrc(normalizedAnswer);
+                const showPhotoPreview = stepType === 'photo' && !!photoDisplaySrc;
 
                 return (
                   <li key={field.fieldKey} className="text-sm text-white/70">
-                    {i + 1}. {form.watch(`steps.${i}.title`)} ({formatStepType(stepType)})
-                    <span className="text-gold"> · {form.watch(`steps.${i}.points`)} pts</span>
+                    {i + 1}. {form.watch(`steps.${i}.title`)} ({formatStepType(stepType, (key) => tHunts(key))})
+                    <span className="text-gold"> · {tCommon('points', { count: form.watch(`steps.${i}.points`) })}</span>
                     {showPhotoPreview ? (
                       <div className="mt-2 flex items-center gap-2">
                         <div className="relative h-16 w-24 overflow-hidden rounded-md border border-white/10 bg-black/20">
-                          {normalizedAnswer!.startsWith('data:') ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={normalizedAnswer!}
-                              alt="Reference photo"
-                              className="h-full w-full object-contain"
-                            />
-                          ) : (
+                          {isHttpStoredImageUrl(normalizedAnswer) ? (
                             <RemoteStoredImage
                               key={normalizedAnswer!}
                               storedUrl={normalizedAnswer!}
-                              alt="Reference photo"
+                              alt={t('review.referencePhotoAlt')}
                               className="max-h-16 py-0"
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={photoDisplaySrc!}
+                              alt={t('review.referencePhotoAlt')}
+                              className="h-full w-full object-contain"
                             />
                           )}
                         </div>
-                        <span className="text-xs text-white/40">Reference photo attached</span>
+                        <span className="text-xs text-white/40">{t('review.referencePhotoAttached')}</span>
                       </div>
                     ) : normalizedAnswer ? (
                       <span className="mt-0.5 block text-xs text-white/40">
-                        Answer: {normalizedAnswer}
+                        {t('review.answer', { value: normalizedAnswer })}
                       </span>
                     ) : null}
                     {form.watch(`steps.${i}.address`) && (
@@ -525,11 +540,11 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
           onClick={() => setStep((s) => Math.max(s - 1, 0))}
           disabled={step === 0}
         >
-          <ChevronLeft className="h-4 w-4" /> Back
+          <ChevronLeft className="h-4 w-4" /> {t('navigation.back')}
         </Button>
         {step < 2 ? (
           <Button type="button" onClick={nextStep}>
-            Next <ChevronRight className="h-4 w-4" />
+            {t('navigation.next')} <ChevronRight className="h-4 w-4" />
           </Button>
         ) : (
           <Button
@@ -537,7 +552,7 @@ export function HuntWizard({ hunt, mode }: HuntWizardProps) {
             onClick={handleCreateHunt}
             disabled={createHunt.isPending || saveHuntEdit.isPending}
           >
-            {mode === 'create' ? 'Create hunt' : 'Save changes'}
+            {mode === 'create' ? t('navigation.createHunt') : t('navigation.saveChanges')}
           </Button>
         )}
       </div>

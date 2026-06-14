@@ -24,7 +24,21 @@ export function getApiBaseUrl(): string {
   );
 }
 
-export function formatDuration(minutes: number): string {
+type DurationTranslator = (key: string, values?: Record<string, string | number>) => string;
+
+export function formatDuration(
+  minutes: number,
+  t?: DurationTranslator
+): string {
+  if (t) {
+    if (minutes < 60) return t('duration.minutes', { minutes });
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0
+      ? t('duration.hoursMinutes', { hours: h, minutes: m })
+      : t('duration.hoursOnly', { hours: h });
+  }
+
   if (minutes < 60) return `${minutes} min`;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
@@ -44,7 +58,18 @@ export function difficultyColor(difficulty: string): string {
   }
 }
 
-export function formatStepType(type: string): string {
+type StepTypeTranslator = (key: string) => string;
+
+export function formatStepType(type: string, t?: StepTypeTranslator): string {
+  if (t) {
+    const key = `stepTypes.${type}`;
+    try {
+      return t(key);
+    } catch {
+      return type;
+    }
+  }
+
   switch (type) {
     case 'checkpoint':
       return 'Checkpoint';
@@ -69,7 +94,17 @@ export function isPublicHuntStatus(status: HuntStatus): boolean {
   return PUBLIC_HUNT_STATUSES.includes(status);
 }
 
-export function huntStatusLabel(status: HuntStatus): string {
+type HuntStatusTranslator = (key: string) => string;
+
+export function huntStatusLabel(status: HuntStatus, t?: HuntStatusTranslator): string {
+  if (t) {
+    try {
+      return t(`status.${status}`);
+    } catch {
+      return status;
+    }
+  }
+
   switch (status) {
     case 'draft':
       return 'Upcoming';
@@ -133,4 +168,17 @@ export function difficultyBg(difficulty: string): string {
     default:
       return 'bg-white/10 border-white/20';
   }
+}
+
+export function stripLocalePrefix(pathname: string): string {
+  const segments = pathname.split('/');
+  if (segments[1] === 'en' || segments[1] === 'fr') {
+    const rest = segments.slice(2).join('/');
+    return rest ? `/${rest}` : '/';
+  }
+  return pathname;
+}
+
+export function isAuthPath(pathname: string): boolean {
+  return stripLocalePrefix(pathname).startsWith('/auth');
 }

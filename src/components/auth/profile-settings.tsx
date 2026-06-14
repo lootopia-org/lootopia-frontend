@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { authApi } from '@/lib/api/auth';
 import { useMe } from '@/lib/api/queries';
-import { toImageSrc } from '@/lib/image-utils';
+import { toDisplayImageSrc } from '@/lib/image-utils';
 import { ImagePicker } from '@/components/ui/image-picker';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export function ProfileSettings() {
+  const t = useTranslations('auth.profile');
   const { data: user, refetch } = useMe();
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState<string | undefined>();
@@ -31,9 +33,9 @@ export function ProfileSettings() {
         avatar,
       });
       await refetch();
-      toast.success('Profile updated');
+      toast.success(t('toasts.profileUpdated'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update profile');
+      toast.error(err instanceof Error ? err.message : t('toasts.updateFailed'));
     } finally {
       setSaving(false);
     }
@@ -44,13 +46,13 @@ export function ProfileSettings() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profile</CardTitle>
-        <CardDescription>Update your avatar and bio. Images are stored in object storage.</CardDescription>
+        <CardTitle>{t('title')}</CardTitle>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16 border border-white/10">
-            <AvatarImage src={toImageSrc(avatar)} alt={user?.username ?? 'Avatar'} />
+            <AvatarImage src={toDisplayImageSrc(avatar)} alt={user?.username ?? t('avatar.alt')} />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
           <div>
@@ -60,25 +62,25 @@ export function ProfileSettings() {
         </div>
 
         <ImagePicker
-          label="Avatar"
-          description="Upload a profile photo. It will be saved to S3-compatible storage."
+          label={t('avatar.label')}
+          description={t('avatar.description')}
           uploadKind="avatar"
           value={avatar}
           onChange={setAvatar}
         />
 
         <div className="space-y-2">
-          <Label htmlFor="profile-bio">Bio</Label>
+          <Label htmlFor="profile-bio">{t('fields.bio')}</Label>
           <Input
             id="profile-bio"
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="Tell other hunters a little about yourself"
+            placeholder={t('placeholders.bio')}
           />
         </div>
 
         <Button type="button" onClick={() => void handleSave()} disabled={saving}>
-          {saving ? 'Saving…' : 'Save profile'}
+          {saving ? t('actions.saving') : t('actions.saveProfile')}
         </Button>
       </CardContent>
     </Card>

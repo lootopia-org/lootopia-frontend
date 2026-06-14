@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { MapContainer, TileLayer, CircleMarker, Popup, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { HuntAnalytics } from '@/types';
@@ -17,6 +18,7 @@ function parseCoord(value?: string): number | null {
 }
 
 export default function HuntHeatmapInner({ mapKey, analytics }: HuntHeatmapInnerProps) {
+  const t = useTranslations('hunts.detail.heatmap');
   const { center, maxCompletions, markers, userDots } = useMemo(() => {
     const stepMarkers = analytics.steps
       .map((step) => {
@@ -68,7 +70,7 @@ export default function HuntHeatmapInner({ mapKey, analytics }: HuntHeatmapInner
   if (markers.length === 0 && userDots.length === 0) {
     return (
       <div className="flex h-72 items-center justify-center rounded-xl glass text-sm text-white/50">
-        No location data yet — completions will appear here as players progress.
+        {t('empty')}
       </div>
     );
   }
@@ -98,7 +100,7 @@ export default function HuntHeatmapInner({ mapKey, analytics }: HuntHeatmapInner
           pathOptions={{ color: '#2dd4bf', fillColor: '#2dd4bf', fillOpacity: 0.35, weight: 1 }}
         >
           <Tooltip direction="top" opacity={0.9}>
-            Recent player location
+            {t('tooltip.recentPlayer')}
           </Tooltip>
         </CircleMarker>
       ))}
@@ -120,14 +122,17 @@ export default function HuntHeatmapInner({ mapKey, analytics }: HuntHeatmapInner
           >
             <Popup>
               <div className="text-sm">
-                <p className="font-semibold">{step.order}. {step.title}</p>
+                <p className="font-semibold">{t('topSteps', { order: step.order, title: step.title })}</p>
                 <p className="mt-1 text-xs text-gray-600">
-                  {step.completionCount} completion{step.completionCount === 1 ? '' : 's'}
+                  {t('tooltip.completions', {
+                    count: step.completionCount,
+                    suffix: step.completionCount === 1 ? '' : 's',
+                  })}
                 </p>
               </div>
             </Popup>
             <Tooltip direction="top" opacity={0.95}>
-              {step.title} · {step.completionCount} visits
+              {step.title} · {t('visits', { count: step.completionCount })}
             </Tooltip>
           </CircleMarker>
         );

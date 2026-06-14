@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import QRCode from 'qrcode';
 import { Smartphone, Loader2 } from 'lucide-react';
 import {
@@ -23,6 +24,7 @@ export function MobileStepPhotoCapture({
   huntId,
   onPhotoCaptured,
 }: MobileStepPhotoCaptureProps) {
+  const t = useTranslations('hunts.wizard.photoCapture');
   const [session, setSession] = useState<StepPhotoSession | null>(null);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -36,9 +38,7 @@ export function MobileStepPhotoCapture({
     setError(null);
     try {
       const created = await stepPhotoSessionApi.create(stepKey, huntId);
-      const captureConfig = (await fetchCaptureConfig(
-        created.sessionId
-      )) as CaptureSessionConfig;
+      const captureConfig = (await fetchCaptureConfig(created.sessionId)) as CaptureSessionConfig;
       setSession(created);
       setWaiting(true);
       setUseDirectExpoQr(captureConfig.useDirectExpoQr);
@@ -46,7 +46,7 @@ export function MobileStepPhotoCapture({
       setQrUrl(captureConfig.qrUrl);
       setQrDataUrl(qr);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not start mobile capture');
+      setError(err instanceof Error ? err.message : t('errors.startFailed'));
     } finally {
       setLoading(false);
     }
@@ -77,10 +77,10 @@ export function MobileStepPhotoCapture({
           applyPhoto(latest.photoUrl);
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Could not refresh capture session';
+        const message = err instanceof Error ? err.message : '';
         if (/invalid|expired|unauthorized/i.test(message)) {
           setWaiting(false);
-          setError('Session expired — sign in again on web and start a new capture.');
+          setError(t('errors.sessionExpired'));
         }
       }
     }, 2000);
@@ -89,7 +89,7 @@ export function MobileStepPhotoCapture({
       unsubscribe();
       window.clearInterval(poll);
     };
-  }, [session, onPhotoCaptured]);
+  }, [session, onPhotoCaptured, t]);
 
   const captureLink = qrUrl;
 
@@ -98,41 +98,34 @@ export function MobileStepPhotoCapture({
       <div className="flex items-start gap-3">
         <Smartphone className="h-5 w-5 text-teal mt-0.5 shrink-0" />
         <div className="space-y-1">
-          <p className="text-sm font-medium text-white">Capture on your phone</p>
-          <p className="text-xs text-white/50">
-            {useDirectExpoQr
-              ? 'Open Lootopia Mobile in Expo Go first (same tunnel), then scan this QR to jump straight to the camera.'
-              : 'Open Lootopia Mobile on your phone, scan the QR code, and take the reference photo on-site.'}{' '}
-            The photo will appear here automatically.
-          </p>
+          <p className="text-sm font-medium text-white">{t('heading')}</p>
+          <p className="text-xs text-white/50">{t('description')}</p>
         </div>
       </div>
 
       {!session ? (
         <Button type="button" variant="secondary" size="sm" disabled={loading} onClick={() => void startCapture()}>
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Smartphone className="h-4 w-4" />}
-          {loading ? 'Starting…' : 'Use phone camera'}
+          {loading ? t('actions.starting') : t('actions.usePhoneCamera')}
         </Button>
       ) : (
         <div className="flex flex-wrap items-start gap-4">
           {qrDataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={qrDataUrl} alt="QR code to open mobile capture" className="rounded-lg border border-white/10 bg-white p-2" />
+            <img src={qrDataUrl} alt={t('qr.alt')} className="rounded-lg border border-white/10 bg-white p-2" />
           ) : null}
           <div className="space-y-2 text-xs text-white/50 min-w-[12rem]">
             {waiting ? (
               <p className="flex items-center gap-2 text-teal">
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Waiting for photo from your phone…
+                {t('status.waiting')}
               </p>
             ) : (
-              <p className="text-gold">Photo received from your phone.</p>
+              <p className="text-gold">{t('status.received')}</p>
             )}
             {captureLink ? (
               <p className="break-all">
-                {useDirectExpoQr
-                  ? 'Expo Go link (scan with your phone camera):'
-                  : 'Sign in on mobile with the same partner account, then scan this QR or open:'}
+                {useDirectExpoQr ? t('qr.expoHint') : t('qr.signInHint')}
                 <br />
                 <span className="text-white/70">{captureLink}</span>
               </p>
@@ -149,10 +142,10 @@ export function MobileStepPhotoCapture({
                 setError(null);
               }}
             >
-              Cancel capture
+              {t('actions.cancelCapture')}
             </Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => void startCapture()}>
-              Start a new capture
+              {t('actions.startNewCapture')}
             </Button>
           </div>
         </div>

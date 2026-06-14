@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useHuntParticipants } from '@/lib/api/queries';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,12 +10,13 @@ interface HuntParticipantsPanelProps {
 }
 
 export function HuntParticipantsPanel({ huntId }: HuntParticipantsPanelProps) {
+  const t = useTranslations('hunts.participants');
   const { data: participants, isLoading, error } = useHuntParticipants(huntId);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Participants ({participants?.length ?? 0})</CardTitle>
+        <CardTitle>{t('title', { count: participants?.length ?? 0 })}</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -24,7 +26,7 @@ export function HuntParticipantsPanel({ huntId }: HuntParticipantsPanelProps) {
             ))}
           </div>
         ) : error ? (
-          <p className="text-sm text-white/50">Unable to load participants.</p>
+          <p className="text-sm text-white/50">{t('loadFailed')}</p>
         ) : participants && participants.length > 0 ? (
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {participants.map((p) => (
@@ -35,20 +37,22 @@ export function HuntParticipantsPanel({ huntId }: HuntParticipantsPanelProps) {
                 <div>
                   <p className="font-medium">{p.email}</p>
                   <p className="text-xs text-white/40">
-                    Joined {p.joinedAt ? new Date(p.joinedAt).toLocaleDateString() : '—'}
+                    {t('joined', {
+                      date: p.joinedAt ? new Date(p.joinedAt).toLocaleDateString() : '—',
+                    })}
                   </p>
                 </div>
                 <div className="text-right">
                   <Badge variant={p.completedAt ? 'teal' : 'default'}>
-                    {p.completedAt ? 'Completed' : 'In progress'}
+                    {p.completedAt ? t('status.completed') : t('status.inProgress')}
                   </Badge>
-                  <p className="mt-1 text-xs text-gold">{p.pointsAwarded} pts</p>
+                  <p className="mt-1 text-xs text-gold">{t('points', { points: p.pointsAwarded })}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-white/50">No participants yet.</p>
+          <p className="text-sm text-white/50">{t('empty')}</p>
         )}
       </CardContent>
     </Card>

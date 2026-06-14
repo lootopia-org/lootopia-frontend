@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useWatch, type Control, type UseFormSetValue } from 'react-hook-form';
 import { ImagePicker } from '@/components/ui/image-picker';
 import { MobileStepPhotoCapture } from '@/components/hunts/mobile-step-photo-capture';
@@ -23,6 +24,7 @@ export function PhotoStepCaptureFields({
   setValue,
   error,
 }: Props) {
+  const t = useTranslations('hunts.wizard.photoCapture.referencePhoto');
   const answer = useWatch({ control, name: `steps.${index}.answer` });
 
   return (
@@ -40,8 +42,8 @@ export function PhotoStepCaptureFields({
         }}
       />
       <ImagePicker
-        label="Reference photo"
-        description="Take a photo on-site or upload a reference image players must match."
+        label={t('label')}
+        description={t('description')}
         uploadKind="step"
         allowCamera
         value={answer}

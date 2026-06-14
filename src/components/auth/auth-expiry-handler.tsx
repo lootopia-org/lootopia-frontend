@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from '@/i18n/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { registerUnauthorizedHandler } from '@/lib/api/client';
 import { queryKeys } from '@/lib/api/queries';
 import { useAuthStore } from '@/lib/auth/session-store';
+import { isAuthPath } from '@/lib/utils';
 
 export function AuthExpiryHandler() {
   const router = useRouter();
@@ -16,12 +17,11 @@ export function AuthExpiryHandler() {
 
   useEffect(() => {
     registerUnauthorizedHandler(() => {
-      if (redirecting.current || pathname.startsWith('/auth')) return;
+      if (redirecting.current || isAuthPath(pathname)) return;
       redirecting.current = true;
       reset();
       qc.removeQueries({ queryKey: queryKeys.me });
-      const next = encodeURIComponent(pathname);
-      router.replace(`/auth/login?next=${next}`);
+      router.replace(`/auth/login?next=${encodeURIComponent(pathname)}`);
     });
   }, [pathname, router, reset, qc]);
 

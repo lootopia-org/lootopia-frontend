@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from '@/i18n/navigation';
 import { useMe } from '@/lib/api/queries';
 import type { UserRole } from '@/types';
 
-export const ROLE_HOME: Record<UserRole, string> = {
+export const ROLE_HOME: Record<UserRole, '/dashboard' | '/partner' | '/admin'> = {
   player: '/dashboard',
   partner: '/partner',
   admin: '/admin',
@@ -18,7 +18,7 @@ export function RoleGuard({
 }: {
   children: React.ReactNode;
   allowed: UserRole[];
-  fallback?: string;
+  fallback?: '/dashboard' | '/partner' | '/admin';
 }) {
   const router = useRouter();
   const pathname = usePathname();

@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense } from 'react';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 
 const ArStepScene = dynamic(
@@ -9,11 +10,11 @@ const ArStepScene = dynamic(
 );
 
 export function ArStepPreview() {
+  const t = useTranslations('hunts.wizard');
+
   return (
     <div className="space-y-2">
-      <p className="text-sm text-white/50">
-        AR preview — players will discover this treasure at the mapped location in the mobile app.
-      </p>
+      <p className="text-sm text-white/50">{t('arPreview')}</p>
       <Suspense
         fallback={
           <div className="h-48 w-full rounded-xl border border-teal-500/20 bg-teal-500/5 animate-pulse" />

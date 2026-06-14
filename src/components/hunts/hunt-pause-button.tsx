@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Pause, Play } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUpdateHuntStatus } from '@/lib/api/queries';
@@ -12,18 +13,23 @@ interface HuntPauseButtonProps {
 }
 
 export function HuntPauseButton({ hunt, size = 'sm' }: HuntPauseButtonProps) {
+  const t = useTranslations('hunts.shared.pause');
   const updateStatus = useUpdateHuntStatus(hunt.id);
   const isPaused = hunt.status === 'paused';
   const nextStatus: HuntStatus = isPaused ? 'active' : 'paused';
-  const label = isPaused ? 'Resume hunt' : 'Pause hunt';
 
   const handleToggle = async () => {
-    const action = isPaused ? 'resumed' : 'paused';
     try {
       await updateStatus.mutateAsync(nextStatus);
-      toast.success(`Hunt ${action}`);
+      toast.success(isPaused ? t('toasts.resumed') : t('toasts.paused'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : `Failed to ${isPaused ? 'resume' : 'pause'} hunt`);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : isPaused
+            ? t('toasts.failedResume')
+            : t('toasts.failedPause')
+      );
     }
   };
 
@@ -39,7 +45,7 @@ export function HuntPauseButton({ hunt, size = 'sm' }: HuntPauseButtonProps) {
       disabled={updateStatus.isPending}
     >
       {isPaused ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
-      {label}
+      {isPaused ? t('resume') : t('pause')}
     </Button>
   );
 }

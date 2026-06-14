@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { create } from '@github/webauthn-json';
 import QRCode from 'qrcode';
 import { Shield, Key, Smartphone } from 'lucide-react';
@@ -14,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function SecuritySettings() {
+  const t = useTranslations('common.security.web');
   const [totpSecret, setTotpSecret] = useState<string | null>(null);
   const [otpauthUri, setOtpauthUri] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -31,9 +33,9 @@ export function SecuritySettings() {
       setOtpauthUri(res.otpauthUri);
       const qr = await QRCode.toDataURL(res.otpauthUri);
       setQrDataUrl(qr);
-      toast.success('Scan the QR code with your authenticator app');
+      toast.success(t('toasts.scanQr'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to start TOTP enrollment');
+      toast.error(err instanceof Error ? err.message : t('toasts.totpEnrollFailed'));
     } finally {
       setLoading(false);
     }
@@ -46,9 +48,9 @@ export function SecuritySettings() {
       setTotpSecret(null);
       setQrDataUrl(null);
       setEnrollCode('');
-      toast.success('Two-factor authentication enabled');
+      toast.success(t('toasts.twoFactorEnabled'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Invalid code');
+      toast.error(err instanceof Error ? err.message : t('toasts.invalidCode'));
     } finally {
       setLoading(false);
     }
@@ -59,9 +61,9 @@ export function SecuritySettings() {
     try {
       await authApi.totpDisable(disableCode);
       setDisableCode('');
-      toast.success('Two-factor authentication disabled');
+      toast.success(t('toasts.twoFactorDisabled'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Invalid code');
+      toast.error(err instanceof Error ? err.message : t('toasts.invalidCode'));
     } finally {
       setLoading(false);
     }
@@ -76,9 +78,9 @@ export function SecuritySettings() {
       });
       await authApi.webauthnRegisterComplete(begin.handle, credential);
       await refetchCredentials();
-      toast.success('Passkey registered');
+      toast.success(t('toasts.passkeyRegistered'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Passkey registration failed');
+      toast.error(err instanceof Error ? err.message : t('toasts.passkeyRegistrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -89,78 +91,74 @@ export function SecuritySettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-gold" />
-          Security
+          {t('title')}
         </CardTitle>
-        <CardDescription>
-          Manage two-factor authentication and passkeys for your account.
-        </CardDescription>
+        <CardDescription>{t('description')}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="totp">
           <TabsList className="w-full">
             <TabsTrigger value="totp" className="flex-1">
-              <Smartphone className="h-4 w-4 mr-1" /> Authenticator
+              <Smartphone className="h-4 w-4 mr-1" /> {t('tabs.authenticator')}
             </TabsTrigger>
             <TabsTrigger value="passkey" className="flex-1">
-              <Key className="h-4 w-4 mr-1" /> Passkeys
+              <Key className="h-4 w-4 mr-1" /> {t('tabs.passkeys')}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="totp" className="space-y-4">
             {!totpSecret ? (
               <Button onClick={beginTotpEnroll} disabled={loading}>
-                Enable authenticator app
+                {t('totp.enable')}
               </Button>
             ) : (
               <div className="space-y-4">
                 {qrDataUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={qrDataUrl} alt="TOTP QR code" className="mx-auto rounded-lg bg-white p-2" width={180} height={180} />
+                  <img src={qrDataUrl} alt={t('totp.qrAlt')} className="mx-auto rounded-lg bg-white p-2" width={180} height={180} />
                 )}
-                {otpauthUri && (
-                  <p className="text-xs text-white/40 break-all">{otpauthUri}</p>
-                )}
+                {otpauthUri && <p className="text-xs text-white/40 break-all">{otpauthUri}</p>}
                 <div className="space-y-2">
-                  <Label htmlFor="enroll-code">Verification code</Label>
+                  <Label htmlFor="enroll-code">{t('totp.verificationCode')}</Label>
                   <Input
                     id="enroll-code"
                     value={enrollCode}
                     onChange={(e) => setEnrollCode(e.target.value)}
-                    placeholder="000000"
+                    placeholder={t('totp.placeholder')}
                     maxLength={6}
                   />
                   <Button onClick={verifyTotpEnroll} disabled={loading || enrollCode.length !== 6}>
-                    Confirm & enable
+                    {t('totp.confirmEnable')}
                   </Button>
                 </div>
               </div>
             )}
             <div className="border-t border-white/10 pt-4 space-y-2">
-              <Label htmlFor="disable-code">Disable TOTP (requires current code)</Label>
+              <Label htmlFor="disable-code">{t('totp.disableLabel')}</Label>
               <Input
                 id="disable-code"
                 value={disableCode}
                 onChange={(e) => setDisableCode(e.target.value)}
-                placeholder="000000"
+                placeholder={t('totp.placeholder')}
                 maxLength={6}
               />
               <Button variant="destructive" size="sm" onClick={disableTotp} disabled={loading || disableCode.length !== 6}>
-                Disable authenticator
+                {t('totp.disable')}
               </Button>
             </div>
           </TabsContent>
 
           <TabsContent value="passkey" className="space-y-4">
             <Button onClick={registerPasskey} disabled={loading}>
-              Register new passkey
+              {t('passkeys.register')}
             </Button>
             {credentials && credentials.length > 0 && (
               <ul className="space-y-2">
                 {credentials.map((cred) => (
                   <li key={cred.id} className="rounded-lg glass px-4 py-3 text-sm">
-                    <span className="text-white/80">{cred.name || 'Passkey'}</span>
+                    <span className="text-white/80">{cred.name || t('passkeys.defaultName')}</span>
                     <span className="ml-2 text-white/40 text-xs">
-                      Added {new Date(cred.createdAt).toLocaleDateString()}
+                      {t('passkeys.added', { date: new Date(cred.createdAt).toLocaleDateString() })}
                     </span>
                   </li>
                 ))}

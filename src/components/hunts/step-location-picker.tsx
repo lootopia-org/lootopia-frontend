@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { MapPin, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { geocodeAddress } from '@/lib/geocoding';
@@ -28,12 +29,13 @@ export function StepLocationPicker({
   onLocationChange,
   error,
 }: StepLocationPickerProps) {
+  const t = useTranslations('hunts.wizard.location');
   const [lookingUp, setLookingUp] = useState(false);
 
   const handleLookup = async () => {
     const query = address.trim();
     if (!query) {
-      toast.error('Enter an address first');
+      toast.error(t('toasts.enterAddress'));
       return;
     }
 
@@ -42,9 +44,9 @@ export function StepLocationPicker({
       const result = await geocodeAddress(query);
       onAddressChange(result.displayName);
       onLocationChange(Number(result.latitude), Number(result.longitude));
-      toast.success('Location found');
+      toast.success(t('toasts.found'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Address lookup failed');
+      toast.error(err instanceof Error ? err.message : t('toasts.lookupFailed'));
     } finally {
       setLookingUp(false);
     }
@@ -54,17 +56,17 @@ export function StepLocationPicker({
     <div className="space-y-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
       <div className="flex items-center gap-2 text-sm font-medium text-white/80">
         <MapPin className="h-4 w-4 text-gold" />
-        Location
+        {t('heading')}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="step-address">Address</Label>
+        <Label htmlFor="step-address">{t('address')}</Label>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input
             id="step-address"
             value={address}
             onChange={(e) => onAddressChange(e.target.value)}
-            placeholder="e.g. 1 Market St, San Francisco, CA"
+            placeholder={t('addressPlaceholder')}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -80,12 +82,10 @@ export function StepLocationPicker({
             className="shrink-0"
           >
             <Search className="h-4 w-4" />
-            {lookingUp ? 'Looking up…' : 'Look up'}
+            {lookingUp ? t('lookingUp') : t('lookup')}
           </Button>
         </div>
-        <p className="text-xs text-white/40">
-          Enter an address to fetch coordinates, or fine-tune by clicking the map.
-        </p>
+        <p className="text-xs text-white/40">{t('hint')}</p>
       </div>
 
       {latitude !== undefined && longitude !== undefined && (
