@@ -1,14 +1,5 @@
 import { getAuthToken } from '@/lib/api/client';
-import { extractStoredImageKey } from '@/lib/image-utils';
-
-function buildMediaProxyPath(storedUrl: string): string {
-  const params = new URLSearchParams({ url: storedUrl });
-  const key = extractStoredImageKey(storedUrl);
-  if (key) {
-    params.set('key', key);
-  }
-  return `/media/stored-image?${params.toString()}`;
-}
+import { storedImageViewPath } from '@/lib/image-utils';
 
 function contentTypeForReference(storedUrl: string): string {
   const lower = storedUrl.trim().toLowerCase();
@@ -26,7 +17,7 @@ export async function fetchStoredImageBlob(storedUrl: string): Promise<Blob> {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(buildMediaProxyPath(storedUrl), {
+  const response = await fetch(storedImageViewPath(storedUrl), {
     credentials: 'include',
     headers,
     cache: 'no-store',
@@ -50,4 +41,4 @@ export async function fetchStoredImageBlob(storedUrl: string): Promise<Blob> {
   return new Blob([bytes], { type: mimeType });
 }
 
-export { buildMediaProxyPath };
+export { storedImageViewPath as buildMediaProxyPath };
