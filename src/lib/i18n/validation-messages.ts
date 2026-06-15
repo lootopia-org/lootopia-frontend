@@ -23,6 +23,8 @@ export function getValidationMessages(tv: ValidationTranslator): ValidationMessa
       passwordMin: tv('auth.login.passwordMin'),
       usernameMin: tv('auth.register.usernameMin'),
       codeLength: tv('auth.totp.codeLength'),
+      passwordMismatch: tv('auth.resetPassword.passwordMismatch'),
+      tokenRequired: tv('auth.resetPassword.tokenRequired'),
     },
   };
 }

@@ -47,6 +47,7 @@
       "newPasswordMin": "Password must be at least 8 characters",
       "passwordMinLength": "Password must be at least 8 characters.",
       "passwordMismatch": "The two passwords do not match.",
+      "tokenRequired": "Enter the reset code from your email.",
       "invalidToken": "Invalid or expired link. Request a new reset email.",
       "genericFailed": "Reset failed. Try again later."
     },

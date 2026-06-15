@@ -34,6 +34,8 @@ export type ValidationMessages = {
     passwordMin: string;
     usernameMin: string;
     codeLength: string;
+    passwordMismatch: string;
+    tokenRequired: string;
   };
 };
 
@@ -120,10 +122,16 @@ export function createHuntSchemas(v: ValidationMessages) {
     code: z.string().length(6, v.auth.codeLength),
   });
 
-  const resetPasswordSchema = z.object({
-    token: z.string().min(1),
-    newPassword: z.string().min(8, v.auth.passwordMin),
-  });
+  const resetPasswordSchema = z
+    .object({
+      token: z.string().min(1, v.auth.tokenRequired),
+      newPassword: z.string().min(8, v.auth.passwordMin),
+      confirmPassword: z.string().min(8, v.auth.passwordMin),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+      message: v.auth.passwordMismatch,
+      path: ['confirmPassword'],
+    });
 
   const forgotPasswordSchema = z.object({
     email: z.string().email(v.auth.invalidEmail),
@@ -162,6 +170,8 @@ const defaultSchemas = createHuntSchemas({
     passwordMin: 'Password must be at least 8 characters',
     usernameMin: 'Username must be at least 3 characters',
     codeLength: 'Code must be 6 digits',
+    passwordMismatch: 'The two passwords do not match.',
+    tokenRequired: 'Enter the reset code from your email.',
   },
 });
 

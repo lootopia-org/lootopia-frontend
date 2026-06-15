@@ -47,6 +47,21 @@ export function clearAuthToken(): void {
   Cookies.remove(TOKEN_KEY);
 }
 
+export async function parseApiErrorMessage(
+  response: Response,
+  fallback: string
+): Promise<string> {
+  const text = await response.text();
+  if (!text) return fallback;
+
+  try {
+    const body = JSON.parse(text) as ApiError;
+    return body.message || text;
+  } catch {
+    return text;
+  }
+}
+
 interface RequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
   auth?: boolean;
@@ -89,16 +104,9 @@ export async function apiRequest<T>(
   });
 
   if (!response.ok) {
-    let errorBody: ApiError | null = null;
-    try {
-      errorBody = (await response.json()) as ApiError;
-    } catch {
-      // ignore parse errors
-    }
-
-    const message =
-      errorBody?.message ||
-      (response.status === 401 ? 'Unauthorized' : `Request failed (${response.status})`);
+    const fallback =
+      response.status === 401 ? 'Unauthorized' : `Request failed (${response.status})`;
+    const message = await parseApiErrorMessage(response, fallback);
 
     const pathname =
       typeof window !== 'undefined' ? window.location.pathname : '';
@@ -115,7 +123,7 @@ export async function apiRequest<T>(
       unauthorizedHandler?.();
     }
 
-    throw new ApiRequestError(message, response.status, errorBody?.code);
+    throw new ApiRequestError(message, response.status);
   }
 
   if (response.status === 204) {

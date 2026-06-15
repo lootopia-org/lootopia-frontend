@@ -51,14 +51,30 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="font-[family-name:var(--font-syne)] text-2xl">{t('title')}</CardTitle>
-          <CardDescription>{sent ? t('sent.default') : t('description')}</CardDescription>
+          <CardDescription>
+            {sent ? t('sent.description') : t('description')}
+          </CardDescription>
         </CardHeader>
-        {!sent && (
+        {sent ? (
+          <CardContent className="space-y-4">
+            <Button asChild className="w-full">
+              <Link href="/auth/reset-password">{t('sent.cta')}</Link>
+            </Button>
+            <p className="text-center text-sm">
+              <Link href="/auth/login" className="text-teal hover:underline">
+                {t('links.backToSignIn')}
+              </Link>
+            </p>
+          </CardContent>
+        ) : (
           <CardContent>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">{t('fields.email')}</Label>
                 <Input id="email" type="email" {...form.register('email')} />
+                {form.formState.errors.email && (
+                  <p className="text-xs text-rose-400">{form.formState.errors.email.message}</p>
+                )}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {t('actions.sendResetLink')}
