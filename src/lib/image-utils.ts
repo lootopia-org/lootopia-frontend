@@ -48,14 +48,19 @@ export function extractStoredImageKey(storedUrl: string): string | undefined {
   return trimmed.includes('/') ? trimmed : undefined;
 }
 
-/** Same-origin proxy path for `<img src>` (browser sends session cookies). */
-export function toImageProxySrc(url: string): string {
-  const params = new URLSearchParams({ url });
-  const key = extractStoredImageKey(url);
+/** Same-origin path to backend `GET /upload/image/view` via Next.js rewrite. */
+export function storedImageViewPath(storedUrl: string): string {
+  const params = new URLSearchParams({ url: storedUrl });
+  const key = extractStoredImageKey(storedUrl);
   if (key) {
     params.set('key', key);
   }
-  return `/media/stored-image?${params.toString()}`;
+  return `/api/upload/image/view?${params.toString()}`;
+}
+
+/** Same-origin proxy path for `<img src>` (browser sends session cookies). */
+export function toImageProxySrc(url: string): string {
+  return storedImageViewPath(url);
 }
 
 export function isHttpStoredImageUrl(value?: string | null): boolean {
@@ -70,7 +75,8 @@ export function isStoredImageReference(value?: string | null): boolean {
   if (
     normalized.startsWith('data:') ||
     normalized.startsWith('blob:') ||
-    normalized.startsWith('/media/')
+    normalized.startsWith('/media/') ||
+    normalized.startsWith('/api/upload/image/view')
   ) {
     return false;
   }

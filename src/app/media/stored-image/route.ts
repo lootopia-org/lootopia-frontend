@@ -20,8 +20,8 @@ function sessionFromRequest(request: NextRequest): string | undefined {
 }
 
 /**
- * Same-origin proxy to backend `GET /upload/image/view`.
- * Used by `<img src="…">` (cookies) and optional Bearer from client fetch.
+ * Legacy same-origin proxy to backend `GET /upload/image/view`.
+ * Prefer `/api/upload/image/view` in new code (uses the Next.js rewrite directly).
  */
 export async function GET(request: NextRequest) {
   const storedUrl =
@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  const payload = await fetchStoredImageFromBackend(storedUrl, session);
-  if (!payload || payload.bytes.length === 0) {
-    return new Response('Failed to fetch image', { status: 502 });
+  const result = await fetchStoredImageFromBackend(storedUrl, session);
+  if (!result.ok) {
+    return new Response(result.message, { status: result.status });
   }
 
-  return new Response(payload.bytes as unknown as ArrayBuffer, {
+  return new Response(result.payload.bytes as unknown as ArrayBuffer, {
     headers: {
-      'Content-Type': payload.contentType,
+      'Content-Type': result.payload.contentType,
       'Cache-Control': 'private, max-age=300',
     },
   });
