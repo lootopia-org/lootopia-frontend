@@ -1,6 +1,5 @@
-import { getAuthToken, ApiRequestError } from '@/lib/api/client';
+import { getAuthToken, ApiRequestError, parseApiErrorMessage } from '@/lib/api/client';
 import { getApiBaseUrl } from '@/lib/utils';
-import type { ApiError } from '@/types';
 
 export async function apiUploadFile(
   path: string,
@@ -33,17 +32,11 @@ export async function apiUploadFile(
   });
 
   if (!response.ok) {
-    let errorBody: ApiError | null = null;
-    try {
-      errorBody = (await response.json()) as ApiError;
-    } catch {
-      // ignore
-    }
-    throw new ApiRequestError(
-      errorBody?.message || `Upload failed (${response.status})`,
-      response.status,
-      errorBody?.code
+    const message = await parseApiErrorMessage(
+      response,
+      `Upload failed (${response.status})`
     );
+    throw new ApiRequestError(message, response.status);
   }
 
   return (await response.json()) as { url: string; key?: string };
