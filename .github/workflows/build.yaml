@@ -50,5 +50,8 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_MOBILE_CAPTURE_LINK=exp://expo-dev.wookiesrpeople2.dev/--/capture/{sessionId}
+            NEXT_PUBLIC_WEB_URL=https://www.wookiesrpeople2.dev
           cache-from: type=gha
           cache-to: type=gha,mode=max

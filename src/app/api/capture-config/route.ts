@@ -1,12 +1,14 @@
 import { getCaptureConfig, getCaptureConfigForSession } from '@/lib/capture-config';
 
 export function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+  const requestUrl = new URL(request.url);
+  const { searchParams } = requestUrl;
   const sessionId = searchParams.get('sessionId');
+  const requestOrigin = requestUrl.origin;
 
   if (sessionId) {
-    return Response.json(getCaptureConfigForSession(sessionId));
+    return Response.json(getCaptureConfigForSession(sessionId, requestOrigin));
   }
 
-  return Response.json(getCaptureConfig());
+  return Response.json(getCaptureConfig(requestOrigin));
 }

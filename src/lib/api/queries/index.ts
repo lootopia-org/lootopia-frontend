@@ -24,9 +24,9 @@ export const queryKeys = {
 export function useMe() {
   const setUser = useAuthStore((s) => s.setUser);
   const setHydrated = useAuthStore((s) => s.setHydrated);
-  
+  const storeUser = useAuthStore((s) => s.user);
 
-  return useQuery({
+  const query = useQuery({
     queryKey: queryKeys.me,
     queryFn: async () => {
       try {
@@ -43,6 +43,14 @@ export function useMe() {
     retry: false,
     staleTime: 60_000,
   });
+
+  const user = query.data ?? storeUser;
+
+  return {
+    ...query,
+    data: user,
+    isLoading: query.isLoading && user == null,
+  };
 }
 
 export function useProfile(enabled = true) {

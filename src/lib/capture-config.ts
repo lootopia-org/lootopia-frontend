@@ -1,16 +1,31 @@
 const DEFAULT_CAPTURE_LINK_TEMPLATE = 'lootopia://capture/{sessionId}';
 
-export function getWebBaseUrl(): string {
+function readRuntimeEnv(key: string): string | undefined {
+  const value = process.env[key];
+  return value?.trim() ? value.trim() : undefined;
+}
+
+export function getWebBaseUrl(requestOrigin?: string): string {
   const configured =
-    process.env.NEXT_PUBLIC_WEB_URL || process.env.NEXT_PUBLIC_SITE_URL;
+    readRuntimeEnv('WEB_URL') ||
+    readRuntimeEnv('SITE_URL') ||
+    readRuntimeEnv('NEXT_PUBLIC_WEB_URL') ||
+    readRuntimeEnv('NEXT_PUBLIC_SITE_URL');
   if (configured) {
     return configured.replace(/\/$/, '');
+  }
+  if (requestOrigin) {
+    return requestOrigin.replace(/\/$/, '');
   }
   return 'http://localhost:3000';
 }
 
 export function getMobileCaptureLinkTemplate(): string {
-  return process.env.NEXT_PUBLIC_MOBILE_CAPTURE_LINK || DEFAULT_CAPTURE_LINK_TEMPLATE;
+  return (
+    readRuntimeEnv('MOBILE_CAPTURE_LINK') ||
+    readRuntimeEnv('NEXT_PUBLIC_MOBILE_CAPTURE_LINK') ||
+    DEFAULT_CAPTURE_LINK_TEMPLATE
+  );
 }
 
 function usesDirectAppLink(template: string): boolean {
@@ -34,27 +49,28 @@ export function mobileCaptureDeepLink(
  * URL encoded in the QR code.
  * With Expo Go + tunnel, use exp:// directly — phone browsers block exp:// redirects from http pages.
  */
-export function mobileCaptureQrUrl(sessionId: string): string {
+export function mobileCaptureQrUrl(sessionId: string, webBaseUrl = getWebBaseUrl()): string {
   const template = getMobileCaptureLinkTemplate();
   if (usesDirectAppLink(template)) {
     return mobileCaptureDeepLink(sessionId, template);
   }
-  return mobileCaptureUrl(sessionId);
+  return mobileCaptureUrl(sessionId, webBaseUrl);
 }
 
-export function getCaptureConfig() {
-  const webBaseUrl = getWebBaseUrl();
+export function getCaptureConfig(requestOrigin?: string) {
+  const webBaseUrl = getWebBaseUrl(requestOrigin);
   const mobileCaptureLinkTemplate = getMobileCaptureLinkTemplate();
   const useDirectExpoQr = usesDirectAppLink(mobileCaptureLinkTemplate);
   return { webBaseUrl, mobileCaptureLinkTemplate, useDirectExpoQr };
 }
 
-export function getCaptureConfigForSession(sessionId: string) {
-  const config = getCaptureConfig();
+export function getCaptureConfigForSession(sessionId: string, requestOrigin?: string) {
+  const config = getCaptureConfig(requestOrigin);
+  const webBaseUrl = config.webBaseUrl;
   return {
     ...config,
-    qrUrl: mobileCaptureQrUrl(sessionId),
+    qrUrl: mobileCaptureQrUrl(sessionId, webBaseUrl),
     deepLink: mobileCaptureDeepLink(sessionId),
-    webFallbackUrl: mobileCaptureUrl(sessionId),
+    webFallbackUrl: mobileCaptureUrl(sessionId, webBaseUrl),
   };
 }
