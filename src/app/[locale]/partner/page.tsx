@@ -53,6 +53,7 @@ export default function PartnerPage() {
   const { data: hunts, isLoading } = useManagedHunts();
   const deleteHunt = useDeleteHunt();
   const reset = useAuthStore((s) => s.reset);
+  const role = user?.role
 
   const myHunts = hunts?.filter((h) => h.partnerId === user?.id || user?.role === 'admin') ?? [];
   const partnerHunts = user?.role === 'admin' ? (hunts ?? []) : myHunts;
@@ -79,9 +80,9 @@ export default function PartnerPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-10">
           <div>
             <h1 className="font-[family-name:var(--font-syne)] text-3xl font-bold">
-              {t('heading')}
+              {role === 'admin' ? 'Admin studio' : t('heading')}
             </h1>
-            <p className="mt-2 text-white/50">{t('subhead')}</p>
+            <p className="mt-2 text-white/50">{role === 'admin' ? 'Manage hunts created by partners' : t('subhead')}</p>
           </div>
           <div className="flex gap-3">
             <Button asChild>
