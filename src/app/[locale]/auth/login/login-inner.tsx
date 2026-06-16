@@ -7,8 +7,11 @@ import { useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { get } from '@github/webauthn-json';
+import { Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { authApi } from '@/lib/api/auth';
+import { queryKeys } from '@/lib/api/queries';
 import { useAuthStore } from '@/lib/auth/session-store';
 import { createHuntSchemas } from '@/lib/schemas/hunt';
 import { getValidationMessages } from '@/lib/i18n/validation-messages';
@@ -22,6 +25,7 @@ export default function LoginPageInner() {
   const t = useTranslations('auth.login');
   const tv = useTranslations('validation');
   const router = useRouter();
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const next = searchParams.get('next') || '/dashboard';
   const { pendingToken, mfaMethods, setPendingMfa, clearPendingMfa, setUser } = useAuthStore();
@@ -43,6 +47,7 @@ export default function LoginPageInner() {
   const redirectByRole = async () => {
     const user = await authApi.me();
     setUser(user);
+    queryClient.setQueryData(queryKeys.me, user);
     if (user.role === 'admin') router.replace('/admin');
     else if (user.role === 'partner') router.replace('/partner');
     else router.replace(next.startsWith('/admin') || next.startsWith('/partner') ? '/dashboard' : next);
@@ -57,6 +62,7 @@ export default function LoginPageInner() {
       if (res.mfaRequired) {
         setPendingMfa(res.token, res.mfaMethods);
         toast.info(t('info.mfaRequired'));
+        setLoading(false);
         return;
       }
 
@@ -64,7 +70,6 @@ export default function LoginPageInner() {
       toast.success(t('toasts.welcomeBack'));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('toasts.loginFailed'));
-    } finally {
       setLoading(false);
     }
   };
@@ -80,7 +85,6 @@ export default function LoginPageInner() {
       toast.success(t('toasts.welcomeBack'));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('toasts.invalidCode'));
-    } finally {
       setLoading(false);
     }
   };
@@ -103,14 +107,18 @@ export default function LoginPageInner() {
       toast.success(t('toasts.signedInWithPasskey'));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('toasts.passkeyLoginFailed'));
-    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md">
+      <Card className="relative w-full max-w-md">
+        {loading ? (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/60 backdrop-blur-sm">
+            <Loader2 className="h-8 w-8 animate-spin text-gold" />
+          </div>
+        ) : null}
         <CardHeader>
           <CardTitle className="font-[family-name:var(--font-syne)] text-2xl">{t('title')}</CardTitle>
           <CardDescription>{t('description')}</CardDescription>
@@ -127,6 +135,7 @@ export default function LoginPageInner() {
                 maxLength={6}
               />
               <Button className="w-full" onClick={onTotpSubmit} disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {t('actions.verify')}
               </Button>
               <Button variant="ghost" className="w-full" onClick={clearPendingMfa}>
@@ -150,9 +159,11 @@ export default function LoginPageInner() {
                 )}
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {t('actions.signIn')}
               </Button>
               <Button type="button" variant="secondary" className="w-full" onClick={onPasskeyLogin} disabled={loading}>
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                 {t('actions.signInWithPasskey')}
               </Button>
             </form>
