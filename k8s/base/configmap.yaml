@@ -7,3 +7,4 @@ data:
   NEXT_PUBLIC_APP_DOWNLOAD_URL: "https://your-server.com/lootopia.apk"
   BACKEND_API_URL: "https://api.wookiesrpeople2.dev"
   NEXT_PUBLIC_APP_NAME: "Lootopia"
+  NEXT_PUBLIC_MOBILE_CAPTURE_LINK: exp://expo-dev.wookiesrpeople2.dev/--/capture/{sessionId}
