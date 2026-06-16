@@ -57,9 +57,6 @@ export default function ForgotPasswordPage() {
         </CardHeader>
         {sent ? (
           <CardContent className="space-y-4">
-            <Button asChild className="w-full">
-              <Link href="/auth/reset-password">{t('sent.cta')}</Link>
-            </Button>
             <p className="text-center text-sm">
               <Link href="/auth/login" className="text-teal hover:underline">
                 {t('links.backToSignIn')}

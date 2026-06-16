@@ -84,7 +84,7 @@ export default {
       sendLink: 'Send link',
       sentTitle: '📬 Sent',
       sentText:
-        'If an account exists for this address, a one-time reset link has just been sent. Open it on your phone, or enter the code you received:',
+        'If an account exists for this address, a one-time reset link has just been sent',
       receivedCode: 'I received my code',
       backToLogin: 'Back to sign in',
     },

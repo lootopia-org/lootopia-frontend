@@ -497,7 +497,7 @@ const en = {
       sent: {
         title: '📬 Sent',
         description:
-          'If an account exists for this address, a one-time reset link has just been sent. Open it on your phone, or enter the code you received:',
+          'If an account exists for this address, a one-time reset link has just been sent',
         cta: 'I received my code',
         default: 'Check your email for a reset link.',
       },
