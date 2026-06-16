@@ -58,7 +58,6 @@ export default function SettingsPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher />
             <Button variant="outline" size="sm" asChild>
               <Link href={user ? ROLE_HOME[user.role] : '/dashboard'}>{homeLabel}</Link>
             </Button>
