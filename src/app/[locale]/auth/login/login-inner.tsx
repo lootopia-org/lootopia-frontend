@@ -43,9 +43,9 @@ export default function LoginPageInner() {
   const redirectByRole = async () => {
     const user = await authApi.me();
     setUser(user);
-    if (user.role === 'admin') router.push('/admin');
-    else if (user.role === 'partner') router.push('/partner');
-    else router.push(next.startsWith('/admin') || next.startsWith('/partner') ? '/dashboard' : next);
+    if (user.role === 'admin') router.replace('/admin');
+    else if (user.role === 'partner') router.replace('/partner');
+    else router.replace(next.startsWith('/admin') || next.startsWith('/partner') ? '/dashboard' : next);
   };
 
   const onSubmit = async (data: LoginForm) => {
